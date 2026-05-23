@@ -1,0 +1,5 @@
+{{- $text := .Get 0 -}}
+{{- $noteId := .Get 1 -}}
+<mark class="highlight-note" data-note-id="{{ $noteId }}" onclick="window.HighlightNote.showNotePopup('{{ $noteId }}')">
+  {{ $text }}
+</mark>

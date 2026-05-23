@@ -1,0 +1,10 @@
+{{ if .Site.Params.highlightNote }}
+<meta name="highlight-note-enabled" content="true">
+<meta name="highlight-note-api" content="{{ .Site.Params.highlightNoteApi }}">
+
+{{ $noteCSS := resources.Get "css/highlight-note.css" | minify | fingerprint }}
+<link rel="stylesheet" href="{{ $noteCSS.RelPermalink }}">
+
+{{ $noteJS := resources.Get "js/highlight-note.js" | minify | fingerprint }}
+<script src="{{ $noteJS.RelPermalink }}" defer></script>
+{{ end }}
