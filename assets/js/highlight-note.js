@@ -2,7 +2,7 @@
   'use strict';
 
   const CONFIG = {
-    apiUrl: document.querySelector('meta[name="highlight-note-api"]')?.content || '',
+    apiUrl: (document.querySelector('meta[name="highlight-note-api"]')?.content || '').replace(/\/+$/, ''),
     enabled: document.querySelector('meta[name="highlight-note-enabled"]')?.content === 'true'
   };
 
