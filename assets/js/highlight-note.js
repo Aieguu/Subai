@@ -1,14 +1,129 @@
+const CONTENT_SELECTOR = '.content.main-reveal';
 (function () {
   'use strict';
 
-  const CONFIG = {
-    apiUrl: (document.querySelector('meta[name="highlight-note-api"]')?.content || '').replace(/\/+$/, ''),
-    enabled: document.querySelector('meta[name="highlight-note-enabled"]')?.content === 'true'
+  const DEFAULT_CONFIG = {
+    enabled: false,
+    apiBase: '',
+    maxSelectionLength: 2000,
+    auth: {
+      storageKey: 'ji.highlightNote.writeToken',
+      scheme: 'Bearer'
+    }
   };
 
+  const STATE = {
+    bound: false,
+    addButton: null,
+    loadedArticleKey: ''
+  };
+
+  const CONFIG = readConfig();
   if (!CONFIG.enabled) return;
 
-  // ========== Toast 通知 ==========
+  function readConfig() {
+    const configNode = document.getElementById('ji-highlight-note-config');
+    let parsed = {};
+
+    if (configNode && configNode.textContent) {
+      try {
+        parsed = JSON.parse(configNode.textContent);
+      } catch (error) {
+        console.error('Highlight note config parse failed:', error);
+      }
+    } else {
+      parsed = {
+        enabled: document.querySelector('meta[name="highlight-note-enabled"]')?.content === 'true',
+        apiBase: document.querySelector('meta[name="highlight-note-api"]')?.content || ''
+      };
+    }
+
+    return {
+      ...DEFAULT_CONFIG,
+      ...parsed,
+      apiBase: String(parsed.apiBase || '').replace(/\/+$/, ''),
+      auth: {
+        ...DEFAULT_CONFIG.auth,
+        ...(parsed.auth || {})
+      }
+    };
+  }
+
+  function getContentEl() {
+    return document.querySelector(CONTENT_SELECTOR);
+  }
+
+  function getArticleContext() {
+    const contentEl = getContentEl();
+    const pathParts = window.location.pathname.split('/').filter(Boolean);
+    const fallbackId = decodeURIComponent(pathParts[pathParts.length - 1] || '').toLowerCase();
+
+    return {
+      articleId: contentEl?.dataset.highlightArticleId || fallbackId,
+      articlePath: contentEl?.dataset.highlightArticlePath || '',
+      section: contentEl?.dataset.highlightSection || pathParts[0] || '',
+      pageUrl: window.location.pathname
+    };
+  }
+
+  function getWriteToken() {
+    try {
+      return localStorage.getItem(CONFIG.auth.storageKey) || '';
+    } catch (error) {
+      return '';
+    }
+  }
+
+  function setWriteToken(token) {
+    try {
+      if (token) {
+        localStorage.setItem(CONFIG.auth.storageKey, token);
+      } else {
+        localStorage.removeItem(CONFIG.auth.storageKey);
+      }
+    } catch (error) {
+      console.error('保存写入令牌失败:', error);
+    }
+  }
+
+  function canWrite() {
+    return Boolean(CONFIG.apiBase && getWriteToken());
+  }
+
+  function authHeaders() {
+    const token = getWriteToken();
+    if (!token) throw new Error('未配置划线笔记写入令牌');
+
+    return {
+      Authorization: `${CONFIG.auth.scheme} ${token}`
+    };
+  }
+
+  async function requestApi(path, options = {}) {
+    if (!CONFIG.apiBase) throw new Error('未配置划线笔记 API 地址');
+
+    const method = options.method || 'GET';
+    const query = new URLSearchParams(options.query || {});
+    const url = `${CONFIG.apiBase}${path}${query.toString() ? `?${query}` : ''}`;
+    const headers = {
+      Accept: 'application/json',
+      ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+      ...(options.auth ? authHeaders() : {})
+    };
+
+    const response = await fetch(url, {
+      method,
+      headers,
+      body: options.body ? JSON.stringify(options.body) : undefined
+    });
+
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok || result.success === false) {
+      throw new Error(result.error || `请求失败: ${response.status}`);
+    }
+
+    return result;
+  }
 
   function getToastContainer() {
     let container = document.getElementById('note-toast-container');
@@ -20,7 +135,7 @@
     return container;
   }
 
-  function showToast(message, type) {
+  function showToast(message, type = 'success') {
     const container = getToastContainer();
     const toast = document.createElement('div');
     toast.className = `note-toast note-toast-${type}`;
@@ -29,15 +144,25 @@
 
     setTimeout(() => {
       toast.classList.add('note-toast-hide');
-      toast.addEventListener('animationend', () => toast.remove());
+      toast.addEventListener('animationend', () => toast.remove(), { once: true });
     }, 3000);
   }
 
-  // ========== Loading 指示器 ==========
+  function escapeSelector(value) {
+    if (window.CSS && typeof window.CSS.escape === 'function') {
+      return window.CSS.escape(value);
+    }
+    return String(value).replace(/["\\]/g, '\\$&');
+  }
+
+  function getNoteEl(noteId) {
+    return document.querySelector(`.highlight-note[data-note-id="${escapeSelector(noteId)}"]`);
+  }
 
   function showLoading(noteId) {
-    const badge = document.querySelector(`[data-note-id="${noteId}"]`);
-    if (!badge) return;
+    const badge = getNoteEl(noteId);
+    if (!badge || badge.querySelector('.note-loading')) return;
+
     const loader = document.createElement('span');
     loader.className = 'note-loading';
     loader.dataset.noteId = noteId;
@@ -46,352 +171,592 @@
   }
 
   function hideLoading(noteId) {
-    const loader = document.querySelector(`.note-loading[data-note-id="${noteId}"]`);
+    const loader = document.querySelector(`.note-loading[data-note-id="${escapeSelector(noteId)}"]`);
     if (loader) loader.remove();
   }
 
-  // ========== 工具函数 ==========
-
-  function generateNoteId() {
-    return 'note-' + Math.random().toString(36).substr(2, 9);
-  }
-
-  function getArticleSlug() {
-    const path = window.location.pathname;
-    const match = path.match(/\/posts\/([^\/]+)\//);
-    return match ? decodeURIComponent(match[1]) : null;
-  }
-
-  // ========== API 操作 ==========
-
-  async function saveNote(selectedText, noteContent) {
-    const articleSlug = getArticleSlug();
-    if (!articleSlug) throw new Error('无法获取文章标识');
-
-    const response = await fetch(`${CONFIG.apiUrl}/api/notes`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ articleSlug, selectedText, noteContent })
+  function collectTextNodes(root) {
+    const nodes = [];
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        const parent = node.parentElement;
+        if (!parent) return NodeFilter.FILTER_REJECT;
+        if (parent.closest('script, style, textarea, button, .highlight-note, .note-dialog, .note-popup')) {
+          return NodeFilter.FILTER_REJECT;
+        }
+        return node.textContent ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+      }
     });
 
-    const result = await response.json();
-    if (!result.success) throw new Error(result.error || '保存失败');
+    let current;
+    while ((current = walker.nextNode())) {
+      nodes.push(current);
+    }
+    return nodes;
+  }
 
-    const note = {
+  function scoreCandidate(fullText, index, exact, selector = {}) {
+    let score = 0;
+    if (selector.prefix) {
+      const prefixStart = Math.max(0, index - selector.prefix.length);
+      if (fullText.slice(prefixStart, index).endsWith(selector.prefix)) score += 2;
+    }
+    if (selector.suffix) {
+      const suffixEnd = index + exact.length + selector.suffix.length;
+      if (fullText.slice(index + exact.length, suffixEnd).startsWith(selector.suffix)) score += 2;
+    }
+    return score;
+  }
+
+  function findTextMatch(contentEl, note) {
+    const exact = note.selectedText || note.selector?.exact;
+    if (!exact) return null;
+
+    const textNodes = collectTextNodes(contentEl);
+    const fullText = textNodes.map(node => node.textContent).join('');
+    const candidates = [];
+    let index = fullText.indexOf(exact);
+
+    while (index !== -1) {
+      candidates.push({
+        start: index,
+        end: index + exact.length,
+        score: scoreCandidate(fullText, index, exact, note.selector)
+      });
+      index = fullText.indexOf(exact, index + exact.length);
+    }
+
+    if (!candidates.length) return null;
+    candidates.sort((a, b) => b.score - a.score || a.start - b.start);
+    return { textNodes, ...candidates[0] };
+  }
+
+  function rangeFromOffsets(textNodes, start, end) {
+    const range = document.createRange();
+    let offset = 0;
+    let hasStart = false;
+
+    for (const node of textNodes) {
+      const text = node.textContent || '';
+      const nextOffset = offset + text.length;
+
+      if (!hasStart && start >= offset && start <= nextOffset) {
+        range.setStart(node, start - offset);
+        hasStart = true;
+      }
+
+      if (hasStart && end >= offset && end <= nextOffset) {
+        range.setEnd(node, end - offset);
+        return range;
+      }
+
+      offset = nextOffset;
+    }
+
+    return null;
+  }
+
+  function updateExistingNoteEl(el, note) {
+    el.dataset.noteId = note.id;
+    el.dataset.noteSelectedText = note.selectedText || el.textContent.trim();
+    if (note.noteContent) el.dataset.noteContent = note.noteContent;
+    el.classList.toggle('pending', note.status === 'pending');
+    el.classList.toggle('synced', note.status === 'synced');
+    el.classList.toggle('failed', note.status === 'failed');
+  }
+
+  function renderNoteOnPage(note) {
+    const contentEl = getContentEl();
+    if (!contentEl || !note?.id) return;
+
+    const existing = getNoteEl(note.id);
+    if (existing) {
+      updateExistingNoteEl(existing, note);
+      return;
+    }
+
+    const match = findTextMatch(contentEl, note);
+    if (!match) return;
+
+    const range = rangeFromOffsets(match.textNodes, match.start, match.end);
+    if (!range) return;
+
+    const mark = document.createElement('mark');
+    mark.className = `highlight-note ${note.status || 'pending'}`;
+    mark.dataset.noteId = note.id;
+    mark.dataset.noteSelectedText = note.selectedText || note.selector?.exact || '';
+    if (note.noteContent) mark.dataset.noteContent = note.noteContent;
+
+    mark.appendChild(range.extractContents());
+    range.insertNode(mark);
+  }
+
+  function unwrapNote(noteId) {
+    const mark = getNoteEl(noteId);
+    if (!mark || !mark.parentNode) return;
+
+    const parent = mark.parentNode;
+    while (mark.firstChild) {
+      parent.insertBefore(mark.firstChild, mark);
+    }
+    parent.removeChild(mark);
+    parent.normalize();
+  }
+
+  function buildSelector(selection, contentEl, selectedText) {
+    const range = selection.getRangeAt(0);
+    const prefixRange = document.createRange();
+    const suffixRange = document.createRange();
+
+    prefixRange.selectNodeContents(contentEl);
+    prefixRange.setEnd(range.startContainer, range.startOffset);
+
+    suffixRange.selectNodeContents(contentEl);
+    suffixRange.setStart(range.endContainer, range.endOffset);
+
+    return {
+      exact: selectedText,
+      prefix: prefixRange.toString().slice(-80),
+      suffix: suffixRange.toString().slice(0, 80)
+    };
+  }
+
+  async function saveNote(selectedText, noteContent, selector) {
+    const article = getArticleContext();
+    if (!article.articleId) throw new Error('无法获取文章标识');
+
+    const result = await requestApi('/api/notes', {
+      method: 'POST',
+      auth: true,
+      body: {
+        ...article,
+        selectedText,
+        noteContent,
+        selector: selector || { exact: selectedText }
+      }
+    });
+
+    renderNoteOnPage(result.note || {
       id: result.noteId,
-      articleSlug,
+      ...article,
       selectedText,
       noteContent,
+      selector,
       status: 'pending'
-    };
-    renderNoteOnPage(note);
+    });
+
     return result;
   }
 
   async function updateNote(noteId, newContent) {
-    const articleSlug = getArticleSlug();
-    if (!articleSlug) throw new Error('无法获取文章标识');
-
-    const response = await fetch(`${CONFIG.apiUrl}/api/notes/${noteId}`, {
+    const noteEl = getNoteEl(noteId);
+    const article = getArticleContext();
+    const result = await requestApi(`/api/notes/${encodeURIComponent(noteId)}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ articleSlug, noteContent: newContent })
+      auth: true,
+      body: {
+        ...article,
+        selectedText: noteEl?.dataset.noteSelectedText || noteEl?.textContent?.trim() || '',
+        noteContent: newContent
+      }
     });
 
-    const result = await response.json();
-    if (!result.success) throw new Error(result.error || '更新失败');
+    if (noteEl) {
+      noteEl.dataset.noteContent = newContent;
+      noteEl.classList.remove('synced', 'failed');
+      noteEl.classList.add('pending');
+    }
+
     return result;
   }
 
   async function deleteNote(noteId) {
-    const articleSlug = getArticleSlug();
-    if (!articleSlug) throw new Error('无法获取文章标识');
+    const noteEl = getNoteEl(noteId);
+    const article = getArticleContext();
 
-    const badge = document.querySelector(`[data-note-id="${noteId}"]`);
-    if (badge) {
-      const parent = badge.parentNode;
-      parent.replaceChild(document.createTextNode(badge.textContent), badge);
-    }
-
-    const response = await fetch(`${CONFIG.apiUrl}/api/notes/${noteId}`, {
+    const result = await requestApi(`/api/notes/${encodeURIComponent(noteId)}`, {
       method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ articleSlug })
+      auth: true,
+      body: {
+        ...article,
+        selectedText: noteEl?.dataset.noteSelectedText || noteEl?.textContent?.trim() || ''
+      }
     });
 
-    const result = await response.json();
-    if (!result.success) throw new Error(result.error || '删除失败');
+    unwrapNote(noteId);
     return result;
   }
 
   async function getNoteContent(noteId) {
-    const hugoNote = document.querySelector(`[data-note-content="${noteId}"]`);
-    if (hugoNote) return hugoNote.innerHTML;
+    const noteEl = getNoteEl(noteId);
+    if (noteEl?.dataset.noteContent) return noteEl.dataset.noteContent;
+    if (!canWrite()) return null;
 
-    try {
-      const response = await fetch(`${CONFIG.apiUrl}/api/notes/${noteId}`);
-      const result = await response.json();
-      if (result.success && result.note) return result.note.noteContent;
-    } catch (e) {
-      console.error('获取笔记失败:', e);
-    }
-    return null;
-  }
-
-  // ========== 渲染笔记标记 ==========
-
-  function renderNoteOnPage(note) {
-    const contentEl = document.querySelector('.content.main-reveal');
-    if (!contentEl) return;
-
-    if (document.querySelector(`[data-note-id="${note.id}"]`)) return;
-
-    const walker = document.createTreeWalker(
-      contentEl, NodeFilter.SHOW_TEXT, null, false
-    );
-
-    let node;
-    while (node = walker.nextNode()) {
-      const index = node.textContent.indexOf(note.selectedText);
-      if (index !== -1) {
-        const before = node.textContent.substring(0, index);
-        const after = node.textContent.substring(index + note.selectedText.length);
-
-        const mark = document.createElement('mark');
-        mark.className = `highlight-note ${note.status || ''}`;
-        mark.dataset.noteId = note.id;
-        mark.textContent = note.selectedText;
-        mark.onclick = () => showNotePopup(note.id);
-
-        const parent = node.parentNode;
-        if (before) parent.insertBefore(document.createTextNode(before), node);
-        parent.insertBefore(mark, node);
-        if (after) parent.insertBefore(document.createTextNode(after), node);
-        parent.removeChild(node);
-        break;
+    const article = getArticleContext();
+    const result = await requestApi(`/api/notes/${encodeURIComponent(noteId)}`, {
+      auth: true,
+      query: {
+        articleId: article.articleId,
+        articlePath: article.articlePath
       }
+    });
+
+    if (result.note?.noteContent && noteEl) {
+      noteEl.dataset.noteContent = result.note.noteContent;
     }
+    return result.note?.noteContent || null;
   }
 
-  // ========== 笔记弹窗 ==========
+  // SVG 图标
+  const svgCheckmark = '<svg viewBox="0 0 24 24"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>';
+  const svgPencil = '<svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>';
+  const svgTrash = '<svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>';
+  const svgClose = '<svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>';
+
+  function createIconButton(className, title, svg, onClick) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = className;
+    button.setAttribute('data-tooltip', title);
+    button.innerHTML = svg;
+    button.addEventListener('click', onClick);
+    return button;
+  }
+
+  function createButton(className, text, onClick) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = className;
+    button.textContent = text;
+    button.addEventListener('click', onClick);
+    return button;
+  }
+
+  function createDialog(selectedText, initialContent, onSave) {
+    const overlay = document.createElement('div');
+    overlay.className = 'note-dialog';
+
+    const card = document.createElement('div');
+    card.className = 'note-card';
+
+    // 头部：选中文字 + 确认/关闭按钮
+    const header = document.createElement('header');
+    header.className = 'note-card__header';
+
+    const title = document.createElement('h3');
+    title.className = 'note-card__title';
+    title.textContent = selectedText;
+    title.title = selectedText;
+
+    const actions = document.createElement('div');
+    actions.className = 'note-card__actions';
+
+    const btnConfirm = createIconButton('note-card__btn note-card__btn--confirm', '确认', svgCheckmark, () => {
+      const value = textarea.value.trim();
+      if (!value) return;
+      overlay.remove();
+      onSave(value);
+    });
+
+    const btnClose = createIconButton('note-card__btn', '关闭', svgClose, () => overlay.remove());
+
+    actions.append(btnConfirm, btnClose);
+    header.append(title, actions);
+
+    // 内容区：输入框
+    const viewContainer = document.createElement('div');
+    viewContainer.className = 'note-card__view-container';
+
+    const textarea = document.createElement('textarea');
+    textarea.className = 'note-card__textarea';
+    textarea.placeholder = '输入笔记内容...';
+    textarea.value = initialContent || '';
+
+    viewContainer.appendChild(textarea);
+
+    card.append(header, viewContainer);
+    overlay.appendChild(card);
+    overlay.addEventListener('click', event => {
+      if (event.target === overlay) overlay.remove();
+    });
+    document.body.appendChild(overlay);
+    textarea.focus();
+  }
 
   async function showNotePopup(noteId) {
     showLoading(noteId);
     const noteContent = await getNoteContent(noteId);
     hideLoading(noteId);
 
-    if (!noteContent) return;
+    if (!noteContent) {
+      showToast('未找到笔记内容', 'error');
+      return;
+    }
 
-    const badge = document.querySelector(`[data-note-id="${noteId}"]`);
-    const selectedText = badge ? badge.textContent : '';
+    const badge = getNoteEl(noteId);
+    const selectedText = badge?.dataset.noteSelectedText || badge?.textContent?.trim() || '';
+    const writable = canWrite();
+    const statusName = badge?.classList.contains('pending') ? 'pending' : 'synced';
 
-    const popup = document.createElement('div');
-    popup.className = 'note-popup';
-    popup.innerHTML = `
-      <div class="note-popup-content">
-        <div class="note-popup-header">
-          <h3>笔记</h3>
-          <button class="note-popup-close">&times;</button>
-        </div>
-        <div class="note-popup-body">
-          <p class="note-selected-text">"${selectedText}"</p>
-          <div class="note-content">${noteContent}</div>
-        </div>
-        <div class="note-popup-footer">
-          <div class="note-footer-left">
-            <span class="note-status pending">待同步</span>
-          </div>
-          <div class="note-footer-right">
-            <button class="btn btn-secondary note-edit-btn">编辑</button>
-            <button class="btn btn-danger note-delete-btn">删除</button>
-          </div>
-        </div>
-      </div>
-    `;
+    // 遮罩层
+    const overlay = document.createElement('div');
+    overlay.className = 'note-popup';
 
-    popup.querySelector('.note-popup-close').onclick = () => popup.remove();
-    popup.onclick = (e) => { if (e.target === popup) popup.remove(); };
+    // 卡片
+    const card = document.createElement('div');
+    card.className = 'note-card';
 
-    popup.querySelector('.note-edit-btn').onclick = () => {
-      popup.remove();
-      showEditDialog(noteId, selectedText, noteContent);
-    };
+    // 头部：标题 + 操作按钮
+    const header = document.createElement('header');
+    header.className = 'note-card__header';
 
-    popup.querySelector('.note-delete-btn').onclick = () => {
-      popup.remove();
-      deleteNote(noteId).then(
-        () => showToast('笔记已删除', 'success'),
-        (err) => showToast('删除失败: ' + err.message, 'error')
-      );
-    };
+    const title = document.createElement('h3');
+    title.className = `note-card__title note-card__title--${statusName}`;
+    title.textContent = selectedText;
 
-    document.body.appendChild(popup);
-  }
+    const actions = document.createElement('div');
+    actions.className = 'note-card__actions';
 
-  // ========== 编辑对话框 ==========
+    if (writable) {
+      // 确认按钮（编辑模式下显示）
+      const btnConfirm = createIconButton('note-card__btn note-card__btn--confirm', '确定', svgCheckmark, () => {
+        if (!card.classList.contains('is-editing')) return;
+        const newContent = textarea.value.trim();
+        if (!newContent) return;
+        card.classList.remove('is-editing');
+        readView.textContent = newContent;
+        btnConfirm.style.display = 'none';
+        btnEdit.style.display = 'flex';
+        updateNote(noteId, newContent).then(
+          () => showToast('笔记已更新'),
+          error => {
+            showToast(`更新失败: ${error.message}`, 'error');
+            readView.textContent = noteContent;
+          }
+        );
+      });
+      btnConfirm.style.display = 'none';
 
-  function showEditDialog(noteId, selectedText, currentContent) {
-    const dialog = document.createElement('div');
-    dialog.className = 'note-dialog';
-    dialog.innerHTML = `
-      <div class="note-dialog-content">
-        <div class="note-dialog-header">
-          <h3>编辑笔记</h3>
-          <button class="note-dialog-close">&times;</button>
-        </div>
-        <div class="note-dialog-body">
-          <p class="note-selected-preview">"${selectedText}"</p>
-          <textarea class="note-input" placeholder="输入笔记内容...">${currentContent}</textarea>
-        </div>
-        <div class="note-dialog-footer">
-          <button class="btn btn-secondary note-cancel-btn">取消</button>
-          <button class="btn btn-primary note-save-btn">保存</button>
-        </div>
-      </div>
-    `;
+      // 编辑按钮
+      const btnEdit = createIconButton('note-card__btn note-card__btn--edit', '修改', svgPencil, () => {
+        textarea.value = readView.textContent.trim();
+        card.classList.add('is-editing');
+        textarea.focus();
+        btnEdit.style.display = 'none';
+        btnConfirm.style.display = 'flex';
+      });
 
-    dialog.querySelector('.note-dialog-close').onclick = () => dialog.remove();
-    dialog.querySelector('.note-cancel-btn').onclick = () => dialog.remove();
-    dialog.querySelector('.note-save-btn').onclick = () => {
-      const newContent = dialog.querySelector('.note-input').value.trim();
-      if (!newContent) return;
-      dialog.remove();
-      updateNote(noteId, newContent).then(
-        () => showToast('笔记已更新', 'success'),
-        (err) => showToast('更新失败: ' + err.message, 'error')
-      );
-    };
+      // 删除按钮
+      const btnDelete = createIconButton('note-card__btn note-card__btn--delete', '删除', svgTrash, () => {
+        overlay.remove();
+        deleteNote(noteId).then(
+          () => showToast('笔记已删除'),
+          error => showToast(`删除失败: ${error.message}`, 'error')
+        );
+      });
 
-    document.body.appendChild(dialog);
-    dialog.querySelector('.note-input').focus();
-  }
+      actions.append(btnConfirm, btnEdit, btnDelete);
+    }
 
-  // ========== 添加笔记对话框 ==========
+    header.append(title, actions);
 
-  function showAddDialog(selectedText) {
-    const dialog = document.createElement('div');
-    dialog.className = 'note-dialog';
-    dialog.innerHTML = `
-      <div class="note-dialog-content">
-        <div class="note-dialog-header">
-          <h3>添加笔记</h3>
-          <button class="note-dialog-close">&times;</button>
-        </div>
-        <div class="note-dialog-body">
-          <p class="note-selected-preview">"${selectedText}"</p>
-          <textarea class="note-input" placeholder="输入笔记内容..."></textarea>
-        </div>
-        <div class="note-dialog-footer">
-          <button class="btn btn-secondary note-cancel-btn">取消</button>
-          <button class="btn btn-primary note-save-btn">保存</button>
-        </div>
-      </div>
-    `;
+    // 内容区：阅读视图 + 编辑视图
+    const viewContainer = document.createElement('div');
+    viewContainer.className = 'note-card__view-container';
 
-    dialog.querySelector('.note-dialog-close').onclick = () => dialog.remove();
-    dialog.querySelector('.note-cancel-btn').onclick = () => dialog.remove();
-    dialog.querySelector('.note-save-btn').onclick = () => {
-      const noteContent = dialog.querySelector('.note-input').value.trim();
-      if (!noteContent) return;
-      dialog.remove();
-      saveNote(selectedText, noteContent).then(
-        () => showToast('笔记已添加', 'success'),
-        (err) => showToast('保存失败: ' + err.message, 'error')
-      );
-    };
+    const readView = document.createElement('div');
+    readView.className = 'note-card__view note-card__view--read';
+    readView.textContent = noteContent;
 
-    document.body.appendChild(dialog);
-    dialog.querySelector('.note-input').focus();
-  }
+    const editView = document.createElement('div');
+    editView.className = 'note-card__view note-card__view--edit';
+    const textarea = document.createElement('textarea');
+    textarea.className = 'note-card__textarea';
+    editView.appendChild(textarea);
 
-  // ========== 选中文本监听 ==========
+    viewContainer.append(readView, editView);
+    card.append(header, viewContainer);
 
-  function initSelectionListener() {
-    let addBtn = null;
-
-    document.addEventListener('mouseup', function () {
-      setTimeout(() => {
-        const selection = window.getSelection();
-        const selectedText = selection.toString().trim();
-
-        const contentEl = document.querySelector('.content.main-reveal');
-        if (!contentEl || !contentEl.contains(selection.anchorNode)) {
-          hideAddBtn();
-          return;
-        }
-
-        if (selectedText.length > 0) {
-          showAddBtn(selection, selectedText);
-        } else {
-          hideAddBtn();
-        }
-      }, 10);
+    overlay.appendChild(card);
+    overlay.addEventListener('click', event => {
+      if (event.target === overlay) overlay.remove();
     });
 
-    function showAddBtn(selection, text) {
-      if (!addBtn) {
-        addBtn = document.createElement('button');
-        addBtn.id = 'add-note-btn';
-        addBtn.textContent = '添加笔记';
-        document.body.appendChild(addBtn);
-      }
-
-      const range = selection.getRangeAt(0);
-      const rect = range.getBoundingClientRect();
-
-      addBtn.style.display = 'block';
-      addBtn.style.left = `${rect.right + window.scrollX + 4}px`;
-      addBtn.style.top = `${rect.top + window.scrollY - 4}px`;
-      addBtn.onclick = () => {
-        hideAddBtn();
-        showAddDialog(text);
-      };
-    }
-
-    function hideAddBtn() {
-      if (addBtn) addBtn.style.display = 'none';
-    }
+    document.body.appendChild(overlay);
   }
 
-  // ========== 初始化 ==========
+  function showAddDialog(selectedText, selector) {
+    createDialog(selectedText, '', noteContent => {
+      saveNote(selectedText, noteContent, selector).then(
+        () => showToast('笔记已添加'),
+        error => showToast(`保存失败: ${error.message}`, 'error')
+      );
+    });
+  }
 
-  async function loadNotes() {
-    const articleSlug = getArticleSlug();
-    if (!articleSlug || !CONFIG.apiUrl) return;
+  function hideAddButton() {
+    if (STATE.addButton) STATE.addButton.style.display = 'none';
+  }
+
+  function showAddButton(range, selectedText, selector) {
+    if (!STATE.addButton) {
+      STATE.addButton = document.createElement('button');
+      STATE.addButton.id = 'add-note-btn';
+      STATE.addButton.type = 'button';
+      STATE.addButton.textContent = '添加笔记';
+      document.body.appendChild(STATE.addButton);
+    }
+
+    const rect = range.getBoundingClientRect();
+    STATE.addButton.style.display = 'block';
+    STATE.addButton.style.left = `${rect.right + window.scrollX + 4}px`;
+    STATE.addButton.style.top = `${rect.top + window.scrollY - 4}px`;
+    STATE.addButton.onclick = () => {
+      hideAddButton();
+      showAddDialog(selectedText, selector);
+    };
+  }
+
+  function handleSelection() {
+    if (!canWrite()) {
+      hideAddButton();
+      return;
+    }
+
+    const selection = window.getSelection();
+    const contentEl = getContentEl();
+    if (!selection || !selection.rangeCount || !contentEl) {
+      hideAddButton();
+      return;
+    }
+
+    const selectedText = selection.toString().trim();
+    const range = selection.getRangeAt(0);
+    if (
+      !selectedText ||
+      selectedText.length > CONFIG.maxSelectionLength ||
+      !contentEl.contains(range.commonAncestorContainer)
+    ) {
+      hideAddButton();
+      return;
+    }
+
+    showAddButton(range, selectedText, buildSelector(selection, contentEl, selectedText));
+  }
+
+  async function loadPendingNotes() {
+    const article = getArticleContext();
+    const articleKey = article.articlePath || article.articleId;
+    if (!articleKey || !canWrite() || STATE.loadedArticleKey === articleKey) return;
+
+    STATE.loadedArticleKey = articleKey;
 
     try {
-      const response = await fetch(`${CONFIG.apiUrl}/api/notes?articleSlug=${encodeURIComponent(articleSlug)}`);
-      const result = await response.json();
-      if (result.success && result.notes) {
-        result.notes.forEach(note => renderNoteOnPage({
-          id: note.id,
-          articleSlug: note.articleSlug,
-          selectedText: note.selectedText,
-          noteContent: note.noteContent,
-          status: 'pending'
-        }));
-        showToast(`未同步笔记已加载，共${result.notes.length}个`, 'success');
+      const result = await requestApi('/api/notes', {
+        auth: true,
+        query: {
+          articleId: article.articleId,
+          articlePath: article.articlePath
+        }
+      });
+
+      if (Array.isArray(result.notes)) {
+        result.notes.forEach(note => renderNoteOnPage({ ...note, status: note.status || 'pending' }));
+        if (result.notes.length) showToast(`未同步笔记已加载，共${result.notes.length}个`);
       }
-    } catch (e) {
-      console.error('加载笔记失败:', e);
+    } catch (error) {
+      console.error('加载未同步笔记失败:', error);
     }
   }
 
-  function init() {
-    initSelectionListener();
+  function bindGlobalEvents() {
+    if (STATE.bound) return;
+    STATE.bound = true;
 
-    document.querySelectorAll('.highlight-note[data-note-id]').forEach(el => {
-      el.onclick = () => showNotePopup(el.dataset.noteId);
+    document.addEventListener('click', event => {
+      const noteEl = event.target.closest?.('.highlight-note[data-note-id]');
+      if (!noteEl) return;
+      showNotePopup(noteEl.dataset.noteId);
     });
 
-    loadNotes();
+    document.addEventListener('mouseup', () => setTimeout(handleSelection, 10));
+    document.addEventListener('keyup', event => {
+      if (event.key === 'Shift' || event.key.startsWith('Arrow')) {
+        setTimeout(handleSelection, 10);
+      }
+    });
+  }
+
+  function showTokenDialog() {
+    const overlay = document.createElement('div');
+    overlay.className = 'note-dialog';
+
+    const card = document.createElement('div');
+    card.className = 'note-card';
+
+    // 头部
+    const header = document.createElement('header');
+    header.className = 'note-card__header';
+
+    const title = document.createElement('h3');
+    title.className = 'note-card__title';
+    title.textContent = '划线笔记设置';
+
+    const actions = document.createElement('div');
+    actions.className = 'note-card__actions';
+
+    const btnConfirm = createIconButton('note-card__btn note-card__btn--confirm', '确认', svgCheckmark, () => {
+      const token = input.value.trim();
+      if (!token) return;
+      setWriteToken(token);
+      overlay.remove();
+      showToast('令牌已保存，刷新页面后生效');
+    });
+
+    const btnClose = createIconButton('note-card__btn', '关闭', svgClose, () => overlay.remove());
+
+    actions.append(btnConfirm, btnClose);
+    header.append(title, actions);
+
+    // 内容区：输入框
+    const viewContainer = document.createElement('div');
+    viewContainer.className = 'note-card__view-container';
+
+    const input = document.createElement('input');
+    input.className = 'note-card__textarea';
+    input.type = 'password';
+    input.placeholder = 'WRITE_TOKEN';
+    input.value = getWriteToken();
+
+    viewContainer.appendChild(input);
+
+    card.append(header, viewContainer);
+    overlay.appendChild(card);
+    overlay.addEventListener('click', event => {
+      if (event.target === overlay) overlay.remove();
+    });
+    document.body.appendChild(overlay);
+    input.focus();
+  }
+
+  function bindTokenSettingsButton() {
+    const btn = document.getElementById('note-token-settings');
+    if (btn) btn.addEventListener('click', showTokenDialog);
+  }
+  function init() {
+    bindGlobalEvents();
+    hideAddButton();
+    loadPendingNotes();
+    bindTokenSettingsButton();
   }
 
   window.HighlightNote = {
     showNotePopup,
     saveNote,
     updateNote,
-    deleteNote
+    deleteNote,
+    setWriteToken,
+    clearWriteToken: () => setWriteToken('')
   };
 
   if (document.readyState === 'loading') {
@@ -400,6 +765,8 @@
     init();
   }
 
-  document.addEventListener('ji:page-ready', init);
-
+  document.addEventListener('ji:page-ready', () => {
+    STATE.loadedArticleKey = '';
+    init();
+  });
 })();

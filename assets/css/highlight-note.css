@@ -2,6 +2,7 @@
 
 .highlight-note {
   background: none;
+  color: inherit;
   border-bottom: 2px solid var(--color-accent, #f59e0b);
   cursor: pointer;
   transition: border-color var(--transition-fast, 150ms);
@@ -146,8 +147,7 @@
   animation: fadeIn 0.2s;
 }
 
-.note-dialog-content,
-.note-popup-content {
+.note-dialog-content {
   background: var(--color-bg, #ffffff);
   border: 1px solid var(--color-border, #e2e8f0);
   border-radius: var(--radius-lg, 8px);
@@ -159,8 +159,227 @@
   animation: slideUp 0.25s ease;
 }
 
-.note-dialog-header,
-.note-popup-header {
+/* 卡片式弹窗 */
+.note-card {
+  width: 320px;
+  background: var(--color-bg, #ffffff);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.03);
+  padding: 16px;
+  color: var(--color-text, #333333);
+  overflow: hidden;
+  animation: slideUp 0.25s ease;
+}
+
+.note-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  gap: 12px;
+}
+
+.note-card__title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.note-card__title--pending {
+  color: var(--color-accent, #f59e0b);
+}
+
+.note-card__title--synced {
+  color: #10b981;
+}
+
+.note-card__title--failed {
+  color: #ef4444;
+}
+
+.note-card__actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.note-card__btn {
+  position: relative;
+}
+
+.note-card__btn::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 8px;
+  background: var(--color-text, #1e293b);
+  color: var(--color-bg, #fff);
+  font-size: 12px;
+  line-height: 1;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.note-card__btn:hover::after {
+  opacity: 1;
+}
+
+.theme-dark .note-card__btn::after {
+  background: var(--color-text-dark, #f1f5f9);
+  color: var(--color-bg-dark, #1e293b);
+}
+.note-card__btn {
+  background: transparent;
+  border: none;
+  padding: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary, #64748b);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.note-card__btn svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.note-card__btn:hover {
+  background: var(--color-bg-secondary, #f1f5f9);
+  color: var(--color-text, #0f172a);
+}
+
+.note-card__btn--delete:hover {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.note-card__btn--confirm {
+  color: #10b981;
+}
+
+.note-card__btn--confirm:hover {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.theme-dark .note-card__btn--confirm {
+  color: #4ade80;
+}
+
+.theme-dark .note-card__btn--confirm:hover {
+  background: #14532d;
+  color: #86efac;
+}
+
+.note-card__view-container {
+  position: relative;
+  min-height: 48px;
+}
+
+.note-card__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border, #e2e8f0);
+}
+
+.theme-dark .note-card__footer {
+  border-color: var(--color-border-dark, #334155);
+}
+
+.note-card__view {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-text-secondary, #475569);
+  word-wrap: break-word;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  will-change: opacity, transform;
+}
+
+.note-card__textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 0;
+  border: none;
+  border-bottom: 2px solid var(--color-border, #e2e8f0);
+  border-radius: 0;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-text, #334155);
+  resize: vertical;
+  min-height: 100px;
+  background: transparent;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+input.note-card__textarea {
+  min-height: auto;
+  resize: none;
+}
+
+.note-card__textarea::placeholder {
+  color: var(--color-text-muted, #94a3b8);
+}
+
+.note-card__textarea:focus {
+  border-bottom-color: var(--color-primary, #2563eb);
+}
+
+.theme-dark .note-card__textarea {
+  color: var(--color-text-dark, #f1f5f9);
+  border-bottom-color: var(--color-border-dark, #334155);
+}
+
+.theme-dark .note-card__textarea::placeholder {
+  color: var(--color-text-muted-dark, #64748b);
+}
+
+.theme-dark .note-card__textarea:focus {
+  border-bottom-color: var(--color-primary, #3b82f6);
+}
+
+.note-card__view--edit {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(10px);
+}
+
+.note-card.is-editing .note-card__view--read {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-10px);
+}
+
+.note-card.is-editing .note-card__view--edit {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(0);
+  position: relative;
+}
+
+/* 对话框样式 */
+.note-dialog-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -168,16 +387,14 @@
   border-bottom: 1px solid var(--color-border, #e2e8f0);
 }
 
-.note-dialog-header h3,
-.note-popup-header h3 {
+.note-dialog-header h3 {
   margin: 0;
   font-size: var(--font-size-base, 1rem);
   font-weight: 600;
   color: var(--color-text, #1e293b);
 }
 
-.note-dialog-close,
-.note-popup-close {
+.note-dialog-close {
   background: none;
   border: none;
   font-size: 20px;
@@ -188,18 +405,15 @@
   transition: color var(--transition-fast, 150ms);
 }
 
-.note-dialog-close:hover,
-.note-popup-close:hover {
+.note-dialog-close:hover {
   color: var(--color-text, #1e293b);
 }
 
-.note-dialog-body,
-.note-popup-body {
+.note-dialog-body {
   padding: 20px;
 }
 
-.note-selected-preview,
-.note-selected-text {
+.note-selected-preview {
   background: var(--color-bg-secondary, #f8fafc);
   padding: 10px 14px;
   border-radius: var(--radius-sm, 4px);
@@ -232,68 +446,34 @@
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-.note-content {
-  line-height: 1.6;
-  color: var(--color-text, #1e293b);
-}
-
-.note-dialog-footer,
-.note-popup-footer {
+.note-dialog-footer {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   padding: 12px 20px;
   border-top: 1px solid var(--color-border, #e2e8f0);
-}
-
-.note-footer-left {
-  display: flex;
-  align-items: center;
   gap: 8px;
-}
-
-.note-footer-right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.note-status {
-  padding: 2px 8px;
-  border-radius: var(--radius-sm, 4px);
-  font-size: var(--font-size-xs, 0.75rem);
-}
-
-.note-status.pending {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.note-status.synced {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-.note-status.failed {
-  background: #fee2e2;
-  color: #991b1b;
 }
 
 /* ========== 按钮 ========== */
 
 .btn {
-  padding: 7px 14px;
-  border-radius: var(--radius-sm, 4px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
   font-size: var(--font-size-sm, 0.875rem);
-  font-family: var(--font-family-base, system-ui, sans-serif);
+  font-weight: 500;
+  border-radius: var(--radius-md, 6px);
+  border: 1px solid transparent;
   cursor: pointer;
-  border: none;
   transition: all var(--transition-fast, 150ms);
 }
 
 .btn-primary {
   background: var(--color-primary, #2563eb);
   color: white;
+  border-color: var(--color-primary, #2563eb);
 }
 
 .btn-primary:hover {
@@ -301,9 +481,9 @@
 }
 
 .btn-secondary {
-  background: var(--color-bg-secondary, #f8fafc);
+  background: var(--color-bg, #ffffff);
   color: var(--color-text, #1e293b);
-  border: 1px solid var(--color-border, #e2e8f0);
+  border-color: var(--color-border, #e2e8f0);
 }
 
 .btn-secondary:hover {
@@ -313,7 +493,13 @@
 .btn-danger {
   background: #ef4444;
   color: white;
+  border-color: #ef4444;
 }
+
+.btn-danger:hover {
+  background: #dc2626;
+}
+
 
 .btn-danger:hover {
   background: #dc2626;
@@ -321,19 +507,53 @@
 
 /* ========== Dark Mode ========== */
 
-.theme-dark .note-dialog-header h3,
-.theme-dark .note-popup-header h3 {
+.theme-dark .note-dialog-header h3 {
   color: var(--color-text-dark, #f1f5f9);
 }
 
-.theme-dark .note-dialog-close:hover,
-.theme-dark .note-popup-close:hover {
+.theme-dark .note-dialog-close:hover {
   color: var(--color-text-dark, #f1f5f9);
 }
 
-.theme-dark .note-content {
+.theme-dark .note-card {
+  background: var(--color-bg-dark, #1e293b);
   color: var(--color-text-dark, #f1f5f9);
 }
+
+.theme-dark .note-card__title {
+  color: var(--color-text-dark, #f1f5f9);
+}
+
+.theme-dark .note-card__title--pending {
+  color: #fbbf24;
+}
+
+.theme-dark .note-card__title--synced {
+  color: #4ade80;
+}
+
+.theme-dark .note-card__title--failed {
+  color: #f87171;
+}
+
+.theme-dark .note-card__btn {
+  color: var(--color-text-secondary-dark, #94a3b8);
+}
+
+.theme-dark .note-card__btn:hover {
+  background: var(--color-bg-secondary-dark, #334155);
+  color: var(--color-text-dark, #f1f5f9);
+}
+
+.theme-dark .note-card__btn--delete:hover {
+  background: #7f1d1d;
+  color: #fca5a5;
+}
+
+.theme-dark .note-card__view {
+  color: var(--color-text-secondary-dark, #cbd5e1);
+}
+
 
 .theme-dark .note-toast-success {
   color: #4ade80;
@@ -355,4 +575,65 @@
 @keyframes slideUp {
   from { transform: translateY(16px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
+}
+
+/* ========== 令牌设置按钮 ========== */
+
+#note-token-settings {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  opacity: 0.4;
+  transition: opacity 0.2s;
+}
+
+#note-token-settings::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 8px;
+  background: var(--color-text, #1e293b);
+  color: var(--color-bg, #fff);
+  font-size: 12px;
+  line-height: 1;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+#note-token-settings:hover::after {
+  opacity: 1;
+}
+
+.theme-dark #note-token-settings::after {
+  background: var(--color-text-dark, #f1f5f9);
+  color: var(--color-bg-dark, #1e293b);
+}
+
+#note-token-settings:hover {
+  opacity: 0.8;
+}
+
+#note-token-settings svg {
+  width: 16px;
+  height: 16px;
+  color: var(--color-text-secondary, #64748b);
+}
+
+.theme-dark #note-token-settings svg {
+  color: var(--color-text-secondary-dark, #94a3b8);
 }

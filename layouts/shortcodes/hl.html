@@ -2,16 +2,18 @@
 {{- $noteId := .Get 1 -}}
 {{- $content := "" -}}
 {{- $notesDir := "content/notes" -}}
-{{- $entries := readDir $notesDir -}}
-{{- range $entries -}}
-  {{- if .IsDir -}}
-    {{- $notePath := printf "%s/%s/%s.md" $notesDir .Name $noteId -}}
-    {{- if fileExists $notePath -}}
-      {{- $raw := readFile $notePath -}}
-      {{- $content = replaceRE "(?s)^---\\n[\\s\\S]*?\\n---\\n" "" $raw | trim -}}
+{{- if fileExists $notesDir -}}
+  {{- $entries := readDir $notesDir -}}
+  {{- range $entries -}}
+    {{- if .IsDir -}}
+      {{- $notePath := printf "%s/%s/%s.md" $notesDir .Name $noteId -}}
+      {{- if fileExists $notePath -}}
+        {{- $raw := readFile $notePath -}}
+        {{- $content = replaceRE "(?s)^---\\r?\\n[\\s\\S]*?\\n---\\r?\\n" "" $raw | strings.TrimSpace -}}
+      {{- end -}}
     {{- end -}}
   {{- end -}}
 {{- end -}}
-<mark class="highlight-note" data-note-id="{{ $noteId }}"{{ if $content }} data-note-content="{{ $content | htmlEscape }}"{{ end }} onclick="window.HighlightNote.showNotePopup('{{ $noteId }}')">
+<mark class="highlight-note synced" data-note-id="{{ $noteId }}" data-note-selected-text="{{ $text | htmlEscape }}"{{ if $content }} data-note-content="{{ $content | htmlEscape }}"{{ end }}>
   {{ $text }}
 </mark>

@@ -1,10 +1,28 @@
-{{ if .Site.Params.highlightNote }}
-<meta name="highlight-note-enabled" content="true">
-<meta name="highlight-note-api" content="{{ .Site.Params.highlightNoteApi }}">
+{{- $plugin := dict -}}
+{{- with .Site.Params.plugins -}}
+  {{- with .highlightNote -}}
+    {{- $plugin = . -}}
+  {{- end -}}
+{{- end -}}
+{{- $enabled := or (.Site.Params.highlightNote | default false) ($plugin.enabled | default false) -}}
+{{- if $enabled -}}
+{{- $apiBase := $plugin.apiBase | default .Site.Params.highlightNoteApi | default "" -}}
+{{- $tokenStorageKey := $plugin.writeTokenStorageKey | default "ji.highlightNote.writeToken" -}}
+{{- $maxSelectionLength := $plugin.maxSelectionLength | default 2000 -}}
+{{- $config := dict
+  "enabled" true
+  "apiBase" $apiBase
+  "maxSelectionLength" $maxSelectionLength
+  "auth" (dict
+    "storageKey" $tokenStorageKey
+    "scheme" "Bearer"
+  )
+-}}
+<script id="ji-highlight-note-config" type="application/json">{{ $config | jsonify | safeJS }}</script>
 
 {{ $noteCSS := resources.Get "css/highlight-note.css" | minify | fingerprint }}
 <link rel="stylesheet" href="{{ $noteCSS.RelPermalink }}">
 
 {{ $noteJS := resources.Get "js/highlight-note.js" | minify | fingerprint }}
 <script src="{{ $noteJS.RelPermalink }}" defer></script>
-{{ end }}
+{{- end -}}

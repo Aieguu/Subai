@@ -58,7 +58,13 @@
   <section class="single post-content narrow">
     <div class="screen">
       <div class="content-and-toc{{ if not .TableOfContents }} no-toc{{ end }}">
-        <div class="content main-reveal">
+        {{- $articleId := .Slug | default .Title | urlize -}}
+        {{- $articlePath := "" -}}
+        {{- with .File -}}
+          {{- $articleId = .ContentBaseName | urlize -}}
+          {{- $articlePath = printf "content/%s" .Path -}}
+        {{- end -}}
+        <div class="content main-reveal" data-highlight-article-id="{{ $articleId }}" data-highlight-article-path="{{ $articlePath }}" data-highlight-section="{{ .Section }}">
           {{ .Content }}
         </div>
 
