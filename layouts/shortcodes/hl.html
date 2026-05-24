@@ -1,5 +1,17 @@
 {{- $text := .Get 0 -}}
 {{- $noteId := .Get 1 -}}
-<mark class="highlight-note" data-note-id="{{ $noteId }}" onclick="window.HighlightNote.showNotePopup('{{ $noteId }}')">
+{{- $content := "" -}}
+{{- $notesDir := "content/notes" -}}
+{{- $entries := readDir $notesDir -}}
+{{- range $entries -}}
+  {{- if .IsDir -}}
+    {{- $notePath := printf "%s/%s/%s.md" $notesDir .Name $noteId -}}
+    {{- if fileExists $notePath -}}
+      {{- $raw := readFile $notePath -}}
+      {{- $content = replaceRE "(?s)^---\\n[\\s\\S]*?\\n---\\n" "" $raw | trim -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+<mark class="highlight-note" data-note-id="{{ $noteId }}"{{ if $content }} data-note-content="{{ $content | htmlEscape }}"{{ end }} onclick="window.HighlightNote.showNotePopup('{{ $noteId }}')">
   {{ $text }}
 </mark>
