@@ -99,7 +99,9 @@ type: "search"
 hugo --cleanDestinationDir
 ```
 
-## 🖍️ 划线笔记插件
+## 划线笔记插件
+
+仓库地址：[https://github.com/Aieguu/highlight-note-api](https://github.com/Aieguu/highlight-note-api)
 
 Ji 的划线笔记由主题前端和独立 API 服务组成。主题只负责选中文本、渲染标记和读取静态笔记；创建、编辑、删除和同步由 `highlight-note-api` 处理。
 
@@ -111,40 +113,6 @@ Ji 的划线笔记由主题前端和独立 API 服务组成。主题只负责选
   apiBase = "https://your-project.vercel.app"
   writeTokenStorageKey = "ji.highlightNote.writeToken"
   maxSelectionLength = 2000
-```
-
-### 功能特性
-
-- **划词添加** - 选中文字后出现"添加笔记"按钮，点击即可添加
-- **卡片式弹窗** - 笔记查看、编辑采用统一的卡片式设计
-- **内联编辑** - 点击修改图标进入编辑模式，确认后保存
-- **状态标识** - 标题颜色区分同步状态（橙色=待同步，绿色=已同步）
-- **设置入口** - 首页用户卡片右上角齿轮图标，点击设置写入令牌
-
-### 写入令牌
-
-插件启用后，首页用户信息卡片右上角会显示齿轮图标，点击打开设置对话框输入令牌。
-
-也可在浏览器控制台手动设置：
-
-```js
-window.HighlightNote.setWriteToken("你的 WRITE_TOKEN")
-```
-
-令牌保存在浏览器 localStorage 中，无需重复设置。没有写入令牌的访客只能查看已同步的笔记，不能新增、编辑或删除。
-
-### 静态笔记格式
-
-同步后的笔记文件默认写入：
-
-```text
-content/notes/{articleId}/{noteId}.md
-```
-
-文章正文中会插入 shortcode：
-
-```go-html-template
-{{< hl "选中的文字" "note-id" >}}
 ```
 
 ## 📝 内容管理
