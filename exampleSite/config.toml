@@ -3,7 +3,7 @@ baseURL = "https://example.com"
 languageCode = "zh-cn"
 title = "我的博客"
 # themesDir = ""
-theme = "Ji"
+theme = "Subai"
 
 # 中文支持配置
 hasCJKLanguage = true

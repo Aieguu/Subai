@@ -1,5 +1,5 @@
 {
-  "name": "ji-hugo-theme",
+  "name": "subai-hugo-theme",
   "version": "1.0.0",
   "description": "一个简洁现代的 Hugo 主题",
   "scripts": {
@@ -34,12 +34,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jizuiba/Ji.git"
+    "url": "https://github.com/Aieguu/Subai.git"
   },
   "bugs": {
-    "url": "https://github.com/jizuiba/Ji/issues"
+    "url": "https://github.com/Aieguu/Subai/issues"
   },
-  "homepage": "https://github.com/jizuiba/Ji#readme",
+  "homepage": "https://github.com/Aieguu/Subai#readme",
   "engines": {
     "hugo": ">=0.149.1"
   },
@@ -57,7 +57,7 @@
     "extended": true
   },
   "theme": {
-    "name": "Ji",
+    "name": "Subai",
     "description": "一个简洁现代的 Hugo 主题",
     "tags": [
       "blog",

@@ -1,8 +1,8 @@
-name = "Ji"
+name = "Subai"
 license = "MIT"
-licenselink = "https://github.com/jizuiba/Ji/blob/main/LICENSE"
+licenselink = "https://github.com/Aieguu/Subai/blob/main/LICENSE"
 description = "一个简洁现代的 Hugo 主题，适合个人博客使用。"
-homepage = "https://github.com/jizuiba/Ji"
+homepage = "https://github.com/Aieguu/Subai"
 tags = [
   "blog",
   "responsive",

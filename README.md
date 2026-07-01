@@ -1,6 +1,6 @@
-# Ji Theme
+# Subai Theme
 
-自己用用的 Hugo 主题。
+一个简洁现代的 Hugo 主题，适合个人博客使用。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Hugo](https://img.shields.io/badge/Hugo-0.149.1+-blue.svg)](https://gohugo.io/)
@@ -12,7 +12,7 @@
 使用 Git 子模块安装：
 
 ```bash
-git submodule add https://github.com/Aieguu/Ji.git themes/Ji
+git submodule add https://github.com/Aieguu/Subai.git themes/Subai
 ```
 
 ### 2. 基本配置
@@ -23,7 +23,7 @@ git submodule add https://github.com/Aieguu/Ji.git themes/Ji
 baseURL = "https://example.com"
 languageCode = "zh-cn"
 title = "我的博客"
-theme = "Ji"
+theme = "Subai"
 
 # 中文支持配置
 hasCJKLanguage = true
@@ -57,7 +57,7 @@ hugo server -D
 
 访问 `http://localhost:1313` 查看您的站点。
 
-如果您在主题仓库的 `exampleSite/` 中本地调试，请确保 `themesDir` 指向主题目录的上级目录；文档与示例配置中的主题名统一使用 `Ji`。
+如果您在主题仓库的 `exampleSite/` 中本地调试，请确保 `themesDir` 指向主题目录的上级目录；文档与示例配置中的主题名统一使用 `Subai`。
 
 ## 🔍 搜索功能配置
 
@@ -216,7 +216,7 @@ baseURL = "https://example.com"
 languageCode = "zh-cn"
 title = "我的博客"
 # themesDir = ""
-theme = "Ji"
+theme = "Subai"
 
 # 中文支持配置
 hasCJKLanguage = true
@@ -329,7 +329,7 @@ hasCJKLanguage = true
 ## 🔄 更新主题
 
 ```bash
-cd themes/Ji
+cd themes/Subai
 git pull origin main
 ```
 
@@ -348,7 +348,7 @@ git pull origin main
 如果您在使用过程中遇到问题，请：
 
 1. 查看本文档的常见问题部分
-2. 搜索已有的 [Issues](https://github.com/jizuiba/Ji/issues)
+2. 搜索已有的 [Issues](https://github.com/Aieguu/Subai/issues)
 3. 创建新的 Issue 描述您的问题
 
 ---
