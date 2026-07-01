@@ -20,3 +20,8 @@ resources/
 exampleSite/public/
 exampleSite/resources/
 exampleSite/.hugo_build.lock
+exampleSite/themes/
+
+# Tool-generated directories
+.codegraph/
+.mimocode/
