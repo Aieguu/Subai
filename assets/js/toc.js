@@ -347,4 +347,4 @@ function bootTableOfContents() {
 }
 
 document.addEventListener('DOMContentLoaded', bootTableOfContents);
-document.addEventListener('ji:page-ready', bootTableOfContents);
+document.addEventListener('subai:page-ready', bootTableOfContents);

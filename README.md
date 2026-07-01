@@ -309,6 +309,8 @@ hasCJKLanguage = true
 [markup]
   [markup.goldmark]
     [markup.goldmark.renderer]
+      # 安全提示：unsafe = true 允许在 Markdown 中嵌入原始 HTML（包括 <script> 等标签）。
+      # 仅在内容完全可信的环境下使用，否则存在 XSS 注入风险。
       unsafe = true
 
   # 目录配置

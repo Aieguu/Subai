@@ -13,7 +13,8 @@
 
     // Remove no-js class
     document.documentElement.classList.remove('no-js');
-    window.__JI_SITE_ROOT__ = {{ "/" | relLangURL | jsonify | safeJS }};
+    // siteRoot is set after registry.js loads; store for now
+    window.__SUBAI_SITE_ROOT__ = {{ "/" | relLangURL | jsonify | safeJS }};
   })();
 </script>
 
@@ -22,7 +23,7 @@
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
-      const siteRoot = window.__JI_SITE_ROOT__ || '/';
+      const siteRoot = (window.Subai && window.Subai.siteRoot) || '/';
       const normalizedRoot = siteRoot.endsWith('/') ? siteRoot : siteRoot + '/';
       const swUrl = new URL(normalizedRoot.replace(/\/$/, '') + '/sw.js', window.location.origin);
 

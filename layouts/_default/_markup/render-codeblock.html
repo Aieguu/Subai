@@ -1,93 +1,37 @@
-{{- $params := .Page.Site.Params -}}
-
-{{- $codeEnabled := true -}}
-{{- if ne $params.syntaxHighlighting nil -}}
-  {{- $codeEnabled = $params.syntaxHighlighting -}}
-{{- end -}}
-{{- with $params.codeBlock -}}
-  {{- if ne .enabled nil -}}
-    {{- $codeEnabled = .enabled -}}
-  {{- end -}}
-{{- end -}}
-
-{{- $showLineNumbers := false -}}
-{{- if ne $params.showLineNumbers nil -}}
-  {{- $showLineNumbers = $params.showLineNumbers -}}
-{{- end -}}
-{{- with $params.codeBlock -}}
-  {{- if ne .showLineNumbers nil -}}
-    {{- $showLineNumbers = .showLineNumbers -}}
-  {{- end -}}
-{{- end -}}
-
-{{- $showCopyButton := true -}}
-{{- with $params.codeBlock -}}
-  {{- if ne .copyButton nil -}}
-    {{- $showCopyButton = .copyButton -}}
-  {{- end -}}
-{{- end -}}
-
-{{- $showLanguageLabel := true -}}
-{{- with $params.codeBlock -}}
-  {{- if ne .languageLabel nil -}}
-    {{- $showLanguageLabel = .languageLabel -}}
-  {{- end -}}
-{{- end -}}
-
-{{- $maxHeight := "32rem" -}}
-{{- with $params.codeBlock -}}
-  {{- if .maxHeight -}}
-    {{- $maxHeight = .maxHeight -}}
-  {{- end -}}
-{{- end -}}
-
-{{- $copyText := "Copy" -}}
-{{- $copiedText := "Copied!" -}}
-{{- $copyErrorText := "Error" -}}
-{{- with $params.codeBlock -}}
-  {{- if .copyText -}}
-    {{- $copyText = .copyText -}}
-  {{- end -}}
-  {{- if .copiedText -}}
-    {{- $copiedText = .copiedText -}}
-  {{- end -}}
-  {{- if .copyErrorText -}}
-    {{- $copyErrorText = .copyErrorText -}}
-  {{- end -}}
-{{- end -}}
+{{- $codeConfig := partialCached "_code-config.html" .Page -}}
 
 {{- $language := lower (or .Type "text") -}}
 {{- $classes := slice "article-codeblock" (printf "article-codeblock--%s" $language) -}}
-{{- if $showLineNumbers -}}
+{{- if $codeConfig.showLineNumbers -}}
   {{- $classes = $classes | append "article-codeblock--lines" -}}
 {{- end -}}
 
-{{- if not $codeEnabled -}}
+{{- if not $codeConfig.enabled -}}
   <pre><code>{{- .Inner | htmlEscape | safeHTML -}}</code></pre>
 {{- else -}}
   {{- $code := .Inner -}}
   {{- $highlightLang := .Type -}}
   {{- $highlightOpts := "lineNos=false,noClasses=false,guessSyntax=true" -}}
   {{- $rendered := highlight $code $highlightLang $highlightOpts -}}
-  <figure class="{{ delimit $classes " " }}" data-code-language="{{ $language }}" style="--code-max-height: {{ $maxHeight }};">
-    {{- if or $showCopyButton $showLanguageLabel -}}
+  <figure class="{{ delimit $classes " " }}" data-code-language="{{ $language }}" style="--code-max-height: {{ $codeConfig.maxHeight }};">
+    {{- if or $codeConfig.showCopyButton $codeConfig.showLanguageLabel -}}
       <figcaption class="article-codeblock__header" aria-label="Code block tools">
-        {{- if $showCopyButton -}}
+        {{- if $codeConfig.showCopyButton -}}
           <button
             type="button"
             class="article-codeblock__copy"
-            data-copy-default="{{ $copyText }}"
-            data-copy-success="{{ $copiedText }}"
-            data-copy-error="{{ $copyErrorText }}"
-            aria-label="{{ $copyText }}">
+            data-copy-default="{{ $codeConfig.copyText }}"
+            data-copy-success="{{ $codeConfig.copiedText }}"
+            data-copy-error="{{ $codeConfig.copyErrorText }}"
+            aria-label="{{ $codeConfig.copyText }}">
             <svg class="article-codeblock__copy-icon" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
               <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
             </svg>
-            <span class="article-codeblock__copy-text">{{ $copyText }}</span>
+            <span class="article-codeblock__copy-text">{{ $codeConfig.copyText }}</span>
           </button>
         {{- end -}}
-        {{- if $showLanguageLabel -}}
+        {{- if $codeConfig.showLanguageLabel -}}
           <span class="article-codeblock__language" aria-label="Code language">{{ $language }}</span>
         {{- end -}}
       </figcaption>

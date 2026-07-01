@@ -1,0 +1,247 @@
+/* ==========================================================================
+   Responsive Styles — All remaining @media blocks
+   ========================================================================== */
+
+/* Touch device focus fixes */
+@media (hover: none) and (pointer: coarse) {
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  summary:focus-visible,
+  [role="button"]:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+}
+
+/* Auto mode - follow system theme for header */
+@media (prefers-color-scheme: dark) {
+  :root:not(.theme-light) .site-header {
+    background-color: rgba(15, 23, 42, 0.8);
+  }
+}
+
+/* Reduced motion for post cards */
+@media (prefers-reduced-motion: reduce) {
+  .post-card:hover,
+  .post-card:focus-within,
+  .taxonomy-card:hover,
+  .taxonomy-card:focus-within,
+  .home-mosaic-tile:hover,
+  .home-mosaic-tile:focus-within {
+    transform: none;
+  }
+
+  .post-card-unified .post-card-image img,
+  .post-card:hover .post-card-image img,
+  .post-card:focus-within .post-card-image img {
+    transform: none;
+    transition: none;
+  }
+}
+
+/* 480px: header and layout */
+@media (max-width: 480px) {
+  .header-content {
+    gap: var(--spacing-sm);
+  }
+
+  .header-leading {
+    gap: var(--spacing-xs);
+  }
+
+  .site-branding {
+    gap: var(--spacing-xs);
+  }
+
+  .mobile-menu-toggle {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .site-title {
+    font-size: var(--font-size-base);
+  }
+
+  .site-tagline {
+    display: none;
+  }
+
+  .dynamic-header {
+    padding-inline: var(--spacing-sm);
+  }
+
+  .dynamic-title {
+    font-size: var(--font-size-base);
+  }
+
+  /* Hero区域优化 */
+  .hero {
+    padding: var(--spacing-2xl) 0;
+  }
+
+  .hero-title {
+    font-size: var(--font-size-3xl);
+  }
+
+  /* Categories页面优化 */
+  .categories-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* 移动端动态Header样式 */
+  .dynamic-title {
+    font-size: var(--font-size-base);
+    max-width: 200px;
+  }
+}
+
+/* 1024px: card variables */
+@media (max-width: 1024px) {
+  :root {
+    --card-image-width: 160px;
+    --card-height: 160px;
+    --card-content-padding: var(--spacing-md);
+    --card-title-size: var(--font-size-base);
+  }
+}
+
+/* 768px: main layout breakpoint */
+@media (max-width: 768px) {
+  :root {
+    --container-padding: 1rem;
+    --font-size-4xl: 2rem;
+    --font-size-5xl: 2.5rem;
+    --card-image-width: 136px;
+    --card-height: 136px;
+    --card-content-padding: var(--spacing-md);
+    --card-title-size: var(--font-size-base);
+    --card-subtitle-size: var(--font-size-xs);
+  }
+
+  .header-content {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: var(--spacing-md);
+  }
+
+  /* 显示移动端菜单按钮 */
+  .mobile-menu-toggle {
+    display: flex;
+  }
+
+  /* 隐藏桌面端导航 */
+  .desktop-navigation {
+    display: none;
+  }
+
+  .header-center {
+    min-height: 2.5rem;
+  }
+
+  /* 调整标题样式 */
+  .site-branding {
+    gap: var(--spacing-sm);
+  }
+
+  .site-title {
+    font-size: var(--font-size-lg);
+  }
+
+  .dynamic-header {
+    padding-inline: var(--spacing-sm);
+  }
+
+  .dynamic-title {
+    max-width: 100%;
+    font-size: var(--font-size-base);
+  }
+
+  .mobile-navigation {
+    display: block;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-8px);
+    max-height: 0;
+    overflow: hidden;
+    transition:
+      opacity var(--transition-normal),
+      transform var(--transition-normal),
+      max-height var(--transition-normal),
+      visibility var(--transition-normal);
+  }
+
+  .mobile-navigation.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+    max-height: min(70vh, 32rem);
+  }
+
+  .hero-title {
+    font-size: var(--font-size-4xl);
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    text-align: center;
+    gap: var(--spacing-md);
+  }
+
+  .footer-actions {
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+
+  .footer-links-bottom {
+    justify-content: center;
+  }
+
+  .theme-selector {
+    align-self: center;
+  }
+
+  /* 移动端footer social优化 */
+  .footer-social-item a {
+    width: 2.2rem;
+    height: 2.2rem;
+    font-size: var(--font-size-xs);
+  }
+}
+
+/* 768px: posts list */
+@media (max-width: 768px) {
+  .posts-grid-two {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+  }
+
+  .page-title {
+    font-size: var(--font-size-2xl);
+  }
+
+  /* 移动端隐藏作者信息 */
+  .desktop-only {
+    display: none !important;
+  }
+}
+
+/* Reduced motion: pjax transitions and lightbox */
+@media (prefers-reduced-motion: reduce) {
+  .main-content,
+  .main-content.is-pjax-leaving,
+  .main-content.is-pjax-entering,
+  .main-content.is-pjax-entering.is-pjax-enter-active {
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

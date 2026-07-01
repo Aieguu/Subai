@@ -1,0 +1,336 @@
+/* ==========================================================================
+   Card System
+   ========================================================================== */
+
+/* Post Cards */
+:root {
+  --card-radius: var(--radius-xl);
+  --action-surface-transition: 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  --action-surface-lift: translateY(-1px) scale(1.02);
+  --action-surface-shadow:
+    0 10px 24px rgba(15, 23, 42, 0.14),
+    0 3px 10px rgba(15, 23, 42, 0.08);
+  --action-surface-radius-hover: 12px;
+  --card-surface-gradient:
+    radial-gradient(circle at top right, rgba(37, 99, 235, 0.06), transparent 36%),
+    linear-gradient(180deg, var(--color-bg) 0%, var(--color-bg-secondary) 100%);
+  --card-surface-gradient-dark:
+    radial-gradient(circle at top right, rgba(59, 130, 246, 0.12), transparent 36%),
+    linear-gradient(180deg, var(--color-bg-dark) 0%, var(--color-bg-secondary-dark) 100%);
+  --card-surface-overlay:
+    linear-gradient(135deg,
+      rgba(255, 255, 255, 0.1) 0%,
+      transparent 50%,
+      rgba(0, 0, 0, 0.02) 100%);
+  --card-surface-overlay-dark:
+    linear-gradient(135deg,
+      rgba(255, 255, 255, 0.05) 0%,
+      transparent 50%,
+      rgba(0, 0, 0, 0.1) 100%);
+  --card-surface-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+  --card-surface-shadow-hover:
+    0 12px 30px rgba(15, 23, 42, 0.1),
+    0 3px 10px rgba(15, 23, 42, 0.06);
+  --card-surface-lift: translateY(-2px);
+  --card-image-width: 176px;
+  --card-height: 176px;
+  --card-content-padding: var(--spacing-lg);
+  --card-title-size: var(--font-size-lg);
+  --card-subtitle-size: var(--font-size-sm);
+  --card-media-fade:
+    linear-gradient(90deg,
+      rgba(248, 250, 252, 0) 0%,
+      rgba(248, 250, 252, 0.24) 42%,
+      rgba(248, 250, 252, 0.7) 100%);
+  --card-media-fade-dark:
+    linear-gradient(90deg,
+      rgba(15, 23, 42, 0) 0%,
+      rgba(15, 23, 42, 0.22) 42%,
+      rgba(15, 23, 42, 0.58) 100%);
+}
+
+.post-card,
+.taxonomy-card,
+.home-mosaic-tile {
+  position: relative;
+  border-radius: var(--card-radius);
+  border: 1px solid var(--color-border);
+  background: var(--card-panel-bg, var(--card-surface-gradient));
+  box-shadow: var(--card-surface-shadow);
+  transition:
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color var(--transition-normal),
+    background-color var(--theme-transition);
+}
+
+.post-card:hover,
+.post-card:focus-within,
+.taxonomy-card:hover,
+.taxonomy-card:focus-within,
+.home-mosaic-tile:hover,
+.home-mosaic-tile:focus-within {
+  transform: var(--card-surface-lift);
+  box-shadow: var(--card-surface-shadow-hover);
+  border-color: var(--color-border-hover);
+}
+
+.post-card {
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.post-card-link {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+  color: inherit;
+  border-radius: inherit;
+  overflow: hidden;
+}
+
+.post-card-link:hover {
+  text-decoration: none;
+  color: inherit;
+}
+
+.post-card::before,
+.taxonomy-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--card-surface-overlay);
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+  pointer-events: none;
+}
+
+.post-card:hover::before,
+.post-card:focus-within::before,
+.taxonomy-card:hover::before,
+.taxonomy-card:focus-within::before {
+  opacity: 1;
+}
+
+/* 统一文章卡片系统 */
+.post-card-unified {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  height: var(--card-height);
+  border-radius: var(--card-radius, var(--radius-xl));
+  overflow: hidden;
+  position: relative;
+}
+
+.post-card-unified .post-card-image {
+  width: var(--card-image-width);
+  min-width: var(--card-image-width);
+  height: 100%;
+  position: relative;
+  flex-shrink: 0;
+  border-top-left-radius: inherit;
+  border-bottom-left-radius: inherit;
+  background: linear-gradient(135deg,
+    rgba(148, 163, 184, 0.12) 0%,
+    rgba(148, 163, 184, 0.04) 100%);
+  overflow: hidden;
+}
+
+.post-card-unified .post-card-image::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 18px;
+  background: var(--card-media-fade);
+  opacity: 1;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.post-card-unified .post-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  transform: scale(1.001);
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.post-card-unified .post-card-content {
+  flex: 1;
+  padding: var(--card-content-padding);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-width: 0;
+  position: relative;
+  z-index: 1;
+  background: transparent;
+  border-top-right-radius: inherit;
+  border-bottom-right-radius: inherit;
+}
+
+.post-card-unified .post-card-title {
+  font-size: var(--card-title-size);
+  margin-bottom: var(--spacing-sm);
+  line-height: var(--line-height-tight);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.post-card-unified .post-card-subtitle {
+  font-size: var(--card-subtitle-size);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-sm);
+  line-height: var(--line-height-relaxed);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.post-card-unified .post-card-meta {
+  margin-top: auto;
+  font-size: var(--font-size-xs);
+}
+/* 通用样式 */
+.post-card-image {
+  overflow: hidden;
+  position: relative;
+  background: linear-gradient(135deg, rgba(148, 163, 184, 0.12) 0%, rgba(148, 163, 184, 0.04) 100%);
+}
+
+/* 图片融合效果 */
+.post-card-image img {
+  border-radius: 0;
+  display: block;
+}
+
+.post-card-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.post-card-categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-sm);
+}
+
+.post-card-title {
+  margin-top: 0;
+  margin-bottom: var(--spacing-sm);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.post-card-title {
+  color: var(--color-text);
+  transition: color var(--transition-fast);
+}
+
+.post-card:hover .post-card-title,
+.post-card:focus-within .post-card-title {
+  color: var(--color-primary);
+}
+
+.post-card:hover .post-card-image img,
+.post-card:focus-within .post-card-image img {
+  transform: scale(1.05);
+}
+
+.post-card-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin-top: auto;
+}
+
+.post-date {
+  font-weight: 500;
+}
+
+.post-author {
+  font-weight: 500;
+}
+
+/* 无图片时的样式 */
+.post-card.no-image .post-card-link {
+  height: 100%;
+}
+
+.post-card.no-image .post-card-content {
+  width: 100%;
+  padding: var(--card-content-padding);
+  border-radius: inherit;
+}
+/* 深色主题的融合效果 */
+.theme-dark .post-card,
+.theme-dark .taxonomy-card,
+.theme-dark .home-mosaic-tile {
+  border-color: var(--color-border-dark);
+  box-shadow:
+    0 2px 10px rgba(2, 6, 23, 0.22);
+}
+
+.theme-dark .post-card:hover,
+.theme-dark .post-card:focus-within,
+.theme-dark .taxonomy-card:hover,
+.theme-dark .taxonomy-card:focus-within,
+.theme-dark .home-mosaic-tile:hover,
+.theme-dark .home-mosaic-tile:focus-within {
+  border-color: var(--color-border-hover-dark);
+}
+
+.theme-dark .post-card,
+.theme-dark .taxonomy-card {
+  background: var(--card-surface-gradient-dark);
+}
+
+.theme-dark .post-card::before,
+.theme-dark .taxonomy-card::before {
+  background: var(--card-surface-overlay-dark);
+}
+
+.theme-dark .post-card-image {
+  background: linear-gradient(135deg,
+    rgba(100, 116, 139, 0.22) 0%,
+    rgba(15, 23, 42, 0.14) 100%);
+}
+
+.theme-dark .post-card-unified .post-card-image::after {
+  background: var(--card-media-fade-dark);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .post-card:hover,
+  .post-card:focus-within,
+  .taxonomy-card:hover,
+  .taxonomy-card:focus-within,
+  .home-mosaic-tile:hover,
+  .home-mosaic-tile:focus-within {
+    transform: none;
+  }
+
+  .post-card-unified .post-card-image img,
+  .post-card:hover .post-card-image img,
+  .post-card:focus-within .post-card-image img {
+    transform: none;
+    transition: none;
+  }
+}

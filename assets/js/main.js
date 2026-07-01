@@ -1,5 +1,5 @@
 /**
- * JI Theme - Main JavaScript
+ * Subai Theme - Main JavaScript
  * Handles core functionality and interactions
  */
 
@@ -12,10 +12,10 @@
     initMobileMenu();
     initSmoothScrolling();
     initThemeSelector();
-    invokeOptionalGlobal('__JI_INIT_HOME_CURRENT_TIME__');
-    invokeOptionalGlobal('__JI_INIT_HOME_DAILY_QUOTE__');
-    invokeOptionalGlobal('__JI_INIT_HOME_MUSIC_PLAYER__');
-    invokeOptionalGlobal('__JI_INIT_SHARE_BUTTONS__');
+    invokeSubai('initHomeCurrentTime');
+    invokeSubai('initDailyQuote');
+    invokeSubai('initMusicPlayer');
+    invokeSubai('initShareButtons');
     initPjaxNavigation();
     initAnimations();
     initAccessibility();
@@ -215,10 +215,10 @@
     }, 200); // Match --theme-transition duration
   }
 
-  function invokeOptionalGlobal(name, ...args) {
-    const candidate = window[name];
-    if (typeof candidate === 'function') {
-      return candidate(...args);
+  function invokeSubai(name, ...args) {
+    const fn = window.Subai && window.Subai.consume ? window.Subai.consume(name) : null;
+    if (typeof fn === 'function') {
+      return fn(...args);
     }
     return undefined;
   }
@@ -227,9 +227,9 @@
    * PJAX navigation (preserve audio playback between pages)
    */
   function initPjaxNavigation() {
-    if (window.__JI_PJAX_INITIALIZED) return;
+    if (window.Subai.getState('pjaxReady')) return;
     if (!window.fetch || !window.history || !window.history.pushState || !window.DOMParser) return;
-    window.__JI_PJAX_INITIALIZED = true;
+    window.Subai.setState('pjaxReady', true);
 
     let navigating = false;
     let currentPageKey = `${window.location.pathname}${window.location.search}`;
@@ -276,14 +276,14 @@
     };
 
     const syncPageAssets = (nextDocument) => {
-      document.head.querySelectorAll('[data-ji-page-asset]').forEach((node) => node.remove());
-      document.body.querySelectorAll('[data-ji-page-script]').forEach((node) => node.remove());
+      document.head.querySelectorAll('[data-subai-page-asset]').forEach((node) => node.remove());
+      document.body.querySelectorAll('[data-subai-page-script]').forEach((node) => node.remove());
 
-      nextDocument.querySelectorAll('head [data-ji-page-asset]').forEach((node) => {
+      nextDocument.querySelectorAll('head [data-subai-page-asset]').forEach((node) => {
         document.head.appendChild(node.cloneNode(true));
       });
 
-      nextDocument.querySelectorAll('body [data-ji-page-script]').forEach((node) => {
+      nextDocument.querySelectorAll('body [data-subai-page-script]').forEach((node) => {
         if (node.tagName === 'SCRIPT') {
           document.body.appendChild(cloneScriptElement(node));
         } else {
@@ -343,7 +343,7 @@
       if (navigating) return;
       navigating = true;
 
-      document.dispatchEvent(new CustomEvent('ji:page-loading', {
+      document.dispatchEvent(new CustomEvent('subai:page-loading', {
         detail: {
           url: targetUrl.toString()
         }
@@ -376,6 +376,8 @@
           await waitForTransition(currentMain, 240);
         }
 
+        // Remove script tags from parsed content to prevent XSS injection
+        nextMain.querySelectorAll('script').forEach(function(s) { s.remove(); });
         currentMain.innerHTML = nextMain.innerHTML;
         if (doc.body) {
           document.body.className = doc.body.className;
@@ -396,8 +398,9 @@
 
         updateMenuState(window.location.pathname);
 
-        if (typeof window.__JI_INIT_SEARCH_PAGE__ === 'function') {
-          await window.__JI_INIT_SEARCH_PAGE__(targetUrl.toString());
+        const initSearchFn = window.Subai && window.Subai.consume ? window.Subai.consume('initSearchPage') : null;
+        if (typeof initSearchFn === 'function') {
+          await initSearchFn(targetUrl.toString());
         }
 
         if (scrollToHash && targetUrl.hash) {
@@ -412,9 +415,9 @@
           window.scrollTo(0, 0);
         }
 
-        invokeOptionalGlobal('__JI_INIT_HOME_CURRENT_TIME__');
-        invokeOptionalGlobal('__JI_INIT_HOME_DAILY_QUOTE__');
-        invokeOptionalGlobal('__JI_INIT_HOME_MUSIC_PLAYER__');
+        invokeSubai('initHomeCurrentTime');
+        invokeSubai('initDailyQuote');
+        invokeSubai('initMusicPlayer');
         initAnimations();
 
         if (!shouldReduceMotion()) {
@@ -428,7 +431,7 @@
           currentMain.classList.remove('is-pjax-leaving', 'is-pjax-entering', 'is-pjax-enter-active');
         }
 
-        document.dispatchEvent(new CustomEvent('ji:page-ready', {
+        document.dispatchEvent(new CustomEvent('subai:page-ready', {
           detail: {
             url: targetUrl.toString()
           }
@@ -444,7 +447,7 @@
       }
     };
 
-    window.__JI_NAVIGATE__ = (target, options = {}) => {
+    window.Subai.register('navigate', (target, options = {}) => {
       try {
         const nextUrl = target instanceof URL ? target : new URL(target, window.location.href);
         return navigate(nextUrl, options);
@@ -463,7 +466,7 @@
       navigate(new URL(link.getAttribute('href'), window.location.href));
     });
 
-    document.addEventListener('ji:navigate', (event) => {
+    document.addEventListener('subai:navigate', (event) => {
       const target = event.detail?.url;
       if (!target) return;
 
@@ -498,8 +501,9 @@
    */
   function initAnimations() {
     if ('IntersectionObserver' in window) {
-      if (window.__JI_ANIMATION_OBSERVER && typeof window.__JI_ANIMATION_OBSERVER.disconnect === 'function') {
-        window.__JI_ANIMATION_OBSERVER.disconnect();
+      const prevObserver = window.Subai.getState('animObserver');
+      if (prevObserver && typeof prevObserver.disconnect === 'function') {
+        prevObserver.disconnect();
       }
 
       const animationObserver = new IntersectionObserver((entries) => {
@@ -518,7 +522,7 @@
         animationObserver.observe(el);
       });
 
-      window.__JI_ANIMATION_OBSERVER = animationObserver;
+      window.Subai.setState('animObserver', animationObserver);
     }
   }
 

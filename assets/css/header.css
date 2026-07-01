@@ -1,0 +1,336 @@
+/* ==========================================================================
+   Header
+   ========================================================================== */
+
+/* Header */
+.site-header {
+  background-color: rgba(255, 255, 255, 0.8);
+  border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+  transition:
+    background-color var(--theme-transition),
+    border-color var(--theme-transition),
+    box-shadow var(--theme-transition);
+}
+
+.theme-dark .site-header {
+  background-color: rgba(15, 23, 42, 0.8);
+}
+
+/* Auto mode - follow system theme for header */
+@media (prefers-color-scheme: dark) {
+  :root:not(.theme-light) .site-header {
+    background-color: rgba(15, 23, 42, 0.8);
+  }
+}
+
+body.menu-open {
+  overflow: hidden;
+}
+
+.header-content {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  padding: var(--spacing-md) 0;
+  gap: var(--spacing-lg);
+  position: relative;
+}
+
+.header-leading {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  min-width: 0;
+}
+
+.header-center {
+  position: static;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 动态Header样式 */
+.dynamic-header {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min(32rem, calc(100% - 2rem));
+  max-width: calc(100% - 2rem);
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, -50%) translateY(-8px);
+  transition:
+    opacity 240ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 240ms cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s linear 240ms;
+  pointer-events: none;
+}
+
+.dynamic-header.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, -50%) translateY(0);
+  transition-delay: 40ms, 40ms, 0s;
+}
+
+.dynamic-title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: min(32rem, 100%);
+  text-align: center;
+}
+
+.theme-dark .dynamic-title {
+  color: var(--color-text-dark);
+}
+
+/* 动态Header激活时的样式 */
+.site-header.dynamic-active .header-leading {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.site-header.dynamic-active .desktop-navigation {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.site-header.dynamic-active .header-actions {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* 移动端菜单按钮 */
+.mobile-menu-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border-radius: 999px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  tap-highlight-color: transparent;
+  color: var(--color-text-secondary);
+}
+
+.mobile-menu-toggle:hover,
+.mobile-menu-toggle:focus-visible {
+  background: none;
+  color: inherit;
+  box-shadow: none;
+  transform: none;
+}
+
+.menu-toggle-icon {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu-icon,
+.close-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--color-text);
+}
+
+.menu-icon {
+  opacity: 1;
+  transform: translate(-50%, -50%) rotate(0deg);
+}
+
+.close-icon {
+  opacity: 0;
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.mobile-menu-toggle.active .menu-icon {
+  opacity: 0;
+  transform: translate(-50%, -50%) rotate(-90deg);
+}
+
+.mobile-menu-toggle.active .close-icon {
+  opacity: 1;
+  transform: translate(-50%, -50%) rotate(0deg);
+}
+
+/* 深色主题下的菜单图标 */
+.theme-dark .menu-icon,
+.theme-dark .close-icon {
+  color: var(--color-text-dark);
+}
+
+/* 网站标题 */
+.site-branding {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+.site-logo {
+  flex: 0 0 auto;
+}
+
+.site-logo img {
+  border-radius: var(--radius-md);
+  display: block;
+}
+
+.site-title-wrapper {
+  min-width: 0;
+}
+
+.site-title {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  margin: 0;
+}
+
+.site-title a {
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.site-title a:hover {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.site-title a,
+.site-tagline {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.site-tagline {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* 桌面端导航菜单 */
+.desktop-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-width: 0;
+}
+
+.primary-menu {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.menu-item a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  padding: 0 0.875rem;
+  color: var(--color-text);
+  font-weight: 500;
+  border-radius: 0;
+  background: transparent;
+  transition: none;
+}
+
+.menu-item a:hover,
+.menu-item a:focus-visible,
+.menu-item.current-menu-item a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.menu-item.current-menu-item a {
+  font-weight: 600;
+}
+
+/* 移动端折叠菜单 */
+.mobile-navigation {
+  display: none;
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  right: 0;
+  background: var(--card-surface-gradient);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-md);
+  z-index: 1000;
+  box-shadow: var(--shadow-lg);
+}
+
+.mobile-primary-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.mobile-primary-menu .menu-item a {
+  width: 100%;
+  justify-content: flex-start;
+  padding: 0.75rem 0;
+  border-radius: 0;
+}
+
+/* 深色主题下的移动端菜单 */
+.theme-dark .mobile-navigation {
+  background: var(--card-surface-gradient-dark);
+  border-color: var(--color-border-dark);
+}
+
+/* Header Actions */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-shrink: 0;
+  justify-self: end;
+}
+
+/* Theme transition animations - optimized for performance */
+.theme-transitioning * {
+  transition: background-color var(--theme-transition),
+              color var(--theme-transition) !important;
+  will-change: background-color, color;
+}

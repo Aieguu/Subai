@@ -18,7 +18,7 @@
     "scheme" "Bearer"
   )
 -}}
-<script id="ji-highlight-note-config" type="application/json">{{ $config | jsonify | safeJS }}</script>
+<script id="subai-highlight-note-config" type="application/json">{{ $config | jsonify | safeJS }}</script>
 
 {{ $noteCSS := resources.Get "css/highlight-note.css" | minify | fingerprint }}
 <link rel="stylesheet" href="{{ $noteCSS.RelPermalink }}">

@@ -22,7 +22,7 @@ const CONTENT_SELECTOR = '.content.main-reveal';
   if (!CONFIG.enabled) return;
 
   function readConfig() {
-    const configNode = document.getElementById('ji-highlight-note-config');
+    const configNode = document.getElementById('subai-highlight-note-config');
     let parsed = {};
 
     if (configNode && configNode.textContent) {
@@ -765,7 +765,7 @@ const CONTENT_SELECTOR = '.content.main-reveal';
     init();
   }
 
-  document.addEventListener('ji:page-ready', () => {
+  document.addEventListener('subai:page-ready', () => {
     STATE.loadedArticleKey = '';
     init();
   });

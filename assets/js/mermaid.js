@@ -125,7 +125,7 @@
     renderQueue = renderQueue
       .then(() => renderMermaid(options))
       .catch((error) => {
-        console.error('[JI Mermaid] render failed:', error);
+        console.error('[Subai Mermaid] render failed:', error);
       });
 
     return renderQueue;
@@ -146,7 +146,7 @@
   function initMermaidManager() {
     queueRender();
 
-    document.addEventListener('ji:page-ready', () => {
+    document.addEventListener('subai:page-ready', () => {
       queueRender();
     });
 

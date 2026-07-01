@@ -1,0 +1,29 @@
+{{- $params := .Site.Params -}}
+{{- $codeBlock := $params.codeBlock | default dict -}}
+
+{{- $enabled := true -}}
+{{- if ne $params.syntaxHighlighting nil -}}{{- $enabled = $params.syntaxHighlighting -}}{{- end -}}
+{{- with $codeBlock }}{{- if ne .enabled nil -}}{{- $enabled = .enabled -}}{{- end -}}{{- end -}}
+
+{{- $showLineNumbers := false -}}
+{{- with $codeBlock }}{{- if ne .showLineNumbers nil -}}{{- $showLineNumbers = .showLineNumbers -}}{{- end -}}{{- end -}}
+
+{{- $showCopyButton := true -}}
+{{- with $codeBlock }}{{- if ne .copyButton nil -}}{{- $showCopyButton = .copyButton -}}{{- end -}}{{- end -}}
+
+{{- $showLanguageLabel := true -}}
+{{- with $codeBlock }}{{- if ne .languageLabel nil -}}{{- $showLanguageLabel = .languageLabel -}}{{- end -}}{{- end -}}
+
+{{- $maxHeight := "32rem" -}}
+{{- with $codeBlock }}{{- if .maxHeight -}}{{- $maxHeight = .maxHeight -}}{{- end -}}{{- end -}}
+
+{{- $copyText := "Copy" -}}
+{{- $copiedText := "Copied!" -}}
+{{- $copyErrorText := "Error" -}}
+{{- with $codeBlock }}
+  {{- if .copyText -}}{{- $copyText = .copyText -}}{{- end -}}
+  {{- if .copiedText -}}{{- $copiedText = .copiedText -}}{{- end -}}
+  {{- if .copyErrorText -}}{{- $copyErrorText = .copyErrorText -}}{{- end -}}
+{{- end -}}
+
+{{- dict "enabled" $enabled "showLineNumbers" $showLineNumbers "showCopyButton" $showCopyButton "showLanguageLabel" $showLanguageLabel "maxHeight" $maxHeight "copyText" $copyText "copiedText" $copiedText "copyErrorText" $copyErrorText -}}

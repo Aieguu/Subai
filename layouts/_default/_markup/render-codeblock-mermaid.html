@@ -1,13 +1,5 @@
-{{- $params := .Page.Site.Params -}}
-{{- $maxHeight := "32rem" -}}
-{{- with $params.codeBlock -}}
-  {{- if .maxHeight -}}
-    {{- $maxHeight = .maxHeight -}}
-  {{- end -}}
-{{- end -}}
+{{- $codeConfig := partialCached "_code-config.html" .Page -}}
 
-<figure class="article-codeblock article-codeblock--mermaid" data-code-language="mermaid" style="--code-max-height: {{ $maxHeight }};">
+<figure class="article-codeblock article-codeblock--mermaid" data-code-language="mermaid" style="--code-max-height: {{ $codeConfig.maxHeight }};">
   <pre class="mermaid">{{- .Inner | htmlEscape | safeHTML -}}</pre>
 </figure>
-
-

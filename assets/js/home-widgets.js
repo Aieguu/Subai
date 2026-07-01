@@ -10,10 +10,10 @@
   'use strict';
 
   function initHomeCurrentTime() {
-    const existingTimer = window.__JI_HOME_CLOCK_TIMER;
+    const existingTimer = window.Subai.getState('clockTimer');
     if (existingTimer) {
       clearInterval(existingTimer);
-      window.__JI_HOME_CLOCK_TIMER = null;
+      window.Subai.setState('clockTimer', null);
     }
 
     const timeElement = document.querySelector('[data-current-time]');
@@ -33,16 +33,16 @@
     };
 
     updateTime();
-    window.__JI_HOME_CLOCK_TIMER = setInterval(updateTime, 15000);
+    window.Subai.setState('clockTimer', setInterval(updateTime, 15000));
   }
 
   function initHomeDailyQuote() {
-    const existingState = window.__JI_HOME_DAILY_QUOTE_STATE;
+    const existingState = window.Subai.getState('quoteState');
     if (existingState) {
       if (Array.isArray(existingState.timers)) {
         existingState.timers.forEach((timer) => clearTimeout(timer));
       }
-      window.__JI_HOME_DAILY_QUOTE_STATE = null;
+      window.Subai.setState('quoteState', null);
     }
 
     const quoteRoot = document.querySelector('[data-home-daily-quote]');
@@ -92,7 +92,7 @@
       lastIndex: -1
     };
 
-    window.__JI_HOME_DAILY_QUOTE_STATE = quoteState;
+    window.Subai.setState('quoteState', quoteState);
 
     const pushTimer = (callback, delay) => {
       const timer = window.setTimeout(() => {
@@ -217,10 +217,10 @@
     };
 
     const playlist = resolvePlaylist(
-      player?.dataset.playlist ?? window.__HOME_MUSIC_PLAYLIST ?? []
+      player?.dataset.playlist ?? window.Subai.playlist ?? []
     ).filter(item => typeof item === 'string' && item.trim().length > 0);
 
-    if (!window.__JI_HOME_MUSIC_MANAGER) {
+    if (!window.Subai.getState('musicManager')) {
       let audio = document.querySelector('audio[data-global-music-audio="true"]');
       if (!audio) {
         audio = document.createElement('audio');
@@ -492,10 +492,10 @@
       };
 
       manager.setupEvents();
-      window.__JI_HOME_MUSIC_MANAGER = manager;
+      window.Subai.setState('musicManager', manager);
     }
 
-    const manager = window.__JI_HOME_MUSIC_MANAGER;
+    const manager = window.Subai.getState('musicManager');
     manager.updatePlaylist(playlist);
 
     if (!playlist.length) {
@@ -511,8 +511,8 @@
   }
 
   function initShareButtons() {
-    if (window.__JI_SHARE_BUTTONS_BOUND) return;
-    window.__JI_SHARE_BUTTONS_BOUND = true;
+    if (window.Subai.getState('shareBound')) return;
+    window.Subai.setState('shareBound', true);
 
     document.addEventListener('click', async function(event) {
       const button = event.target.closest('[data-copy-link]');
@@ -523,40 +523,10 @@
       const text = button.getAttribute('data-copy-link') || '';
       if (!text) return;
 
-      const copied = await copyTextToClipboard(text);
+      const copyFn = window.Subai.consume('copyToClipboard');
+      const copied = copyFn ? await copyFn(text) : false;
       showCopyNotification(copied ? 'Link copied to clipboard!' : 'Failed to copy link');
     });
-  }
-
-  async function copyTextToClipboard(text) {
-    if (navigator.clipboard && window.isSecureContext) {
-      try {
-        await navigator.clipboard.writeText(text);
-        return true;
-      } catch (error) {
-        // fallback below
-      }
-    }
-
-    const textArea = document.createElement('textarea');
-    textArea.value = text;
-    textArea.setAttribute('readonly', '');
-    textArea.style.position = 'fixed';
-    textArea.style.left = '-999999px';
-    textArea.style.top = '-999999px';
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
-
-    let ok = false;
-    try {
-      ok = document.execCommand('copy');
-    } catch (error) {
-      ok = false;
-    }
-
-    document.body.removeChild(textArea);
-    return ok;
   }
 
   function showCopyNotification(message) {
@@ -584,8 +554,8 @@
     }, 1800);
   }
 
-  window.__JI_INIT_HOME_CURRENT_TIME__ = initHomeCurrentTime;
-  window.__JI_INIT_HOME_DAILY_QUOTE__ = initHomeDailyQuote;
-  window.__JI_INIT_HOME_MUSIC_PLAYER__ = initHomeMusicPlayer;
-  window.__JI_INIT_SHARE_BUTTONS__ = initShareButtons;
+  window.Subai.register('initHomeCurrentTime', initHomeCurrentTime);
+  window.Subai.register('initDailyQuote', initHomeDailyQuote);
+  window.Subai.register('initMusicPlayer', initHomeMusicPlayer);
+  window.Subai.register('initShareButtons', initShareButtons);
 })();

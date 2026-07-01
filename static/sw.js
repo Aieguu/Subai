@@ -1,9 +1,9 @@
 /**
- * Service Worker for JI Theme
+ * Service Worker for Subai Theme
  * Provides offline functionality and caching
  */
 
-const CACHE_NAME = 'ji-v2';
+const CACHE_NAME = 'subai-v1';
 const BASE_URL = new URL('./', self.registration ? self.registration.scope : self.location.href);
 const OFFLINE_URL = new URL('offline.html', BASE_URL).toString();
 

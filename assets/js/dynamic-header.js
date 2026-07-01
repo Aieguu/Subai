@@ -170,6 +170,6 @@
   }
 
   document.addEventListener('DOMContentLoaded', initDynamicHeader);
-  document.addEventListener('ji:page-loading', clearDynamicState);
-  document.addEventListener('ji:page-ready', initDynamicHeader);
+  document.addEventListener('subai:page-loading', clearDynamicState);
+  document.addEventListener('subai:page-ready', initDynamicHeader);
 })();

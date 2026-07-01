@@ -5,8 +5,8 @@
 (function() {
   'use strict';
 
-  if (window.__JI_IMAGE_LIGHTBOX_INITIALIZED) return;
-  window.__JI_IMAGE_LIGHTBOX_INITIALIZED = true;
+  if (window.Subai && window.Subai.getState('lightboxReady')) return;
+  if (window.Subai) window.Subai.setState('lightboxReady', true);
 
   const state = {
     overlay: null,
@@ -308,5 +308,5 @@
   });
 
   document.addEventListener('DOMContentLoaded', initImageLightbox);
-  document.addEventListener('ji:page-ready', initImageLightbox);
+  document.addEventListener('subai:page-ready', initImageLightbox);
 })();

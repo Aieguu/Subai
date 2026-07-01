@@ -48,14 +48,14 @@
   }
 
   function ensureStylesheet(id, href) {
-    const existing = document.querySelector(`link[data-ji-id="${id}"]`);
+    const existing = document.querySelector(`link[data-subai-id="${id}"]`);
     if (existing) return Promise.resolve();
 
     return new Promise((resolve, reject) => {
       const link = document.createElement('link');
       link.rel = 'stylesheet';
       link.href = href;
-      link.setAttribute('data-ji-id', id);
+      link.setAttribute('data-subai-id', id);
       link.addEventListener('load', () => resolve(), { once: true });
       link.addEventListener('error', () => reject(new Error(`Failed to load stylesheet: ${href}`)), { once: true });
       document.head.appendChild(link);
@@ -63,7 +63,7 @@
   }
 
   function ensureScript(id, src) {
-    const existing = document.querySelector(`script[data-ji-id="${id}"]`);
+    const existing = document.querySelector(`script[data-subai-id="${id}"]`);
     if (existing) {
       if (existing.dataset.loaded === 'true') {
         return Promise.resolve();
@@ -79,7 +79,7 @@
       const script = document.createElement('script');
       script.src = src;
       script.defer = true;
-      script.setAttribute('data-ji-id', id);
+      script.setAttribute('data-subai-id', id);
       script.addEventListener('load', () => {
         script.dataset.loaded = 'true';
         resolve();
@@ -92,9 +92,9 @@
   async function ensureMathAssets() {
     if (!assetsPromise) {
       assetsPromise = (async () => {
-        await ensureStylesheet('ji-katex-css', KATEX_CSS_URL);
-        await ensureScript('ji-katex-js', KATEX_JS_URL);
-        await ensureScript('ji-katex-autorender-js', KATEX_AUTORENDER_JS_URL);
+        await ensureStylesheet('subai-katex-css', KATEX_CSS_URL);
+        await ensureScript('subai-katex-js', KATEX_JS_URL);
+        await ensureScript('subai-katex-autorender-js', KATEX_AUTORENDER_JS_URL);
       })();
     }
     return assetsPromise;
@@ -130,14 +130,14 @@
     renderQueue = renderQueue
       .then(() => renderMath())
       .catch((error) => {
-        console.error('[JI Math] render failed:', error);
+        console.error('[Subai Math] render failed:', error);
       });
     return renderQueue;
   }
 
   function initMathManager() {
     queueRender();
-    document.addEventListener('ji:page-ready', () => {
+    document.addEventListener('subai:page-ready', () => {
       queueRender();
     });
   }

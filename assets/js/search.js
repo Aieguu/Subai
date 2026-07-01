@@ -20,7 +20,7 @@
   };
 
   function getSiteRoot() {
-    const root = window.__JI_SITE_ROOT__ || '/';
+    const root = (window.Subai && window.Subai.siteRoot) || '/';
     return root.endsWith('/') ? root : `${root}/`;
   }
 
@@ -80,7 +80,7 @@
     }
 
     const targetUrl = buildSearchUrl(query);
-    const navigate = window.__JI_NAVIGATE__;
+    const navigate = window.Subai && window.Subai.consume ? window.Subai.consume('navigate') : null;
 
     if (typeof navigate === 'function') {
       navigate(targetUrl);
@@ -423,7 +423,7 @@
     initSearchPage(window.location.href);
   }
 
-  window.__JI_INIT_SEARCH_PAGE__ = initSearchPage;
+  window.Subai.register('initSearchPage', initSearchPage);
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initSearch);

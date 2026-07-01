@@ -2,8 +2,16 @@
 {{ $music := $homeTiles.music | default dict }}
 {{ $playlist := $music.playlist | default slice }}
 <script>
-  window.__HOME_MUSIC_PLAYLIST = {{ $playlist | jsonify | safeJS }};
+  window.__SUBAI_MUSIC_PLAYLIST = {{ $playlist | jsonify | safeJS }};
 </script>
+
+<!-- Registry (must load first) -->
+{{ $registryJS := resources.Get "js/registry.js" | resources.Minify | resources.Fingerprint }}
+<script defer src="{{ $registryJS.RelPermalink }}" integrity="{{ $registryJS.Data.Integrity }}"></script>
+
+<!-- Clipboard utility -->
+{{ $clipboardJS := resources.Get "js/clipboard.js" | resources.Minify | resources.Fingerprint }}
+<script defer src="{{ $clipboardJS.RelPermalink }}" integrity="{{ $clipboardJS.Data.Integrity }}"></script>
 
 <!-- Home widgets and shared interactions -->
 {{ $homeWidgetsJS := resources.Get "js/home-widgets.js" | resources.Minify | resources.Fingerprint }}
@@ -24,16 +32,8 @@
 {{ end }}
 
 <!-- Code highlighting -->
-{{ $codeBlockEnabled := true }}
-{{ if ne .Site.Params.syntaxHighlighting nil }}
-  {{ $codeBlockEnabled = .Site.Params.syntaxHighlighting }}
-{{ end }}
-{{ with .Site.Params.codeBlock }}
-  {{ if ne .enabled nil }}
-    {{ $codeBlockEnabled = .enabled }}
-  {{ end }}
-{{ end }}
-{{ if $codeBlockEnabled }}
+{{- $codeConfig := partialCached "_code-config.html" . -}}
+{{ if $codeConfig.enabled }}
   {{ $codeJS := resources.Get "js/code-highlight.js" | resources.Minify | resources.Fingerprint }}
   <script defer src="{{ $codeJS.RelPermalink }}" integrity="{{ $codeJS.Data.Integrity }}"></script>
 {{ end }}
@@ -64,7 +64,7 @@
 <!-- Page-specific JavaScript -->
 {{ if .Params.customJS }}
   {{ range .Params.customJS }}
-    <script src="{{ . | relURL }}" data-ji-page-script="true"></script>
+    <script src="{{ . | relURL }}" data-subai-page-script="true"></script>
   {{ end }}
 {{ end }}
 
