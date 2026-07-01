@@ -7,7 +7,7 @@
 {{- $enabled := or (.Site.Params.highlightNote | default false) ($plugin.enabled | default false) -}}
 {{- if $enabled -}}
 {{- $apiBase := $plugin.apiBase | default .Site.Params.highlightNoteApi | default "" -}}
-{{- $tokenStorageKey := $plugin.writeTokenStorageKey | default "ji.highlightNote.writeToken" -}}
+{{- $tokenStorageKey := $plugin.writeTokenStorageKey | default "highlightNote.writeToken" -}}
 {{- $maxSelectionLength := $plugin.maxSelectionLength | default 2000 -}}
 {{- $config := dict
   "enabled" true

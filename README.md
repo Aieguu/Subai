@@ -111,8 +111,6 @@ Ji 的划线笔记由主题前端和独立 API 服务组成。主题只负责选
 [params.plugins.highlightNote]
   enabled = true
   apiBase = "https://your-project.vercel.app"
-  writeTokenStorageKey = "ji.highlightNote.writeToken"
-  maxSelectionLength = 2000
 ```
 
 ## 📝 内容管理

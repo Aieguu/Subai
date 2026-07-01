@@ -7,7 +7,7 @@ const CONTENT_SELECTOR = '.content.main-reveal';
     apiBase: '',
     maxSelectionLength: 2000,
     auth: {
-      storageKey: 'ji.highlightNote.writeToken',
+      storageKey: 'highlightNote.writeToken',
       scheme: 'Bearer'
     }
   };
