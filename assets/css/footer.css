@@ -1,0 +1,233 @@
+/* ==========================================================================
+   Footer
+   ========================================================================== */
+
+.site-footer {
+  background-color: var(--color-bg-secondary);
+  border-top: 1px solid var(--color-border);
+  padding: var(--spacing-xl) 0 var(--spacing-md);
+  margin-top: var(--spacing-2xl);
+  transition: background-color var(--theme-transition);
+}
+
+.footer-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.footer-title {
+  font-size: var(--font-size-lg);
+  margin-bottom: var(--spacing-sm);
+}
+
+.footer-description {
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-md);
+}
+
+.footer-social {
+  display: flex;
+  gap: var(--spacing-sm);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.footer-social-item a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background-color: var(--color-bg);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+  position: relative;
+  overflow: visible;
+  z-index: 1;
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  line-height: 1;
+  text-align: center;
+  padding: 0.4rem;
+  transition:
+    transform var(--action-surface-transition),
+    box-shadow var(--action-surface-transition),
+    border-radius var(--action-surface-transition),
+    border-color var(--action-surface-transition),
+    background-color var(--theme-transition-fast),
+    color var(--theme-transition-fast);
+  will-change: transform;
+}
+
+.footer-social-item .social-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.1rem;
+  height: 1.1rem;
+  flex: 0 0 auto;
+  line-height: 1;
+  font-size: inherit;
+  overflow: visible;
+}
+
+.footer-social-item .social-icon svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+  overflow: visible;
+  transition: fill var(--action-surface-transition);
+}
+
+.footer-social-item .social-icon svg [fill]:not([fill='none']) {
+  fill: currentColor;
+}
+
+/* 深色主题下的footer social样式 */
+.theme-dark .footer-social-item a {
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-secondary-dark);
+  border-color: var(--color-border-dark);
+}
+
+.footer-social-item a:hover,
+.footer-social-item a:focus-visible {
+  text-decoration: none;
+  border-radius: var(--action-surface-radius-hover);
+  transform: var(--action-surface-lift);
+  box-shadow: var(--action-surface-shadow);
+  background-color: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+.theme-dark .footer-social-item a:hover,
+.theme-dark .footer-social-item a:focus-visible {
+  background-color: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+  box-shadow:
+    0 14px 32px rgba(37, 99, 235, 0.28),
+    0 4px 12px rgba(15, 23, 42, 0.22);
+}
+
+.footer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--color-border);
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+}
+
+.footer-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  flex-wrap: wrap;
+}
+
+.footer-copyright {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.footer-credits {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  margin-top: var(--spacing-xs);
+}
+
+.footer-credits a {
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.footer-credits a:hover {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.footer-links-bottom {
+  display: flex;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.footer-links-bottom a {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.footer-links-bottom a:hover {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+/* 主题选择器样式 */
+.theme-selector {
+  display: flex;
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: 4px;
+  border: 1px solid var(--color-border);
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border-radius: var(--radius-md);
+  position: relative;
+  z-index: 1;
+  min-width: 60px;
+}
+
+.theme-option:hover {
+  color: var(--color-text);
+}
+
+.theme-option.active {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 深色主题下的主题选择器 */
+.theme-dark .theme-selector {
+  background-color: var(--color-bg-secondary-dark);
+  border-color: var(--color-border-dark);
+}
+
+.theme-dark .theme-option {
+  color: var(--color-text-secondary-dark);
+}
+
+.theme-dark .theme-option:hover {
+  color: var(--color-text-dark);
+}
+
+.theme-dark .theme-option.active {
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-dark);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}

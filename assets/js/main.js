@@ -455,7 +455,7 @@
         window.location.href = String(target);
         return null;
       }
-    };
+    });
 
     updateMenuState(window.location.pathname);
 

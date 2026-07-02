@@ -1,29 +1,31 @@
 {{- $params := .Site.Params -}}
-{{- $codeBlock := $params.codeBlock | default dict -}}
+{{- /* Hugo 0.160+ normalizes TOML keys to lowercase */ -}}
+{{- $codeBlock := index $params "codeblock" | default (index $params "codeBlock") | default dict -}}
 
 {{- $enabled := true -}}
-{{- if ne $params.syntaxHighlighting nil -}}{{- $enabled = $params.syntaxHighlighting -}}{{- end -}}
-{{- with $codeBlock }}{{- if ne .enabled nil -}}{{- $enabled = .enabled -}}{{- end -}}{{- end -}}
+{{- if isset $params "syntaxhighlighting" -}}{{- $enabled = index $params "syntaxhighlighting" -}}{{- else if isset $params "syntaxHighlighting" -}}{{- $enabled = index $params "syntaxHighlighting" -}}{{- end -}}
+{{- with $codeBlock }}{{- if isset . "enabled" -}}{{- $enabled = .enabled -}}{{- end -}}{{- end -}}
 
 {{- $showLineNumbers := false -}}
-{{- with $codeBlock }}{{- if ne .showLineNumbers nil -}}{{- $showLineNumbers = .showLineNumbers -}}{{- end -}}{{- end -}}
+{{- with $codeBlock }}{{- if isset . "showlinenumbers" -}}{{- $showLineNumbers = index . "showlinenumbers" -}}{{- else if isset . "showLineNumbers" -}}{{- $showLineNumbers = index . "showLineNumbers" -}}{{- end -}}{{- end -}}
 
 {{- $showCopyButton := true -}}
-{{- with $codeBlock }}{{- if ne .copyButton nil -}}{{- $showCopyButton = .copyButton -}}{{- end -}}{{- end -}}
+{{- with $codeBlock }}{{- if isset . "copybutton" -}}{{- $showCopyButton = index . "copybutton" -}}{{- else if isset . "copyButton" -}}{{- $showCopyButton = index . "copyButton" -}}{{- end -}}{{- end -}}
 
 {{- $showLanguageLabel := true -}}
-{{- with $codeBlock }}{{- if ne .languageLabel nil -}}{{- $showLanguageLabel = .languageLabel -}}{{- end -}}{{- end -}}
+{{- with $codeBlock }}{{- if isset . "languagelabel" -}}{{- $showLanguageLabel = index . "languagelabel" -}}{{- else if isset . "languageLabel" -}}{{- $showLanguageLabel = index . "languageLabel" -}}{{- end -}}{{- end -}}
 
 {{- $maxHeight := "32rem" -}}
-{{- with $codeBlock }}{{- if .maxHeight -}}{{- $maxHeight = .maxHeight -}}{{- end -}}{{- end -}}
+{{- with $codeBlock }}{{- if isset . "maxheight" -}}{{- $maxHeight = index . "maxheight" -}}{{- else if isset . "maxHeight" -}}{{- $maxHeight = index . "maxHeight" -}}{{- end -}}{{- end -}}
 
 {{- $copyText := "Copy" -}}
 {{- $copiedText := "Copied!" -}}
 {{- $copyErrorText := "Error" -}}
 {{- with $codeBlock }}
-  {{- if .copyText -}}{{- $copyText = .copyText -}}{{- end -}}
-  {{- if .copiedText -}}{{- $copiedText = .copiedText -}}{{- end -}}
-  {{- if .copyErrorText -}}{{- $copyErrorText = .copyErrorText -}}{{- end -}}
+  {{- if isset . "copytext" -}}{{- $copyText = index . "copytext" -}}{{- else if isset . "copyText" -}}{{- $copyText = index . "copyText" -}}{{- end -}}
+  {{- if isset . "copiedtext" -}}{{- $copiedText = index . "copiedtext" -}}{{- else if isset . "copiedText" -}}{{- $copiedText = index . "copiedText" -}}{{- end -}}
+  {{- if isset . "copyerrortext" -}}{{- $copyErrorText = index . "copyerrortext" -}}{{- else if isset . "copyErrorText" -}}{{- $copyErrorText = index . "copyErrorText" -}}{{- end -}}
 {{- end -}}
 
-{{- dict "enabled" $enabled "showLineNumbers" $showLineNumbers "showCopyButton" $showCopyButton "showLanguageLabel" $showLanguageLabel "maxHeight" $maxHeight "copyText" $copyText "copiedText" $copiedText "copyErrorText" $copyErrorText -}}
+{{- $result := dict "enabled" $enabled "showLineNumbers" $showLineNumbers "showCopyButton" $showCopyButton "showLanguageLabel" $showLanguageLabel "maxHeight" $maxHeight "copyText" $copyText "copiedText" $copiedText "copyErrorText" $copyErrorText -}}
+{{- return $result -}}

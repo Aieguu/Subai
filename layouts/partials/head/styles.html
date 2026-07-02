@@ -153,13 +153,14 @@
 {{ $post := resources.Get "css/post.css" }}
 {{ $toc := resources.Get "css/toc.css" }}
 {{ $pagination := resources.Get "css/pagination.css" }}
+{{ $footer := resources.Get "css/footer.css" }}
 {{ $share := resources.Get "css/share.css" }}
 {{ $taxonomy := resources.Get "css/taxonomy.css" }}
 {{ $lightbox := resources.Get "css/lightbox.css" }}
 {{ $home := resources.Get "css/home.css" }}
 {{ $responsive := resources.Get "css/responsive.css" }}
 {{ $print := resources.Get "css/print.css" }}
-{{ $styles := slice $reset $layout $header $hero $cards $post $toc $pagination $share $taxonomy $lightbox $home $responsive $print | resources.Concat "css/main.css" | resources.Minify | resources.Fingerprint }}
+{{ $styles := slice $reset $layout $header $hero $cards $post $toc $pagination $footer $share $taxonomy $lightbox $home $responsive $print | resources.Concat "css/main.css" | resources.Minify | resources.Fingerprint }}
 <link rel="stylesheet" href="{{ $styles.RelPermalink }}" integrity="{{ $styles.Data.Integrity }}">
 
 <!-- Syntax Highlighting -->
