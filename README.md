@@ -1,9 +1,19 @@
-# Subai Theme
+<p align="center">
+  <img src="assets/subai.png" width="280" alt="Subai">
+</p>
 
-一个简洁现代的 Hugo 主题，适合个人博客使用。
+<h1 align="center">Subai Theme</h1>
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Hugo](https://img.shields.io/badge/Hugo-0.149.1+-blue.svg)](https://gohugo.io/)
+<p align="center">
+  <em>Less is more.</em> — 一个简洁现代的 Hugo 博客主题
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT">
+  <img src="https://img.shields.io/badge/Hugo-0.149.1+-blue.svg" alt="Hugo">
+</p>
+
+---
 
 ## 🚀 快速开始
 
