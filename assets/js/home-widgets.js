@@ -19,6 +19,9 @@
     const timeElement = document.querySelector('[data-current-time]');
     if (!timeElement) return;
 
+    const shichenElement = document.querySelector('[data-current-shichen]');
+    const SHICHEN = ['子时', '丑时', '寅时', '卯时', '辰时', '巳时', '午时', '未时', '申时', '酉时', '戌时', '亥时'];
+
     const timezone = timeElement.dataset.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
     const timeFormatter = new Intl.DateTimeFormat('zh-CN', {
       hour: '2-digit',
@@ -26,10 +29,21 @@
       hour12: false,
       timeZone: timezone
     });
+    const hourFormatter = new Intl.DateTimeFormat('en-US', {
+      hour: 'numeric',
+      hour12: false,
+      timeZone: timezone
+    });
 
     const updateTime = () => {
       const now = new Date();
       timeElement.textContent = timeFormatter.format(now);
+
+      if (shichenElement) {
+        // 时辰：子时为 23:00–01:00，每两小时一时辰
+        const hour = Number.parseInt(hourFormatter.format(now), 10) % 24;
+        shichenElement.textContent = SHICHEN[Math.floor(((hour + 1) % 24) / 2)];
+      }
     };
 
     updateTime();
@@ -117,16 +131,39 @@
       return nextIndex;
     };
 
+    // 洇墨模式：逐字 <span>，出现时从模糊洇开到定形；reduced-motion 退化为纯文本
+    const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // 内层文本容器：quoteText 是 flex 容器，字符需包一层以保持自然折行
+    let quoteFlow = quoteText.querySelector('[data-quote-flow]');
+    if (!quoteFlow) {
+      quoteFlow = document.createElement('span');
+      quoteFlow.className = 'home-quote-flow';
+      quoteFlow.setAttribute('data-quote-flow', '');
+      quoteText.textContent = '';
+      quoteText.appendChild(quoteFlow);
+    }
+
     const typeText = (text, callback) => {
+      const chars = Array.from(text);
       let index = 0;
       quoteRoot.classList.remove('is-deleting');
       quoteRoot.classList.add('is-typing');
 
       const step = () => {
+        const ch = chars[index];
         index += 1;
-        quoteText.textContent = text.slice(0, index);
 
-        if (index < text.length) {
+        if (reducedMotion) {
+          quoteFlow.append(ch);
+        } else {
+          const span = document.createElement('span');
+          span.className = 'ink-char';
+          span.textContent = ch;
+          quoteFlow.appendChild(span);
+        }
+
+        if (index < chars.length) {
           pushTimer(step, typeSpeed);
         } else {
           quoteRoot.classList.remove('is-typing');
@@ -134,15 +171,12 @@
         }
       };
 
-      quoteText.textContent = '';
+      quoteFlow.textContent = '';
       pushTimer(step, typeSpeed);
     };
 
     const deleteText = (callback) => {
-      const currentText = quoteText.textContent || '';
-      let index = currentText.length;
-
-      if (!currentText) {
+      if (!quoteFlow.textContent) {
         callback();
         return;
       }
@@ -151,15 +185,22 @@
       quoteRoot.classList.add('is-deleting');
 
       const step = () => {
-        index -= 1;
-        quoteText.textContent = currentText.slice(0, Math.max(0, index));
-
-        if (index > 0) {
-          pushTimer(step, deleteSpeed);
-        } else {
+        const last = quoteFlow.lastChild;
+        if (!last) {
           quoteRoot.classList.remove('is-deleting');
           callback();
+          return;
         }
+
+        if (!reducedMotion && last.nodeType === Node.ELEMENT_NODE) {
+          // 淡出后于下一拍移除
+          last.classList.add('ink-out');
+          pushTimer(() => last.remove(), deleteSpeed);
+        } else {
+          last.remove();
+        }
+
+        pushTimer(step, deleteSpeed);
       };
 
       pushTimer(step, deleteSpeed);
@@ -510,6 +551,164 @@
     manager.bindUI(player || null);
   }
 
+  /**
+   * 山水频谱 —— 把音乐频谱画成水墨山峦
+   * 远山淡、近山浓；AnalyserNode 单例跨 PJAX 复用，canvas 随页面重绑
+   */
+  function initMusicTerrain() {
+    // PJAX 重入：上一页的 rAF 停掉，共享音频分析器保留
+    const prev = window.Subai.getState('terrainView');
+    if (prev && prev.raf) cancelAnimationFrame(prev.raf);
+    window.Subai.setState('terrainView', null);
+
+    const canvas = document.querySelector('[data-music-terrain]');
+    if (!canvas) return;
+
+    const audio = document.querySelector('audio[data-global-music-audio="true"]');
+    if (!audio) return;
+
+    const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const view = { raf: 0, w: 0, h: 0 };
+    window.Subai.setState('terrainView', view);
+
+    // 墨色跟随主题（解析一次，主题切换时重解析）
+    let ink = { r: 28, g: 27, b: 25 };
+    const resolveInk = () => {
+      const m = getComputedStyle(document.body).color.match(/(\d+)[,\s]+(\d+)[,\s]+(\d+)/);
+      if (m) ink = { r: +m[1], g: +m[2], b: +m[3] };
+    };
+    resolveInk();
+
+    // 三层山脊：远山高频/小幅/偏高/最淡，近山低频/大幅/偏低/最浓
+    const LAYERS = [
+      { from: 30, to: 90, base: 0.34, amp: 0.18, alpha: 0.07 },
+      { from: 12, to: 48, base: 0.56, amp: 0.26, alpha: 0.11 },
+      { from: 2,  to: 20, base: 0.78, amp: 0.36, alpha: 0.17 }
+    ];
+    const SAMPLES = 56;
+
+    const resize = () => {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      view.w = Math.max(1, Math.round(rect.width * dpr));
+      view.h = Math.max(1, Math.round(rect.height * dpr));
+      canvas.width = view.w;
+      canvas.height = view.h;
+      if (audio.paused) drawStatic();
+    };
+
+    const drawRidge = (layer, values) => {
+      const { w, h } = view;
+      const step = w / (values.length - 1);
+      ctx.beginPath();
+      ctx.moveTo(-step, h);
+      for (let i = 0; i < values.length; i++) {
+        const x = i * step;
+        const y = (layer.base - values[i] * layer.amp) * h;
+        if (i === 0) {
+          ctx.lineTo(x, y);
+        } else {
+          // 中点二次曲线平滑，山脊不尖锐
+          const prevX = (i - 1) * step;
+          const prevY = (layer.base - values[i - 1] * layer.amp) * h;
+          ctx.quadraticCurveTo(prevX, prevY, (prevX + x) / 2, (prevY + y) / 2);
+        }
+      }
+      ctx.lineTo(w + step, h);
+      ctx.closePath();
+      ctx.fillStyle = `rgba(${ink.r}, ${ink.g}, ${ink.b}, ${layer.alpha})`;
+      ctx.fill();
+    };
+
+    // 静止时的剪影：固定相位正弦叠加，像远山轮廓
+    const staticValues = (layer, seed) => {
+      const values = [];
+      for (let i = 0; i < SAMPLES; i++) {
+        const t = i / SAMPLES;
+        const v = 0.3 + 0.24 * Math.sin(i * 0.55 + seed) + 0.16 * Math.sin(i * 1.35 + seed * 2.1) + 0.08 * Math.sin(t * 6.28 * 3 + seed);
+        values.push(Math.max(0.06, Math.min(0.9, v)));
+      }
+      return values;
+    };
+
+    function drawStatic() {
+      ctx.clearRect(0, 0, view.w, view.h);
+      LAYERS.forEach((layer, i) => drawRidge(layer, staticValues(layer, i * 1.7 + 0.9)));
+    }
+
+    function ensureAnalyser() {
+      let shared = window.Subai.getState('terrainAudio');
+      if (shared) return shared;
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return null;
+      try {
+        const audioCtx = new AudioCtx();
+        const sourceNode = audioCtx.createMediaElementSource(audio);
+        const analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 256;
+        analyser.smoothingTimeConstant = 0.82;
+        sourceNode.connect(analyser);
+        analyser.connect(audioCtx.destination); // 必须接回输出，否则无声
+        shared = { audioCtx, analyser, data: new Uint8Array(analyser.frequencyBinCount) };
+        window.Subai.setState('terrainAudio', shared);
+        return shared;
+      } catch (error) {
+        return null; // createMediaElementSource 重复调用等异常：放弃动画，音频照常
+      }
+    }
+
+    const drawFrame = () => {
+      const shared = window.Subai.getState('terrainAudio');
+      if (!shared) return;
+      view.raf = requestAnimationFrame(drawFrame);
+      shared.analyser.getByteFrequencyData(shared.data);
+      ctx.clearRect(0, 0, view.w, view.h);
+      for (const layer of LAYERS) {
+        const values = [];
+        const span = layer.to - layer.from;
+        for (let i = 0; i < SAMPLES; i++) {
+          const bin = layer.from + Math.floor((i / (SAMPLES - 1)) * (span - 1));
+          values.push(Math.pow((shared.data[bin] || 0) / 255, 1.4)); // 压弱信号，山形更稳
+        }
+        drawRidge(layer, values);
+      }
+    };
+
+    const startDrawing = () => {
+      if (reduced) return;
+      const shared = ensureAnalyser();
+      if (!shared) return;
+      if (shared.audioCtx.state === 'suspended') shared.audioCtx.resume().catch(() => {});
+      if (view.raf) cancelAnimationFrame(view.raf);
+      view.raf = requestAnimationFrame(drawFrame);
+    };
+
+    const stopDrawing = () => {
+      if (view.raf) cancelAnimationFrame(view.raf);
+      view.raf = 0;
+    };
+
+    // 一切定义就绪后才注册观察器与首次调用，避免 TDZ
+    new MutationObserver(() => {
+      resolveInk();
+      if (audio.paused) drawStatic();
+    }).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
+    new ResizeObserver(resize).observe(canvas);
+    resize();
+
+    audio.addEventListener('play', startDrawing);
+    audio.addEventListener('pause', stopDrawing);
+    audio.addEventListener('ended', stopDrawing);
+
+    // PJAX 回来若音乐仍在播，直接恢复绘制
+    if (!audio.paused) startDrawing();
+    else drawStatic();
+  }
+
   function initShareButtons() {
     if (window.Subai.getState('shareBound')) return;
     window.Subai.setState('shareBound', true);
@@ -557,5 +756,6 @@
   window.Subai.register('initHomeCurrentTime', initHomeCurrentTime);
   window.Subai.register('initDailyQuote', initHomeDailyQuote);
   window.Subai.register('initMusicPlayer', initHomeMusicPlayer);
+  window.Subai.register('initMusicTerrain', initMusicTerrain);
   window.Subai.register('initShareButtons', initShareButtons);
 })();

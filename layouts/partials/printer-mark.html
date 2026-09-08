@@ -1,0 +1,17 @@
+{{/*
+  牌记 —— 仿古籍刊记：双线方框、竖排、刊名/纪年/刊地
+  用法：{{ partial "printer-mark.html" . }}（关于主题页）
+*/}}
+{{ $stems := slice "甲" "乙" "丙" "丁" "戊" "己" "庚" "辛" "壬" "癸" }}
+{{ $branches := slice "子" "丑" "寅" "卯" "辰" "巳" "午" "未" "申" "酉" "戌" "亥" }}
+{{ $y := now.Year }}
+{{ $ganzhi := printf "%s%s" (index $stems (mod (sub $y 4) 10)) (index $branches (mod (sub $y 4) 12)) }}
+{{ $author := .Site.Params.author | default "佚名" }}
+
+<div class="printer-mark" role="complementary" aria-label="牌记">
+  <div class="printer-mark-inner">
+    <span class="printer-mark-line">Subai 主题</span>
+    <span class="printer-mark-line">岁在{{ $ganzhi }}重刊</span>
+    <span class="printer-mark-line">{{ $author }}藏版</span>
+  </div>
+</div>

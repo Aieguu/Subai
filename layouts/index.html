@@ -53,26 +53,21 @@
           {{ end }}
         </section>
 
-        {{- $highlightNote := .Site.Params.plugins.highlightNote | default dict -}}
-        {{- $highlightEnabled := $highlightNote.enabled | default false -}}
         <article class="home-mosaic-tile tile-profile tile-2x1">
           <div class="home-profile">
-            {{- if $highlightEnabled }}
-            <button id="note-token-settings" type="button" data-tooltip="划线笔记设置">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-            </button>
-            {{- end }}
             <img class="home-profile-avatar" src="{{ $avatar | relURL }}" alt="{{ $nickname }}" loading="lazy" decoding="async">
             <div class="home-profile-meta">
               <h3>{{ $nickname }}</h3>
               <p>{{ $bio }}</p>
             </div>
+            {{ partial "seal.html" . }}
           </div>
         </article>
 
         <article class="home-mosaic-tile tile-time tile-1x1">
           <div class="home-time-box">
             <p class="home-time-value" data-current-time data-timezone="{{ $timezone }}">--:--</p>
+            <p class="home-time-shichen" data-current-shichen aria-hidden="true"></p>
           </div>
         </article>
 
@@ -126,6 +121,8 @@
             <label class="sr-only" for="home-music-volume">音量</label>
             <input id="home-music-volume" class="home-music-volume-range" data-music-volume type="range" min="0" max="100" value="70" step="1">
           </div>
+
+          <canvas class="home-music-terrain" data-music-terrain aria-hidden="true"></canvas>
         </article>
         <article class="home-mosaic-tile tile-quote tile-2x1" data-home-daily-quote data-switch-time="{{ $dailyQuoteSwitchTime }}" data-type-speed="{{ $dailyQuoteTypeSpeed }}" data-delete-speed="{{ $dailyQuoteDeleteSpeed }}" data-quotes='{{ $dailyQuoteItems | jsonify }}'>
           <div class="home-quote-box">

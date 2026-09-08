@@ -81,30 +81,35 @@
   gap: var(--spacing-sm);
 }
 
-.taxonomy-post-count {
-  background-color: rgba(255, 255, 255, 0.68);
-}
-
 .taxonomy-card:hover .taxonomy-post-count,
 .taxonomy-card:focus-within .taxonomy-post-count {
-  background-color: var(--color-primary);
   border-color: var(--color-primary);
-  color: white;
+  color: var(--color-primary);
 }
 
 .taxonomy-card-icon {
   position: absolute;
   top: var(--spacing-lg);
   right: var(--spacing-lg);
-  width: 2.75rem;
-  height: 2.75rem;
+  width: 2.5rem;
+  height: 2.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 0.875rem;
-  background-color: rgba(148, 163, 184, 0.12);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: transparent;
   color: var(--color-text-muted);
   pointer-events: none;
+  transition:
+    border-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.taxonomy-card:hover .taxonomy-card-icon,
+.taxonomy-card:focus-within .taxonomy-card-icon {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
 }
 
 .taxonomy-card-icon svg {
@@ -131,17 +136,6 @@
 .theme-dark .taxonomy-card:hover .taxonomy-card-title,
 .theme-dark .taxonomy-card:focus-within .taxonomy-card-title {
   color: var(--color-primary);
-}
-
-.theme-dark .taxonomy-post-count {
-  background-color: rgba(15, 23, 42, 0.72);
-  color: var(--color-text-secondary-dark);
-  border-color: var(--color-border-dark);
-}
-
-.theme-dark .taxonomy-card-icon {
-  background-color: rgba(148, 163, 184, 0.14);
-  color: var(--color-text-muted-dark);
 }
 
 /* Responsive taxonomy cards */

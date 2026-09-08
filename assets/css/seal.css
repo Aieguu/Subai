@@ -1,0 +1,144 @@
+/* ==========================================================================
+   Seal & Colophon —— 印章与落款
+   印章是全站唯一的实心朱砂色块：它是身份符号，不随深浅色模式改变
+   （印泥是实物，不是 UI 组件色）
+   ========================================================================== */
+
+:root {
+  --seal-bg: #A63D2A;
+  --seal-ink: #FAF9F6;
+}
+
+.seal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  flex-shrink: 0;
+  border-radius: 4px;
+  background: var(--seal-bg);
+  color: var(--seal-ink);
+  font-family: var(--font-family-heading);
+  font-size: 1.45rem;
+  font-weight: 600;
+  line-height: 1;
+  user-select: none;
+  transform: rotate(-2deg);
+  /* 刻边：内圈细线 */
+  box-shadow:
+    inset 0 0 0 2px rgba(250, 249, 246, 0.3),
+    inset 0 0 0 3.5px var(--seal-bg);
+  transition: transform var(--duration-ui) var(--ease-spring);
+}
+
+/* 两字竖排 */
+.seal-multi {
+  font-size: 1rem;
+  writing-mode: vertical-rl;
+  letter-spacing: 0.1em;
+}
+
+/* 篆刻字形（SVG 印文） */
+.seal-glyph svg {
+  display: block;
+  width: 62%;
+  height: 62%;
+  color: var(--seal-ink);
+}
+
+/* 首次访问：落印定格（JS 每会话只加一次 .seal-in） */
+.seal-in {
+  animation: seal-stamp 480ms var(--ease-out) both;
+}
+
+@keyframes seal-stamp {
+  0% {
+    opacity: 0;
+    transform: rotate(-2deg) scale(1.6);
+    filter: blur(1px);
+  }
+  60% {
+    opacity: 1;
+    transform: rotate(-2deg) scale(0.94);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(-2deg) scale(1);
+    filter: blur(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .seal-in {
+    animation: none;
+  }
+}
+
+/* 文章落款 —— 竖排干支 + 印章，居右，仿字画 */
+.post-colophon {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-2xl);
+  padding-top: var(--spacing-lg);
+}
+
+.colophon-text {
+  writing-mode: vertical-rl;
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-sm);
+  letter-spacing: 0.3em;
+  line-height: 1;
+  color: var(--color-text-muted);
+  user-select: none;
+}
+
+/* 首页 profile 磁贴中的印章：hover 轻按 */
+.tile-profile .seal {
+  margin-left: auto;
+  align-self: flex-start;
+  cursor: default;
+}
+
+.tile-profile .seal:hover {
+  transform: rotate(-2deg) scale(0.92);
+}
+
+@media (max-width: 768px) {
+  .tile-profile .seal {
+    margin-left: 0;
+    align-self: center;
+  }
+}
+
+/* ==========================================================================
+   牌记 —— 仿古籍刊记：双线方框、竖排右起
+   ========================================================================== */
+
+.printer-mark {
+  display: flex;
+  justify-content: center;
+  margin: var(--spacing-3xl) auto 0;
+  user-select: none;
+}
+
+.printer-mark-inner {
+  display: flex;
+  flex-direction: row-reverse; /* 竖排从右往左读 */
+  gap: var(--spacing-lg);
+  padding: var(--spacing-md) var(--spacing-lg);
+  border: 1px solid color-mix(in srgb, var(--color-text) 72%, transparent);
+  outline: 2px solid color-mix(in srgb, var(--color-text) 72%, transparent);
+  outline-offset: 4px;
+}
+
+.printer-mark-line {
+  writing-mode: vertical-rl;
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-sm);
+  letter-spacing: 0.2em;
+  line-height: 1.2;
+  color: var(--color-text);
+}

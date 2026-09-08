@@ -1,49 +1,76 @@
 /* ==========================================================================
-   Hero Section
+   Hero Section —— 纸面排版式，不用渐变横幅
    ========================================================================== */
 
-/* Hero Section */
 .hero {
   position: relative;
-  padding: var(--spacing-3xl) 0;
+  padding: var(--spacing-3xl) 0 var(--spacing-2xl);
   text-align: center;
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
-  color: white;
-  overflow: hidden;
-}
-
-.hero-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.3);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .hero-content {
   position: relative;
   z-index: 1;
+  max-width: 44rem;
+  margin: 0 auto;
+}
+
+/* 仅当设置了背景图时启用遮罩与反白文字 */
+.hero-overlay {
+  display: none;
+}
+
+.hero[style] {
+  border-bottom: none;
+  background-size: cover;
+  background-position: center;
+}
+
+.hero[style] .hero-overlay {
+  display: block;
+  position: absolute;
+  inset: 0;
+  background: rgba(22, 20, 18, 0.52);
+}
+
+.hero[style] .hero-title,
+.hero[style] .hero-subtitle,
+.hero[style] .hero-description {
+  color: #FAF9F6;
+}
+
+.hero-eyebrow {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  margin-bottom: var(--spacing-md);
 }
 
 .hero-title {
+  font-family: var(--font-family-heading);
   font-size: var(--font-size-5xl);
-  font-weight: 700;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.15;
   margin-bottom: var(--spacing-md);
-  color: white;
+  color: var(--color-text);
 }
 
 .hero-subtitle {
+  font-family: var(--font-family-heading);
   font-size: var(--font-size-xl);
+  color: var(--color-text-secondary);
   margin-bottom: var(--spacing-md);
-  opacity: 0.9;
 }
 
 .hero-description {
   font-size: var(--font-size-lg);
+  color: var(--color-text-secondary);
   margin-bottom: var(--spacing-xl);
-  opacity: 0.8;
-  max-width: 600px;
+  max-width: 34rem;
   margin-left: auto;
   margin-right: auto;
 }
@@ -59,31 +86,36 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-sm);
-  padding: var(--spacing-md) var(--spacing-xl);
-  border-radius: var(--radius-lg);
-  font-weight: 600;
+  padding: 0.75rem 1.75rem;
+  border-radius: var(--radius-md);
+  font-weight: 500;
   text-decoration: none;
-  transition: all var(--transition-fast);
+  border: 1px solid transparent;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
 }
 
 .hero-button-primary {
-  background-color: white;
-  color: var(--color-primary);
+  background-color: var(--color-text);
+  color: var(--color-bg);
 }
 
 .hero-button-primary:hover {
-  background-color: var(--color-bg-secondary);
+  background-color: var(--color-primary);
+  color: #fff;
   text-decoration: none;
 }
 
 .hero-button-secondary {
   background-color: transparent;
-  color: white;
-  border: 2px solid white;
+  color: var(--color-text);
+  border-color: var(--color-border-hover);
 }
 
 .hero-button-secondary:hover {
-  background-color: white;
+  border-color: var(--color-primary);
   color: var(--color-primary);
   text-decoration: none;
 }

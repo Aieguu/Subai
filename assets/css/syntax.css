@@ -3,25 +3,25 @@
    ========================================================================== */
 
 :root {
-  --code-bg: #f2f2f2;
-  --code-surface: #ffffff;
-  --code-border: #ebecf0;
-  --code-text: #000000;
-  --code-muted: #8c8c8c;
-  --code-accent: #3574f0;
-  --code-toolbar-bg: #f2f2f2;
-  --code-toolbar-border: #ebecf0;
-  --code-copy-bg: #ffffff;
-  --code-copy-border: #d9dce2;
-  --code-copy-text: #4b5563;
-  --code-copy-hover-bg: #f6f7fa;
+  --code-bg: #F2F0EB;
+  --code-surface: #FBFAF7;
+  --code-border: #E6E3DD;
+  --code-text: #1C1B19;
+  --code-muted: #8A847C;
+  --code-accent: #A63D2A;
+  --code-toolbar-bg: #F2F0EB;
+  --code-toolbar-border: #E6E3DD;
+  --code-copy-bg: #FBFAF7;
+  --code-copy-border: #D8D4CC;
+  --code-copy-text: #57534D;
+  --code-copy-hover-bg: #EDEAE4;
   --code-copy-success-bg: #067d17;
   --code-copy-error-bg: #cf514e;
-  --code-scrollbar-track: #eceef2;
-  --code-scrollbar-thumb: #c2c7d0;
-  --code-line-number: #8c8c8c;
-  --code-line-number-bg: #f2f2f2;
-  --code-line-highlight: rgba(53, 116, 240, 0.1);
+  --code-scrollbar-track: #EDEAE4;
+  --code-scrollbar-thumb: #CFCAC2;
+  --code-line-number: #A39E97;
+  --code-line-number-bg: #F2F0EB;
+  --code-line-highlight: rgba(166, 61, 42, 0.08);
 
   --code-token-keyword: #0033b3;
   --code-token-string: #067d17;
@@ -40,25 +40,25 @@
 }
 
 .theme-dark {
-  --code-bg: #2b2d30;
-  --code-surface: #1e1f22;
-  --code-border: #393b40;
-  --code-text: #bcbec4;
-  --code-muted: #7a7e85;
-  --code-accent: #3574f0;
-  --code-toolbar-bg: #2b2d30;
-  --code-toolbar-border: #393b40;
-  --code-copy-bg: #1e1f22;
-  --code-copy-border: #393b40;
-  --code-copy-text: #bcbec4;
-  --code-copy-hover-bg: #393b40;
+  --code-bg: #211E1B;
+  --code-surface: #1A1815;
+  --code-border: #2E2A26;
+  --code-text: #C9C4BC;
+  --code-muted: #7A746C;
+  --code-accent: #D0684F;
+  --code-toolbar-bg: #211E1B;
+  --code-toolbar-border: #2E2A26;
+  --code-copy-bg: #1A1815;
+  --code-copy-border: #39352F;
+  --code-copy-text: #C9C4BC;
+  --code-copy-hover-bg: #2E2A26;
   --code-copy-success-bg: #6aab73;
   --code-copy-error-bg: #f75464;
-  --code-scrollbar-track: #2b2d30;
-  --code-scrollbar-thumb: #393b40;
-  --code-line-number: #7a7e85;
-  --code-line-number-bg: #2b2d30;
-  --code-line-highlight: rgba(53, 116, 240, 0.18);
+  --code-scrollbar-track: #211E1B;
+  --code-scrollbar-thumb: #39352F;
+  --code-line-number: #6E6961;
+  --code-line-number-bg: #211E1B;
+  --code-line-highlight: rgba(208, 104, 79, 0.14);
 
   --code-token-keyword: #cf8e6d;
   --code-token-string: #6a8759;
@@ -76,6 +76,45 @@
   --code-font: "JetBrains Mono", "Cascadia Code", "Fira Code", Consolas, Monaco, "Courier New", monospace;
 }
 
+/* Auto 深色模式（未手动指定主题时跟随系统） */
+@media (prefers-color-scheme: dark) {
+  :root:not(.theme-light) {
+    --code-bg: #211E1B;
+    --code-surface: #1A1815;
+    --code-border: #2E2A26;
+    --code-text: #C9C4BC;
+    --code-muted: #7A746C;
+    --code-accent: #D0684F;
+    --code-toolbar-bg: #211E1B;
+    --code-toolbar-border: #2E2A26;
+    --code-copy-bg: #1A1815;
+    --code-copy-border: #39352F;
+    --code-copy-text: #C9C4BC;
+    --code-copy-hover-bg: #2E2A26;
+    --code-copy-success-bg: #6aab73;
+    --code-copy-error-bg: #f75464;
+    --code-scrollbar-track: #211E1B;
+    --code-scrollbar-thumb: #39352F;
+    --code-line-number: #6E6961;
+    --code-line-number-bg: #211E1B;
+    --code-line-highlight: rgba(208, 104, 79, 0.14);
+
+    --code-token-keyword: #cf8e6d;
+    --code-token-string: #6a8759;
+    --code-token-comment: #7a7e85;
+    --code-token-number: #2aacb8;
+    --code-token-function: #56a8f5;
+    --code-token-variable: #bcbec4;
+    --code-token-type: #56a8f5;
+    --code-token-operator: #bcbec4;
+    --code-token-attr: #56a8f5;
+    --code-token-regex: #6a8759;
+    --code-token-diff-add: #6aab73;
+    --code-token-diff-remove: #f75464;
+    --code-token-diff-header: #8c8c8c;
+  }
+}
+
 /* ==========================================================================
    Block Layout
    ========================================================================== */
@@ -83,9 +122,8 @@
 .article-codeblock {
   margin: 1.5rem 0;
   border: 1px solid var(--code-border);
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   background: var(--code-bg);
-  box-shadow: 0 1px 2px rgb(15 23 42 / 0.08);
   overflow: hidden;
 }
 

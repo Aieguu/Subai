@@ -20,6 +20,9 @@
             <div class="content-and-toc no-toc">
                 <div class="content main-reveal">
                     {{ .Content }}
+
+                    {{/* 牌记：仿古籍刊记 */}}
+                    {{ partial "printer-mark.html" . }}
                 </div>
             </div>
         </div>

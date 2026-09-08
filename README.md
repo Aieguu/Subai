@@ -31,12 +31,9 @@ git submodule add https://github.com/Aieguu/Subai.git themes/Subai
 
 ```toml
 baseURL = "https://example.com"
-languageCode = "zh-cn"
+locale = "zh-cn"
 title = "我的博客"
 theme = "Subai"
-
-# 中文支持配置
-hasCJKLanguage = true
 
 [params]
   author = "您的名字"
@@ -155,6 +152,64 @@ summary: "文章摘要"
 ```
 
 ## 🎨 自定义配置
+
+### 设计语言与设计令牌
+
+Subai 采用「纸 · 墨 · 朱砂」的编辑排版语言：暖纸底色、墨色文字、单一朱红强调色，标题使用衬线字体（思源宋体，已自托管子集分片），正文使用系统黑体。全站组件以 1px 发丝线分隔，不使用渐变卡片与大投影。
+
+默认色板与字体可通过站点配置覆盖（无需修改主题源码）：
+
+```toml
+[params.colors]
+  primary            = "#A63D2A"   # 强调色（朱砂赭红）
+  primaryHover       = "#8C3221"
+  bg                 = "#FAF9F6"   # 浅色：暖纸
+  bgSecondary        = "#F2F0EB"
+  text               = "#1C1B19"   # 墨色
+  textSecondary      = "#57534D"
+  textMuted          = "#A39E97"
+  border             = "#E6E3DD"
+  borderHover        = "#CFCAC2"
+  bgDark             = "#161412"   # 深色：暖墨
+  bgSecondaryDark    = "#1F1C19"
+  textDark           = "#E9E6E1"
+  textSecondaryDark  = "#B8B2AA"
+  textMutedDark      = "#7A746C"
+  borderDark         = "#2E2A26"
+  borderHoverDark    = "#453F39"
+  primaryOnDark      = "#D0684F"   # 深色模式下强调色（提亮）
+  primaryHoverOnDark = "#DE8070"
+
+[params.fonts]
+  base    = "system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif"
+  heading = "'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', serif"
+  mono    = "'JetBrains Mono', 'SF Mono', Consolas, monospace"
+```
+
+其他设计约定：
+
+- 正文字号 17px、行高 1.85（中文长文优化），正文栏宽默认 50rem（可用 `params.contentMaxWidth` 覆盖）
+- 标题字阶按 1.333 模数比例，全部使用衬线 600 字重
+- 动效统一 `cubic-bezier(0.16, 1, 0.3, 1)`（expo.out），主题切换使用 View Transitions 圆形展开（不支持时自动回退淡入）
+- 自托管字体位于 `static/fonts/`（Noto Serif SC 600 全部 unicode-range 分片 + JetBrains Mono 400/500），浏览器按需加载分片
+
+### 纸墨细节
+
+主题内置一系列"只有纸墨博客才有"的元素：
+
+- **印章落款**：文章末尾自动生成竖排干支纪年落款（如「丙午年秋」）+ 朱砂印章；首页个人磁贴右侧也有印章，每会话首次进入视口时播放一次"落印"动画。印文默认从作者名推导——中文取前两字竖排，拉丁首字母 "A" 启用内置篆刻字形（直刀笔画 + 糙边 SVG），其余字母按衬线文字渲染；可覆盖：
+
+  ```toml
+  [params.seal]
+    text = "自在"   # 1–2 个汉字（竖排）或 1 个拉丁字母
+  ```
+
+- **洇墨打字机**：首页每日一句逐字从模糊洇开到定形，朱砂块状光标；`prefers-reduced-motion` 下退化为纯文本逐字
+- **时辰与节气**：首页时钟磁贴下方显示十二时辰（如「未时」）；页脚版权行尾显示当前节气与物候（如「白露 · 鸿雁来」），纯本地计算，零网络请求
+- **山水频谱**：音乐磁贴底部的水墨山峦随播放起伏——WebAudio 频谱映射成三层山脊（远山淡、近山浓），暂停时静止为剪影；分析器单例跨 PJAX 复用，`prefers-reduced-motion` 下只画静态剪影
+- **朱批**：划线笔记全面融入纸墨体系——划线为朱笔圈点（悬停朱砂晕染），同步状态以朱砂为记，弹窗改纸面卡片与衬线标题，状态色由插件局部令牌 `--note-*` 管理
+- **404 墨圈**：404 页面为一笔未合拢的墨圈（SVG 描边动画 + 糙边滤镜），配「此处无物」
+- **牌记**：「关于主题」页文末自动附仿古籍刊记——双线方框竖排：「Subai 主题 / 岁在丙午重刊 / 某氏藏版」，干支纪年由模板计算
 
 ### 导航菜单
 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ .Site.LanguageCode | default "en" }}" class="no-js">
+<html lang="{{ .Site.Language.Locale | default "en" }}" class="no-js">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -14,8 +14,6 @@
 </head>
 
 <body class="theme-{{ .Site.Params.theme | default "light" }}">
-  <a class="skip-link" href="#main-content">{{ i18n "skip_to_content" | default "Skip to content" }}</a>
-  
   <div class="site-wrapper">
     {{ partial "header.html" . }}
     

@@ -1,0 +1,29 @@
+{{ define "main" }}
+{{/*
+  404 —— 一笔未合拢的墨圈 +「此处无物」
+  访客迷路时撞见全站最酷的一页
+*/}}
+<section class="ink-404" aria-label="页面不存在">
+  <svg class="ink-circle" viewBox="0 0 200 200" role="img" aria-hidden="true">
+    <defs>
+      <filter id="ink-rough">
+        <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="2" seed="7" result="noise"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="5"/>
+      </filter>
+    </defs>
+    <circle class="ink-circle-path"
+            cx="100" cy="100" r="72"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="7"
+            stroke-linecap="round"
+            filter="url(#ink-rough)"/>
+  </svg>
+
+  <h1 class="ink-404-title">此处无物</h1>
+  <p class="ink-404-desc">你要找的页面不在此处，或许从未存在。</p>
+  <p class="ink-404-actions">
+    <a class="ink-404-link" href="{{ "/" | relLangURL }}">返回首页</a>
+  </p>
+</section>
+{{ end }}

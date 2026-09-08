@@ -66,6 +66,9 @@
         {{- end -}}
         <div class="content main-reveal" data-highlight-article-id="{{ $articleId }}" data-highlight-article-path="{{ $articlePath }}" data-highlight-section="{{ .Section }}">
           {{ .Content }}
+
+          {{/* 落款：干支纪年 + 印章 */}}
+          {{ partial "colophon.html" . }}
         </div>
 
         {{ if .TableOfContents }}

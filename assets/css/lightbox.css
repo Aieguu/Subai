@@ -56,14 +56,11 @@ body.image-lightbox-open {
 .image-lightbox-backdrop {
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(circle at top left, rgba(255, 255, 255, 0.18), transparent 32%),
-    radial-gradient(circle at top right, rgba(148, 163, 184, 0.16), transparent 28%),
-    linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(15, 23, 42, 0.28));
-  backdrop-filter: blur(18px) saturate(160%);
-  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  background: rgba(12, 10, 9, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   opacity: 0;
-  transition: opacity 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 0.28s var(--ease-out);
 }
 
 .image-lightbox-overlay.is-open .image-lightbox-backdrop {
@@ -104,13 +101,13 @@ body.image-lightbox-open {
   max-height: calc(100vh - 7rem);
   width: auto;
   height: auto;
-  border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  border-radius: var(--radius-md);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
   background: var(--color-bg);
   transform: scale(0.985);
   transition:
-    transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+    transform 0.32s var(--ease-out),
+    box-shadow 0.32s var(--ease-out);
   will-change: transform;
 }
 
@@ -123,21 +120,18 @@ body.image-lightbox-open {
   left: 50%;
   bottom: 0;
   max-width: min(100%, 860px);
-  color: #f8fafc;
+  color: rgba(233, 230, 225, 0.9);
   text-align: center;
+  font-family: var(--font-family-heading);
   font-size: var(--font-size-sm);
+  letter-spacing: 0.03em;
   line-height: 1.6;
   padding: 0.5rem 1rem;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
   opacity: 0;
   transform: translate(-50%, 8px);
   transition:
     opacity 0.24s ease 0.04s,
-    transform 0.32s cubic-bezier(0.22, 1, 0.36, 1) 0.04s;
+    transform 0.32s var(--ease-out) 0.04s;
 }
 
 .image-lightbox-overlay.is-open .image-lightbox-caption {

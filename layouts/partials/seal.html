@@ -1,0 +1,34 @@
+{{/*
+  印章 —— 全站唯一的实心朱砂色块，身份符号
+  文字优先级：params.seal.text > 作者名推导（中文取前两字竖排，拉丁取首字母花押）
+  印文为 "A" 时启用篆刻字形（直刀笔画 + 糙边）；其余按文字渲染
+  用法：{{ partial "seal.html" . }}
+*/}}
+{{ $sealCfg := .Site.Params.seal | default dict }}
+{{ $text := $sealCfg.text | default "" }}
+{{ if not $text }}
+  {{ $author := .Site.Params.author | default .Site.Title }}
+  {{ if findRE `\p{Han}` $author }}
+    {{ $text = substr $author 0 2 }}
+  {{ else }}
+    {{ $text = upper (substr $author 0 1) }}
+  {{ end }}
+{{ end }}
+{{ if eq $text "A" }}
+  <span class="seal seal-glyph" aria-hidden="true">
+    <svg viewBox="0 0 100 100" role="presentation">
+      <defs>
+        <filter id="seal-rough">
+          <feTurbulence type="fractalNoise" baseFrequency="0.55" numOctaves="1" seed="4" result="noise"/>
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="0.9"/>
+        </filter>
+      </defs>
+      <g filter="url(#seal-rough)">
+        <path d="M31 83 L50 18 L69 83" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="butt" stroke-linejoin="miter"/>
+        <path d="M35 59 L65 57" fill="none" stroke="currentColor" stroke-width="8.5" stroke-linecap="butt"/>
+      </g>
+    </svg>
+  </span>
+{{ else }}
+  <span class="seal{{ if ge (len (split $text "")) 2 }} seal-multi{{ end }}" aria-hidden="true">{{ $text }}</span>
+{{ end }}

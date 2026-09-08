@@ -1,0 +1,17 @@
+{{/*
+  文章落款 —— 干支纪年 + 印章，仿字画落款
+  用法：{{ partial "colophon.html" . }}（仅在文章页）
+*/}}
+{{ $stems := slice "甲" "乙" "丙" "丁" "戊" "己" "庚" "辛" "壬" "癸" }}
+{{ $branches := slice "子" "丑" "寅" "卯" "辰" "巳" "午" "未" "申" "酉" "戌" "亥" }}
+{{ $y := .Date.Year }}
+{{ $ganzhi := printf "%s%s" (index $stems (mod (sub $y 4) 10)) (index $branches (mod (sub $y 4) 12)) }}
+{{ $m := int (.Date.Format "1") }}
+{{ $season := "冬" }}
+{{ if and (ge $m 2) (le $m 4) }}{{ $season = "春" }}
+{{ else if and (ge $m 5) (le $m 7) }}{{ $season = "夏" }}
+{{ else if and (ge $m 8) (le $m 10) }}{{ $season = "秋" }}{{ end }}
+<div class="post-colophon">
+  <span class="colophon-text">{{ $ganzhi }}年{{ $season }}</span>
+  {{ partial "seal.html" . }}
+</div>

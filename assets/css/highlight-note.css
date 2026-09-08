@@ -1,29 +1,55 @@
-/* ========== 划线笔记标记 ========== */
+/* ========== 朱批令牌：划线笔记状态色（融入纸墨朱砂体系） ========== */
+
+:root {
+  --note-pending: #B45309;
+  --note-failed: #CF514E;
+  --note-success: #067D17;
+}
+
+.theme-dark {
+  --note-pending: #D89A4A;
+  --note-failed: #E07870;
+  --note-success: #6AAB73;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.theme-light) {
+    --note-pending: #D89A4A;
+    --note-failed: #E07870;
+    --note-success: #6AAB73;
+  }
+}
+
+/* ========== 划线笔记标记 —— 朱笔圈点 ========== */
 
 .highlight-note {
   background: none;
   color: inherit;
-  border-bottom: 2px solid var(--color-accent, #f59e0b);
+  border-bottom: 2px solid color-mix(in srgb, var(--color-primary, #A63D2A) 55%, transparent);
   cursor: pointer;
-  transition: border-color var(--transition-fast, 150ms);
+  transition:
+    border-color var(--transition-fast, 150ms),
+    background-color var(--transition-fast, 150ms);
   position: relative;
   padding-bottom: 1px;
 }
 
+/* 悬停：朱砂晕染 */
 .highlight-note:hover {
-  border-bottom-color: var(--color-primary, #2563eb);
+  border-bottom-color: var(--color-primary, #A63D2A);
+  background: color-mix(in srgb, var(--color-primary, #A63D2A) 8%, transparent);
 }
 
 .highlight-note.pending {
-  border-bottom-color: var(--color-accent, #f59e0b);
+  border-bottom-color: var(--note-pending);
 }
 
 .highlight-note.synced {
-  border-bottom-color: #10b981;
+  border-bottom-color: var(--color-primary, #A63D2A);
 }
 
 .highlight-note.failed {
-  border-bottom-color: #ef4444;
+  border-bottom-color: var(--note-failed);
 }
 
 /* ========== Loading 指示器 ========== */
@@ -107,13 +133,13 @@
 }
 
 .note-toast-success {
-  color: #16a34a;
-  border-color: #bbf7d0;
+  color: var(--note-success);
+  border-color: color-mix(in srgb, var(--note-success) 28%, transparent);
 }
 
 .note-toast-error {
-  color: #dc2626;
-  border-color: #fecaca;
+  color: var(--note-failed);
+  border-color: color-mix(in srgb, var(--note-failed) 28%, transparent);
 }
 
 .note-toast-hide {
@@ -139,7 +165,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(12, 10, 9, 0.45);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -163,12 +189,13 @@
 .note-card {
   width: 320px;
   background: var(--color-bg, #ffffff);
-  border-radius: 12px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.03);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: var(--radius-lg, 8px);
+  box-shadow: var(--shadow-lg, 0 12px 32px -8px rgba(0,0,0,0.14));
   padding: 16px;
   color: var(--color-text, #333333);
   overflow: hidden;
-  animation: slideUp 0.25s ease;
+  animation: slideUp 0.25s var(--ease-out, ease);
 }
 
 .note-card__header {
@@ -181,6 +208,7 @@
 
 .note-card__title {
   margin: 0;
+  font-family: var(--font-family-heading, serif);
   font-size: 16px;
   font-weight: 600;
   overflow: hidden;
@@ -190,15 +218,15 @@
 }
 
 .note-card__title--pending {
-  color: var(--color-accent, #f59e0b);
+  color: var(--note-pending);
 }
 
 .note-card__title--synced {
-  color: #10b981;
+  color: var(--color-primary, #A63D2A);
 }
 
 .note-card__title--failed {
-  color: #ef4444;
+  color: var(--note-failed);
 }
 
 .note-card__actions {
@@ -262,26 +290,26 @@
 }
 
 .note-card__btn--delete:hover {
-  background: #fee2e2;
-  color: #ef4444;
+  background: color-mix(in srgb, var(--note-failed) 12%, transparent);
+  color: var(--note-failed);
 }
 
 .note-card__btn--confirm {
-  color: #10b981;
+  color: var(--color-primary, #A63D2A);
 }
 
 .note-card__btn--confirm:hover {
-  background: #d1fae5;
-  color: #065f46;
+  background: color-mix(in srgb, var(--color-primary, #A63D2A) 10%, transparent);
+  color: var(--color-primary-hover, #8C3221);
 }
 
 .theme-dark .note-card__btn--confirm {
-  color: #4ade80;
+  color: var(--color-primary, #D0684F);
 }
 
 .theme-dark .note-card__btn--confirm:hover {
-  background: #14532d;
-  color: #86efac;
+  background: color-mix(in srgb, var(--color-primary, #D0684F) 20%, transparent);
+  color: var(--color-primary-hover, #DE8070);
 }
 
 .note-card__view-container {
@@ -442,8 +470,8 @@ input.note-card__textarea {
 
 .note-input:focus {
   outline: none;
-  border-color: var(--color-primary, #2563eb);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  border-color: var(--color-primary, #A63D2A);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary, #A63D2A) 16%, transparent);
 }
 
 .note-dialog-footer {
@@ -491,18 +519,14 @@ input.note-card__textarea {
 }
 
 .btn-danger {
-  background: #ef4444;
+  background: var(--note-failed);
   color: white;
-  border-color: #ef4444;
+  border-color: var(--note-failed);
 }
 
 .btn-danger:hover {
-  background: #dc2626;
-}
-
-
-.btn-danger:hover {
-  background: #dc2626;
+  background: #B84340;
+  border-color: #B84340;
 }
 
 /* ========== Dark Mode ========== */
@@ -525,15 +549,15 @@ input.note-card__textarea {
 }
 
 .theme-dark .note-card__title--pending {
-  color: #fbbf24;
+  color: var(--note-pending);
 }
 
 .theme-dark .note-card__title--synced {
-  color: #4ade80;
+  color: var(--color-primary, #D0684F);
 }
 
 .theme-dark .note-card__title--failed {
-  color: #f87171;
+  color: var(--note-failed);
 }
 
 .theme-dark .note-card__btn {
@@ -546,8 +570,8 @@ input.note-card__textarea {
 }
 
 .theme-dark .note-card__btn--delete:hover {
-  background: #7f1d1d;
-  color: #fca5a5;
+  background: color-mix(in srgb, var(--note-failed) 26%, transparent);
+  color: var(--note-failed);
 }
 
 .theme-dark .note-card__view {
@@ -556,13 +580,13 @@ input.note-card__textarea {
 
 
 .theme-dark .note-toast-success {
-  color: #4ade80;
-  border-color: #166534;
+  color: var(--note-success);
+  border-color: color-mix(in srgb, var(--note-success) 32%, transparent);
 }
 
 .theme-dark .note-toast-error {
-  color: #f87171;
-  border-color: #991b1b;
+  color: var(--note-failed);
+  border-color: color-mix(in srgb, var(--note-failed) 32%, transparent);
 }
 
 /* ========== 动画 ========== */
@@ -577,24 +601,28 @@ input.note-card__textarea {
   to { transform: translateY(0); opacity: 1; }
 }
 
-/* ========== 令牌设置按钮 ========== */
+/* ========== 令牌设置按钮（位于页脚 footer-actions） ========== */
 
 #note-token-settings {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 32px;
-  height: 32px;
+  position: relative;
+  width: 2.1rem;
+  height: 2.1rem;
   background: transparent;
-  border: none;
-  border-radius: 50%;
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: var(--radius-md, 6px);
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  z-index: 2;
-  opacity: 0.4;
-  transition: opacity 0.2s;
+  color: var(--color-text-secondary, #57534d);
+  transition:
+    border-color var(--transition-fast, 150ms),
+    color var(--transition-fast, 150ms);
+}
+
+#note-token-settings:hover {
+  border-color: var(--color-primary, #A63D2A);
+  color: var(--color-primary, #A63D2A);
 }
 
 #note-token-settings::after {
@@ -624,16 +652,17 @@ input.note-card__textarea {
   color: var(--color-bg-dark, #1e293b);
 }
 
-#note-token-settings:hover {
-  opacity: 0.8;
-}
-
 #note-token-settings svg {
   width: 16px;
   height: 16px;
-  color: var(--color-text-secondary, #64748b);
 }
 
-.theme-dark #note-token-settings svg {
-  color: var(--color-text-secondary-dark, #94a3b8);
+.theme-dark #note-token-settings {
+  color: var(--color-text-secondary-dark, #b8b2aa);
+  border-color: var(--color-border-dark, #2e2a26);
+}
+
+.theme-dark #note-token-settings:hover {
+  border-color: var(--color-primary, #D0684F);
+  color: var(--color-primary, #D0684F);
 }

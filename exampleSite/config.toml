@@ -1,12 +1,9 @@
 # 基本站点信息
 baseURL = "https://example.com"
-languageCode = "zh-cn"
+locale = "zh-cn"
 title = "我的博客"
 # themesDir = ""
 theme = "Subai"
-
-# 中文支持配置
-hasCJKLanguage = true
 
 # 站点参数配置
 [params]

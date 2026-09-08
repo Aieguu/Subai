@@ -1,5 +1,5 @@
 /* ==========================================================================
-   搜索功能样式
+   Search Styles —— 发丝边框展开式搜索框
    ========================================================================== */
 
 .search-container {
@@ -21,32 +21,19 @@
   color: var(--color-text-secondary);
   cursor: pointer;
   border-radius: 999px;
-  transition: color var(--theme-transition-fast);
+  transition: color var(--transition-fast);
   z-index: 2;
   position: relative;
 }
 
 .search-toggle:hover,
 .search-toggle:focus-visible {
-  color: var(--color-primary);
+  color: var(--color-text);
   background-color: transparent;
-  box-shadow: none;
-  transform: none;
 }
 
 .search-toggle.active {
-  background-color: transparent;
   color: var(--color-primary);
-}
-
-.theme-dark .search-toggle {
-  color: var(--color-text-secondary-dark);
-}
-
-.theme-dark .search-toggle:hover,
-.theme-dark .search-toggle:focus-visible {
-  color: var(--color-primary);
-  background-color: transparent;
 }
 
 .search-form {
@@ -63,8 +50,8 @@
   padding: 0;
   background-color: var(--color-bg);
   border: 1px solid transparent;
-  border-radius: 999px;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
   opacity: 0;
   visibility: hidden;
   overflow: hidden;
@@ -74,7 +61,7 @@
     transform var(--transition-normal),
     max-width var(--transition-normal),
     padding var(--transition-normal),
-    border-color var(--theme-transition-fast),
+    border-color var(--transition-fast),
     visibility var(--transition-normal);
   z-index: 1;
 }
@@ -87,15 +74,6 @@
   visibility: visible;
   pointer-events: auto;
   transform: translateY(-50%) translateX(0) scale(1);
-}
-
-.theme-dark .search-form {
-  background-color: var(--color-bg-dark);
-  box-shadow: 0 12px 28px rgba(2, 6, 23, 0.38);
-}
-
-.theme-dark .search-form.active {
-  border-color: var(--color-border-dark);
 }
 
 .search-input {
@@ -111,10 +89,6 @@
 
 .search-input::placeholder {
   color: var(--color-text-muted);
-}
-
-.theme-dark .search-input::placeholder {
-  color: var(--color-text-muted-dark);
 }
 
 @media (max-width: 768px) {

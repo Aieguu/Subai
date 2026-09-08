@@ -12,14 +12,103 @@
     initMobileMenu();
     initSmoothScrolling();
     initThemeSelector();
+    initThemeToggle();
     invokeSubai('initHomeCurrentTime');
     invokeSubai('initDailyQuote');
     invokeSubai('initMusicPlayer');
+    invokeSubai('initMusicTerrain');
     invokeSubai('initShareButtons');
     initPjaxNavigation();
     initAnimations();
-    initAccessibility();
+    initSealStamp();
+    initSolarTerm();
   });
+
+  /**
+   * 页脚节气 · 物候（本地计算，零请求）
+   * 节气日期用 21 世纪通用公式：[Y×0.2422 + C] − [(Y−1)/4]
+   */
+  const SOLAR_TERMS = [
+    ['小寒', 1, 6.11, ['雁北乡', '鹊始巢', '雉雊']],
+    ['大寒', 1, 20.84, ['鸡乳', '征鸟厉疾', '水泽腹坚']],
+    ['立春', 2, 3.87, ['东风解冻', '蛰虫始振', '鱼陟负冰']],
+    ['雨水', 2, 18.73, ['獭祭鱼', '鸿雁来', '草木萌动']],
+    ['惊蛰', 3, 5.63, ['桃始华', '仓庚鸣', '鹰化为鸠']],
+    ['春分', 3, 20.646, ['玄鸟至', '雷乃发声', '始电']],
+    ['清明', 4, 5.59, ['桐始华', '田鼠化为鴽', '虹始见']],
+    ['谷雨', 4, 20.888, ['萍始生', '鸣鸠拂其羽', '戴胜降于桑']],
+    ['立夏', 5, 5.52, ['蝼蝈鸣', '蚯蚓出', '王瓜生']],
+    ['小满', 5, 21.04, ['苦菜秀', '靡草死', '麦秋至']],
+    ['芒种', 6, 5.678, ['螳螂生', '鵙始鸣', '反舌无声']],
+    ['夏至', 6, 21.37, ['鹿角解', '蜩始鸣', '半夏生']],
+    ['小暑', 7, 7.108, ['温风至', '蟋蟀居宇', '鹰始鸷']],
+    ['大暑', 7, 22.83, ['腐草为萤', '土润溽暑', '大雨行时']],
+    ['立秋', 8, 7.5, ['凉风至', '白露降', '寒蝉鸣']],
+    ['处暑', 8, 23.13, ['鹰乃祭鸟', '天地始肃', '禾乃登']],
+    ['白露', 9, 7.646, ['鸿雁来', '玄鸟归', '群鸟养羞']],
+    ['秋分', 9, 23.042, ['雷始收声', '蛰虫坯户', '水始涸']],
+    ['寒露', 10, 8.318, ['鸿雁来宾', '雀入大水为蛤', '菊有黄华']],
+    ['霜降', 10, 23.438, ['豺乃祭兽', '草木黄落', '蛰虫咸俯']],
+    ['立冬', 11, 7.438, ['水始冰', '地始冻', '雉入大水为蜃']],
+    ['小雪', 11, 22.36, ['虹藏不见', '天气上升地气下降', '闭塞而成冬']],
+    ['大雪', 12, 7.18, ['鹖鴠不鸣', '虎始交', '荔挺出']],
+    ['冬至', 12, 21.94, ['蚯蚓结', '麋角解', '水泉动']]
+  ];
+
+  function initSolarTerm() {
+    const el = document.querySelector('[data-solar-term]');
+    if (!el || el.dataset.computed === 'true') return;
+
+    const now = new Date();
+    const year = now.getFullYear();
+    const y = year % 100;
+    const termDay = (c) => Math.floor(y * 0.2422 + c) - Math.floor((y - 1) / 4);
+
+    let current = null;
+    for (const [name, month, c, hous] of SOLAR_TERMS) {
+      const date = new Date(year, month - 1, termDay(c));
+      if (date <= now) {
+        current = { name, start: date, hous };
+      }
+    }
+
+    // 元旦至小寒前：仍在上一年冬至
+    if (!current) {
+      const prevY = (year - 1) % 100;
+      const day = Math.floor(prevY * 0.2422 + 21.94) - Math.floor((prevY - 1) / 4);
+      current = { name: '冬至', start: new Date(year - 1, 11, day), hous: SOLAR_TERMS[23][3] };
+    }
+
+    const houIndex = Math.min(2, Math.floor((now - current.start) / 86400000 / 5));
+    el.textContent = `${current.name} · ${current.hous[houIndex]}`;
+    el.hidden = false;
+    el.dataset.computed = 'true';
+  }
+
+  /**
+   * 落印 —— 每会话只在印章第一次进入视口时播放一次定格动画
+   */
+  function initSealStamp() {
+    const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced || !('IntersectionObserver' in window)) return;
+
+    let stamped = false;
+    try { stamped = sessionStorage.getItem('subai-seal-stamped') === '1'; } catch (e) { /* ignore */ }
+    if (stamped) return;
+
+    const seals = document.querySelectorAll('.seal:not(.seal-in)');
+    if (!seals.length) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      seals.forEach((seal) => seal.classList.add('seal-in'));
+      try { sessionStorage.setItem('subai-seal-stamped', '1'); } catch (e) { /* ignore */ }
+      observer.disconnect();
+    }, { threshold: 0.5 });
+
+    seals.forEach((seal) => observer.observe(seal));
+    window.Subai.setState('sealObserver', observer);
+  }
 
   /**
    * Initialize theme on page load
@@ -152,10 +241,9 @@
 
     // Add click handlers
     themeOptions.forEach(option => {
-      option.addEventListener('click', function() {
+      option.addEventListener('click', function(event) {
         const theme = this.dataset.theme;
-        setTheme(theme);
-        updateThemeSelector();
+        setThemeWithTransition(theme, event.clientX, event.clientY);
       });
     });
 
@@ -191,13 +279,7 @@
     });
   }
 
-  function setTheme(theme) {
-    localStorage.setItem('theme', theme);
-    
-    // Add transitioning class for smooth animations
-    document.documentElement.classList.add('theme-transitioning');
-    
-    // Apply theme immediately for better performance
+    function applyThemeClasses(theme) {
     if (theme === 'auto') {
       // Remove all theme classes to let CSS media queries handle auto detection
       document.documentElement.classList.remove('theme-dark', 'theme-light');
@@ -208,11 +290,89 @@
       document.documentElement.classList.remove('theme-dark');
       document.documentElement.classList.add('theme-light');
     }
-    
+  }
+
+  function setTheme(theme) {
+    localStorage.setItem('theme', theme);
+
+    // Add transitioning class for smooth animations
+    document.documentElement.classList.add('theme-transitioning');
+
+    applyThemeClasses(theme);
+
     // Remove transitioning class after animation completes
     setTimeout(() => {
       document.documentElement.classList.remove('theme-transitioning');
     }, 200); // Match --theme-transition duration
+  }
+
+  function effectiveTheme() {
+    const saved = localStorage.getItem('theme') || 'auto';
+    if (saved !== 'auto') return saved;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+      ? 'dark'
+      : 'light';
+  }
+
+  /**
+   * Theme switch with View Transitions circular reveal from the click point.
+   * Falls back to the classic cross-fade when unsupported / reduced motion.
+   */
+  function setThemeWithTransition(theme, x, y) {
+    const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced || typeof document.startViewTransition !== 'function') {
+      setTheme(theme);
+      updateThemeSelector();
+      return;
+    }
+
+    const originX = typeof x === 'number' ? x : window.innerWidth / 2;
+    const originY = typeof y === 'number' ? y : window.innerHeight / 2;
+
+    // localStorage 与主题类都在 VT 回调中才真正应用，
+    // UI 联动（页脚选择器选中态）必须在同一时刻同步，否则会慢一拍
+    const transition = document.startViewTransition(() => {
+      localStorage.setItem('theme', theme);
+      applyThemeClasses(theme);
+      updateThemeSelector();
+    });
+
+    transition.ready.then(() => {
+      const radius = Math.hypot(
+        Math.max(originX, window.innerWidth - originX),
+        Math.max(originY, window.innerHeight - originY)
+      );
+      document.documentElement.animate(
+        {
+          clipPath: [
+            `circle(0px at ${originX}px ${originY}px)`,
+            `circle(${radius}px at ${originX}px ${originY}px)`
+          ]
+        },
+        {
+          duration: 480,
+          easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+          pseudoElement: '::view-transition-new(root)'
+        }
+      );
+    }).catch(() => {});
+  }
+
+  /**
+   * Header theme toggle (sun/moon) — flips between explicit light/dark.
+   */
+  function initThemeToggle() {
+    const toggle = document.querySelector('[data-theme-toggle]');
+    if (!toggle || toggle.dataset.bound === 'true') return;
+
+    toggle.addEventListener('click', function(event) {
+      const next = effectiveTheme() === 'dark' ? 'light' : 'dark';
+      const x = event.clientX || window.innerWidth - 48;
+      const y = event.clientY || 40;
+      setThemeWithTransition(next, x, y);
+    });
+
+    toggle.dataset.bound = 'true';
   }
 
   function invokeSubai(name, ...args) {
@@ -418,7 +578,9 @@
         invokeSubai('initHomeCurrentTime');
         invokeSubai('initDailyQuote');
         invokeSubai('initMusicPlayer');
+        invokeSubai('initMusicTerrain');
         initAnimations();
+        initSealStamp();
 
         if (!shouldReduceMotion()) {
           currentMain.classList.remove('is-pjax-leaving');
@@ -517,30 +679,13 @@
         rootMargin: '0px 0px -50px 0px'
       });
 
-      // Animate elements on scroll
-      document.querySelectorAll('.post-card, .taxonomy-card, .home-mosaic-tile').forEach(el => {
+      // Animate elements on scroll —— stagger 逐项入场，封顶 8 项
+      document.querySelectorAll('.post-card, .taxonomy-card, .home-mosaic-tile').forEach((el, index) => {
+        el.style.setProperty('--stagger-index', Math.min(index % 8, 7));
         animationObserver.observe(el);
       });
 
       window.Subai.setState('animObserver', animationObserver);
-    }
-  }
-
-  /**
-   * Accessibility Enhancements
-   */
-  function initAccessibility() {
-    // Skip link functionality
-    const skipLink = document.querySelector('.skip-link');
-    if (skipLink) {
-      skipLink.addEventListener('click', function(e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-          target.focus();
-          target.scrollIntoView();
-        }
-      });
     }
   }
 

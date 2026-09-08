@@ -1,29 +1,33 @@
 /* ==========================================================================
-   Footer
+   Footer —— Colophon 风格：发丝顶边、小字、文字化链接
    ========================================================================== */
 
 .site-footer {
-  background-color: var(--color-bg-secondary);
+  background: transparent;
   border-top: 1px solid var(--color-border);
-  padding: var(--spacing-xl) 0 var(--spacing-md);
-  margin-top: var(--spacing-2xl);
-  transition: background-color var(--theme-transition);
+  padding: var(--spacing-2xl) 0 var(--spacing-lg);
+  margin-top: var(--spacing-3xl);
+  transition: border-color var(--theme-transition);
 }
 
 .footer-content {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: var(--spacing-lg);
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
 }
 
 .footer-title {
+  font-family: var(--font-family-heading);
   font-size: var(--font-size-lg);
+  font-weight: 600;
+  letter-spacing: 0.02em;
   margin-bottom: var(--spacing-sm);
 }
 
 .footer-description {
   color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
   margin-bottom: var(--spacing-md);
 }
 
@@ -39,40 +43,30 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 50%;
-  background-color: var(--color-bg);
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius-md);
+  background: transparent;
   color: var(--color-text-secondary);
   border: 1px solid var(--color-border);
-  position: relative;
-  overflow: visible;
-  z-index: 1;
-  font-weight: 600;
   font-size: var(--font-size-sm);
   line-height: 1;
   text-align: center;
   padding: 0.4rem;
   transition:
-    transform var(--action-surface-transition),
-    box-shadow var(--action-surface-transition),
-    border-radius var(--action-surface-transition),
-    border-color var(--action-surface-transition),
-    background-color var(--theme-transition-fast),
-    color var(--theme-transition-fast);
-  will-change: transform;
+    border-color var(--transition-fast),
+    color var(--transition-fast);
 }
 
 .footer-social-item .social-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 1.1rem;
-  height: 1.1rem;
+  width: 1.05rem;
+  height: 1.05rem;
   flex: 0 0 auto;
   line-height: 1;
   font-size: inherit;
-  overflow: visible;
 }
 
 .footer-social-item .social-icon svg {
@@ -80,47 +74,24 @@
   width: 100%;
   height: 100%;
   fill: currentColor;
-  overflow: visible;
-  transition: fill var(--action-surface-transition);
 }
 
 .footer-social-item .social-icon svg [fill]:not([fill='none']) {
   fill: currentColor;
 }
 
-/* 深色主题下的footer social样式 */
-.theme-dark .footer-social-item a {
-  background-color: var(--color-bg-dark);
-  color: var(--color-text-secondary-dark);
-  border-color: var(--color-border-dark);
-}
-
 .footer-social-item a:hover,
 .footer-social-item a:focus-visible {
   text-decoration: none;
-  border-radius: var(--action-surface-radius-hover);
-  transform: var(--action-surface-lift);
-  box-shadow: var(--action-surface-shadow);
-  background-color: var(--color-primary);
-  color: white;
   border-color: var(--color-primary);
-}
-
-.theme-dark .footer-social-item a:hover,
-.theme-dark .footer-social-item a:focus-visible {
-  background-color: var(--color-primary);
-  color: white;
-  border-color: var(--color-primary);
-  box-shadow:
-    0 14px 32px rgba(37, 99, 235, 0.28),
-    0 4px 12px rgba(15, 23, 42, 0.22);
+  color: var(--color-primary);
 }
 
 .footer-bottom {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: var(--spacing-md);
+  padding-top: var(--spacing-lg);
   border-top: 1px solid var(--color-border);
   flex-wrap: wrap;
   gap: var(--spacing-md);
@@ -138,6 +109,13 @@
   font-size: var(--font-size-sm);
 }
 
+/* 节气 · 物候：版权行尾的静音小字 */
+.footer-term::before {
+  content: "·";
+  margin: 0 0.6em;
+  color: var(--color-border-hover);
+}
+
 .footer-credits {
   color: var(--color-text-muted);
   font-size: var(--font-size-xs);
@@ -146,13 +124,17 @@
 
 .footer-credits a {
   color: var(--color-text-muted);
-  text-decoration: none;
-  transition: color var(--transition-fast);
+  text-decoration: underline;
+  text-decoration-color: var(--color-border-hover);
+  text-underline-offset: 3px;
+  transition:
+    color var(--transition-fast),
+    text-decoration-color var(--transition-fast);
 }
 
 .footer-credits a:hover {
   color: var(--color-primary);
-  text-decoration: none;
+  text-decoration-color: var(--color-primary);
 }
 
 .footer-links-bottom {
@@ -173,33 +155,32 @@
   text-decoration: none;
 }
 
-/* 主题选择器样式 */
+/* 主题选择器 —— 发丝分段控件，选中实心墨色 */
 .theme-selector {
   display: flex;
-  background-color: var(--color-bg-secondary);
-  border-radius: var(--radius-lg);
-  padding: 4px;
+  background: transparent;
+  border-radius: var(--radius-md);
+  padding: 2px;
   border: 1px solid var(--color-border);
-  position: relative;
-  overflow: hidden;
 }
 
 .theme-option {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: 0.35rem 0.85rem;
   border: none;
   background: transparent;
   color: var(--color-text-secondary);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   font-weight: 500;
+  letter-spacing: 0.04em;
   cursor: pointer;
-  transition: all var(--transition-fast);
-  border-radius: var(--radius-md);
-  position: relative;
-  z-index: 1;
-  min-width: 60px;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+  border-radius: calc(var(--radius-md) - 2px);
+  min-width: 52px;
 }
 
 .theme-option:hover {
@@ -207,27 +188,6 @@
 }
 
 .theme-option.active {
-  background-color: var(--color-bg);
-  color: var(--color-text);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* 深色主题下的主题选择器 */
-.theme-dark .theme-selector {
-  background-color: var(--color-bg-secondary-dark);
-  border-color: var(--color-border-dark);
-}
-
-.theme-dark .theme-option {
-  color: var(--color-text-secondary-dark);
-}
-
-.theme-dark .theme-option:hover {
-  color: var(--color-text-dark);
-}
-
-.theme-dark .theme-option.active {
-  background-color: var(--color-bg-dark);
-  color: var(--color-text-dark);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  background-color: var(--color-text);
+  color: var(--color-bg);
 }
