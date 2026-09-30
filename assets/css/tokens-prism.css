@@ -163,9 +163,17 @@
   --ease-snap: var(--p-ease-snap);
   --ease-spring: var(--p-ease-spring);
 
+  /* 时长 —— 规范里的五个档位（micro / fast / base / slow / deliberate）
+     外加 v1 的三个别名（ui / reveal / page），后者是为了让 v1 组件文件
+     里已有的 var(--duration-ui) 等引用继续有效。别名与规范档位指向同一批原始值。 */
   --duration-micro: var(--p-duration-micro);
-  --duration-ui: var(--p-duration-fast);
+  --duration-fast: var(--p-duration-fast);
   --duration-base: var(--p-duration-base);
+  --duration-slow: var(--p-duration-slow);
+  --duration-deliberate: var(--p-duration-deliberate);
+
+  /* v1 别名 */
+  --duration-ui: var(--p-duration-fast);
   --duration-reveal: var(--p-duration-slow);
   --duration-page: var(--p-duration-deliberate);
 
