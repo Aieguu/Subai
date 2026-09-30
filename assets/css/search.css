@@ -10,6 +10,34 @@
   min-width: 2.75rem;
 }
 
+/* ⌘K 提示 chip。
+   等宽小字 + 发丝描边 + 4px 圆角（不是胶囊）—— 和标签 chip 同一套语言。
+   窄屏隐藏：手机上既没有物理键盘，也不该占掉顶栏本来就紧张的空间。 */
+.search-kbd {
+  display: inline-flex;
+  align-items: center;
+  height: 1.5rem;
+  margin-right: var(--spacing-sm);
+  padding: 0 0.4rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xs, 4px);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-muted);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-ui-xs, 0.75rem);
+  letter-spacing: var(--letter-spacing-mono, 0.04em);
+  line-height: 1;
+  white-space: nowrap;
+  user-select: none;
+  pointer-events: none;
+}
+
+@media (max-width: 900px) {
+  .search-kbd {
+    display: none;
+  }
+}
+
 .search-toggle {
   display: flex;
   align-items: center;

@@ -22,38 +22,37 @@
   padding-bottom: var(--spacing-xl);
   transition:
     opacity var(--duration-ui) var(--ease-out),
-    transform var(--duration-reveal) var(--ease-out),
-    filter var(--duration-ui) var(--ease-out);
+    transform var(--duration-ui) var(--ease-out);
   will-change: opacity, transform;
 }
 
-/* 换页晕染：旧页墨色散开，新页落纸定形 */
+/* 换页：旧页淡出上移，新页从下方落定。
+   去掉了 v1 的模糊晕染（filter: blur）—— 换页时整屏发糊既拖慢感知，
+   在低端设备上也是纯合成开销。Prism 的动效要利落：160ms 走完，
+   不留下任何「散开—收拢」的中间态。 */
 .main-content.is-pjax-leaving {
   opacity: 0;
-  transform: translate3d(0, 4px, 0);
-  filter: blur(3px);
+  transform: translate3d(0, -6px, 0);
 }
 
 .main-content.is-pjax-entering {
   opacity: 0;
-  transform: translate3d(0, 4px, 0);
-  filter: blur(2px);
+  transform: translate3d(0, 6px, 0);
 }
 
 .main-content.is-pjax-entering.is-pjax-enter-active {
   opacity: 1;
   transform: translate3d(0, 0, 0);
-  filter: blur(0);
 }
 
-/* PJAX 进度：页顶朱砂发丝线，先缓行至 82%，就绪后瞬间走完淡出 */
+/* PJAX 进度：页顶电光朱发丝线，先缓行至 82%，就绪后瞬间走完淡出 */
 .pjax-progress {
   position: fixed;
   top: 0;
   left: 0;
   z-index: 3000;
   width: 0;
-  height: 1.5px;
+  height: 2px;
   background: var(--color-primary);
   opacity: 0;
   pointer-events: none;
@@ -64,13 +63,13 @@
   width: 82%;
   transition:
     width 8s cubic-bezier(0.1, 0.6, 0.3, 1),
-    opacity 0.12s ease;
+    opacity var(--duration-micro) var(--ease-standard);
 }
 
 .pjax-progress.is-done {
   width: 100%;
   opacity: 0;
   transition:
-    width 0.18s var(--ease-out),
-    opacity 0.3s ease 0.15s;
+    width var(--duration-fast) var(--ease-out),
+    opacity var(--duration-base) var(--ease-standard) 150ms;
 }

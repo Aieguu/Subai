@@ -109,6 +109,20 @@
   }
 
   function handleKeydown(event) {
+    // ⌘K / Ctrl+K —— 开发者群体的肌肉记忆。成本极低、感知极强，
+    // 而且它让「搜索」这件事有了一个不需要用眼睛找的入口。
+    if ((event.metaKey || event.ctrlKey) && (event.key === 'k' || event.key === 'K')) {
+      // 浏览器自己的 ⌘K 在部分场景有默认行为（地址栏搜索），要拦掉
+      event.preventDefault();
+      if (headerSearchState.isOpen) {
+        headerSearchState.searchInput.focus();
+        headerSearchState.searchInput.select();
+      } else {
+        openSearch();
+      }
+      return;
+    }
+
     if (event.key === 'Escape' && headerSearchState.isOpen) {
       closeSearch({ restoreFocus: true });
     }
@@ -415,6 +429,14 @@
 
       document.addEventListener('click', handleDocumentClick);
       document.addEventListener('keydown', handleKeydown);
+
+      // ⌘K 提示按平台取词。写死 ⌘K 对 Windows 用户是错的 ——
+      // 他们会去按 Win+K，然后什么都不会发生。
+      const kbd = document.querySelector('[data-search-kbd]');
+      if (kbd) {
+        const isMac = /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgent || '');
+        kbd.textContent = isMac ? '⌘K' : 'Ctrl K';
+      }
 
       headerSearchState.initialized = true;
     }
