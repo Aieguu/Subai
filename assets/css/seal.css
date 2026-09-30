@@ -4,23 +4,11 @@
    （印泥是实物，不是 UI 组件色）
    ========================================================================== */
 
-/* Prism 轨：印泥跟着电光朱走。
-   注意这里必须按 data-design 分轨 —— 否则改了印泥色会把 v1 对照轨一起带跑。 */
-:root[data-design="prism"] {
+/* 印泥跟着电光朱走。印泥是实物色，不随明暗模式翻转，
+   所以这里是固定值而不是语义令牌转发。 */
+:root {
   --seal-bg: var(--p-volt-500);
   --seal-ink: var(--p-graphite-0);
-}
-
-/* v1「纸 · 墨 · 朱砂」轨：原始朱砂印泥色 */
-:root[data-design="paper"] {
-  --seal-bg: #A63D2A;
-  --seal-ink: #FAF9F6;
-}
-
-/* 兜底：万一 data-design 没输出（自定义模板覆盖了 baseof），至少别让色块消失 */
-:root {
-  --seal-bg: #A63D2A;
-  --seal-ink: #FAF9F6;
 }
 
 .seal {
@@ -39,23 +27,16 @@
   line-height: 1;
   user-select: none;
   transform: rotate(-2deg);
-  /* 刻边：内圈细线 */
-  box-shadow:
-    inset 0 0 0 2px rgba(250, 249, 246, 0.3),
-    inset 0 0 0 3.5px var(--seal-bg);
-  transition: transform var(--duration-ui) var(--ease-spring);
-}
-
-/* Prism：加一道硬边偏移（无模糊的实心错位）。
-   像套印时印版没对齐留下的痕迹 —— 印刷品才有，屏幕上很少见。
-   这是刻意的「不完美」，也是 Prism 与 v1 最大的质感差别：
-   v1 的印是平的，Prism 的印是「压上去的」。
-   保留原来的双圈刻边，不加外发光（PRISM.md §0.5 禁霓虹）。 */
-:root[data-design="prism"] .seal {
+  /* 双圈刻边 + 一道硬边偏移（无模糊的实心错位）。
+     偏移像套印时印版没对齐留下的痕迹 —— 印刷品才有，屏幕上很少见。
+     这是刻意的「不完美」，也是 Prism 与 v1 最大的质感差别：
+     v1 的印是平的，Prism 的印是「压上去的」。
+     不加外发光（PRISM.md §0.5 禁霓虹）。 */
   box-shadow:
     inset 0 0 0 2px rgba(255, 255, 255, 0.32),
     inset 0 0 0 3.5px var(--seal-bg),
     2px 2px 0 0 var(--color-text);
+  transition: transform var(--duration-ui) var(--ease-spring);
 }
 
 /* 两字竖排 */

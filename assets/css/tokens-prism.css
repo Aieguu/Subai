@@ -7,14 +7,13 @@
  * 改这里的变量名 = 强迫所有组件同步改，等于推翻迁移策略。别改。
  * 要加新令牌可以，要重命名不行。
  *
- * 作用域：:root[data-design="prism"]。与 v1 的 paper 轨互不干扰，
- * 迁移期两套共存，靠 hugo.toml 的 params.design 一行切换。
+ * 作用域：:root。paper 对照轨已在阶段 6 删除，现在只有 Prism 一套。
  */
 
 /* ══════════════════════════════════════════════════════════════════
    浅色（默认）—— 白纸 + hairline，瑞士网格路线
    ══════════════════════════════════════════════════════════════════ */
-:root[data-design="prism"] {
+:root {
   /* 强调色 */
   --color-primary: var(--p-volt-500);
   --color-primary-hover: var(--p-volt-600);
@@ -197,7 +196,7 @@
    深色 —— 主设计面
    深色不是浅色的反色：层次靠明度阶梯，描边换半透明白而非灰。
    ══════════════════════════════════════════════════════════════════ */
-:root[data-design="prism"].theme-dark {
+:root.theme-dark {
   --color-bg: var(--color-bg-dark);
   --color-bg-secondary: var(--color-bg-secondary-dark);
   --color-bg-sunken: var(--color-bg-sunken-dark);
@@ -233,7 +232,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root[data-design="prism"]:not(.theme-light) {
+  :root:not(.theme-light) {
     --color-bg: var(--color-bg-dark);
     --color-bg-secondary: var(--color-bg-secondary-dark);
     --color-bg-sunken: var(--color-bg-sunken-dark);
@@ -271,7 +270,7 @@
 
 /* 减少动效：呈现终态，不是把时长归零 */
 @media (prefers-reduced-motion: reduce) {
-  :root[data-design="prism"] {
+  :root {
     --transition-fast: 0ms;
     --transition-normal: 0ms;
     --transition-slow: 0ms;

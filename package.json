@@ -1,7 +1,7 @@
 {
   "name": "subai-hugo-theme",
-  "version": "1.0.0",
-  "description": "一个简洁现代的 Hugo 主题",
+  "version": "2.0.0",
+  "description": "Prism · 棱镜 —— 面向年轻读者的现代 Hugo 博客主题",
   "scripts": {
     "build": "echo 'This theme uses Hugo for building. Run: hugo --minify'",
     "dev": "hugo server -D",
@@ -16,13 +16,17 @@
     "blog",
     "responsive",
     "dark-mode",
+    "dark-first",
+    "design-system",
+    "design-tokens",
     "modern",
     "minimal",
     "fast",
     "accessible",
+    "a11y",
     "seo",
-    "pwa",
     "chinese",
+    "cjk",
     "static-site",
     "jamstack"
   ],
@@ -58,22 +62,26 @@
   },
   "theme": {
     "name": "Subai",
-    "description": "一个简洁现代的 Hugo 主题",
+    "description": "Prism · 棱镜 —— 面向年轻读者的现代 Hugo 博客主题",
     "tags": [
       "blog",
       "responsive",
       "dark-mode",
       "modern",
-      "minimal"
+      "minimal",
+      "design-system",
+      "chinese"
     ],
     "features": [
       "responsive",
-      "dark-mode",
+      "dark-first",
+      "design-tokens",
       "syntax-highlighting",
       "search",
+      "cmd-k-search",
+      "accessibility",
       "rss",
-      "pwa",
-      "accessibility"
+      "pwa"
     ]
   }
 }

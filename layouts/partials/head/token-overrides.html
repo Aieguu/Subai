@@ -1,0 +1,72 @@
+{{/*
+  站点级令牌覆盖 —— 兼容 v1 的 params.colors / params.fonts 自定义入口。
+
+  为什么需要这个：v1 的设计令牌是 Hugo 内联在 <style> 里输出的，所以
+  .Site.Params.colors 能直接改变量。Prism 把令牌搬进了静态 CSS 文件
+  （assets/css/tokens-prism.css），Hugo 参数就进不去了 —— 那会让 README 里
+  写明的自定义入口静默失效。这种「文档说能改、实际改不动」的失败最讨厌。
+
+  所以覆盖值在这里单独输出，并且必须放在主样式表**之后**才能生效。
+
+  键名兼容：Hugo 0.160+ 会把 TOML 键归一化成小写，所以 camelCase 与
+  全小写两种写法都试一遍，避免用户写 bgSecondary 时静默取不到值。
+*/}}
+
+{{- $colors := .Site.Params.colors | default dict -}}
+{{- $fonts := .Site.Params.fonts | default dict -}}
+
+{{- $colorMap := slice
+  (dict "key" "primary"            "vars" (slice "--color-primary" "--color-accent"))
+  (dict "key" "primaryHover"       "vars" (slice "--color-primary-hover"))
+  (dict "key" "bg"                 "vars" (slice "--color-bg"))
+  (dict "key" "bgSecondary"        "vars" (slice "--color-bg-secondary"))
+  (dict "key" "text"               "vars" (slice "--color-text"))
+  (dict "key" "textSecondary"      "vars" (slice "--color-text-secondary"))
+  (dict "key" "textMuted"          "vars" (slice "--color-text-muted"))
+  (dict "key" "border"             "vars" (slice "--color-border"))
+  (dict "key" "borderHover"        "vars" (slice "--color-border-hover"))
+  (dict "key" "bgDark"             "vars" (slice "--color-bg-dark"))
+  (dict "key" "bgSecondaryDark"    "vars" (slice "--color-bg-secondary-dark"))
+  (dict "key" "textDark"           "vars" (slice "--color-text-dark"))
+  (dict "key" "textSecondaryDark"  "vars" (slice "--color-text-secondary-dark"))
+  (dict "key" "textMutedDark"      "vars" (slice "--color-text-muted-dark"))
+  (dict "key" "borderDark"         "vars" (slice "--color-border-dark"))
+  (dict "key" "borderHoverDark"    "vars" (slice "--color-border-hover-dark"))
+  (dict "key" "primaryOnDark"      "vars" (slice "--color-primary-on-dark"))
+  (dict "key" "primaryHoverOnDark" "vars" (slice "--color-primary-hover-on-dark"))
+-}}
+
+{{- $fontMap := slice
+  (dict "key" "base"    "vars" (slice "--font-family-base"))
+  (dict "key" "heading" "vars" (slice "--font-family-heading"))
+  (dict "key" "mono"    "vars" (slice "--font-family-mono"))
+-}}
+
+{{- $out := "" -}}
+
+{{- range $colorMap -}}
+  {{- $val := "" -}}
+  {{- with (index $colors .key) -}}{{- $val = . -}}{{- else -}}
+    {{- with (index $colors (lower .key)) -}}{{- $val = . -}}{{- end -}}
+  {{- end -}}
+  {{- if $val -}}
+    {{- range .vars -}}{{- $out = printf "%s  %s: %s;\n" $out . $val -}}{{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- range $fontMap -}}
+  {{- $val := "" -}}
+  {{- with (index $fonts .key) -}}{{- $val = . -}}{{- else -}}
+    {{- with (index $fonts (lower .key)) -}}{{- $val = . -}}{{- end -}}
+  {{- end -}}
+  {{- if $val -}}
+    {{- range .vars -}}{{- $out = printf "%s  %s: %s;\n" $out . $val -}}{{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- with $out -}}
+<style>
+:root {
+{{ . | safeCSS }}}
+</style>
+{{- end -}}

@@ -153,78 +153,154 @@ summary: "文章摘要"
 
 ## 🎨 自定义配置
 
-### 设计语言与设计令牌
+### 设计语言 —— Prism · 棱镜
 
-Subai 采用「纸 · 墨 · 朱砂」的编辑排版语言：暖纸底色、墨色文字、单一朱红强调色，标题使用衬线字体（思源宋体，已自托管子集分片），正文使用系统黑体。全站组件以 1px 发丝线分隔，不使用渐变卡片与大投影。
+> 一束白光，折射成可读的层次。
 
-默认色板与字体可通过站点配置覆盖（无需修改主题源码）：
+四条理念，也是遇到争议时的裁决依据：
+
+1. **暗底为家** —— 深色不是浅色的反色，是主设计面。深色先画好，再推浅色版。
+2. **一束强光** —— 全站只有一个高饱和强调色（电光朱）。其余是带冷偏的石墨灰阶。
+   强调色只允许出现在三种语义上：可点击 / 当前所在 / 需要注意。
+3. **折射出层次** —— 层次靠表面明度阶梯 + 1px 描边 + 极柔双层阴影，不靠色块和渐变堆。
+4. **动效要有来处与去处** —— 每次动画都要能回答「从哪来、到哪去」。答不上来就删。
+
+#### 反 AI 审美清单（硬约束）
+
+「年轻 + 现代」极易滑向 AI 生成风格的平均值。判断标准只有一条：
+**这个处理有没有具体来源？** 说不出来源的装饰一律删。
+
+明令禁止：紫蓝 / 彩虹渐变、玻璃拟态 `backdrop-filter`、aurora 光斑背景、霓虹发光、
+渐变文字、万物 `999px` 圆角、emoji 当图标、粉彩低对比、到处弹簧回弹、
+无来源的浮动装饰几何。
+
+替代手法（都有来源）：瑞士网格 + hairline 分栏、**等宽字体做元信息**、
+硬边偏移阴影、颗粒噪点、Risograph 油墨色谱。
+
+两个允许的例外：**同色**渐变做下划线扫入（技术手段，不是配色）、
+45° 斜纹（工程制图与印刷网点的实物参照）。
+
+#### 设计令牌
+
+分三层，组件只消费第二层：
+
+| 层 | 文件 | 内容 |
+| --- | --- | --- |
+| 原始层 | `assets/css/primitives.css` | `--p-*`：色板、字阶、间距、圆角、时长、曲线。组件禁止直接引用 |
+| 语义层 | `assets/css/tokens-prism.css` | `--color-*` / `--space-*` / `--radius-*` … 含明暗双通道 |
+| 组件层 | 各组件文件内 | `--card-*` / `--code-*` / `--note-*` |
+
+**语义层的变量名沿用 v1**（`--color-bg` / `--radius-md` / `--ease-out` …），只换值。
+这是换肤时大多数组件不必改选择器的原因，也是新增令牌时应当遵守的约定：
+**可以加，不要重命名。**
+
+默认色板与字体可通过站点配置覆盖，无需改主题源码（由
+`layouts/partials/head/token-overrides.html` 在主样式表之后输出）：
 
 ```toml
 [params.colors]
-  primary            = "#A63D2A"   # 强调色（朱砂赭红）
-  primaryHover       = "#8C3221"
-  bg                 = "#FAF9F6"   # 浅色：暖纸
-  bgSecondary        = "#F2F0EB"
-  text               = "#1C1B19"   # 墨色
-  textSecondary      = "#57534D"
-  textMuted          = "#A39E97"
-  border             = "#E6E3DD"
-  borderHover        = "#CFCAC2"
-  bgDark             = "#161412"   # 深色：暖墨
-  bgSecondaryDark    = "#1F1C19"
-  textDark           = "#E9E6E1"
-  textSecondaryDark  = "#B8B2AA"
-  textMutedDark      = "#7A746C"
-  borderDark         = "#2E2A26"
-  borderHoverDark    = "#453F39"
-  primaryOnDark      = "#D0684F"   # 深色模式下强调色（提亮）
-  primaryHoverOnDark = "#DE8070"
+  primary            = "#F5451F"   # 强调色（电光朱）
+  primaryHover       = "#D8320F"
+  bg                 = "#FFFFFF"   # 浅色：白纸
+  bgSecondary        = "#F7F8FA"
+  text               = "#0C0D11"   # 石墨
+  textSecondary      = "#525866"
+  textMuted          = "#9AA0AF"
+  border             = "rgb(12 13 17 / 0.09)"
+  borderHover        = "rgb(12 13 17 / 0.16)"
+  bgDark             = "#0C0D11"   # 深色：主设计面
+  bgSecondaryDark    = "#15171C"
+  textDark           = "#EFF1F5"
+  textSecondaryDark  = "#CBCFD9"
+  textMutedDark      = "#9AA0AF"
+  borderDark         = "rgb(255 255 255 / 0.10)"
+  borderHoverDark    = "rgb(255 255 255 / 0.18)"
+  primaryOnDark      = "#FF7253"   # 深色模式强调色（提亮）
+  primaryHoverOnDark = "#FF9E88"
 
 [params.fonts]
-  base    = "system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif"
-  heading = "'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', serif"
-  mono    = "'JetBrains Mono', 'SF Mono', Consolas, monospace"
+  base    = "'Geist', 'Noto Sans SC', system-ui, sans-serif"
+  heading = "'Geist', 'Noto Sans SC', system-ui, sans-serif"
+  mono    = "'JetBrains Mono', 'Cascadia Code', Consolas, monospace"
 ```
 
 其他设计约定：
 
-- 正文字号 17px、行高 1.85（中文长文优化），正文栏宽默认 50rem（可用 `params.contentMaxWidth` 覆盖）
-- 标题字阶按 1.333 模数比例，全部使用衬线 600 字重
-- 动效统一 `cubic-bezier(0.16, 1, 0.3, 1)`（expo.out），主题切换使用 View Transitions 圆形展开（不支持时自动回退淡入）
-- 自托管字体位于 `static/fonts/`（Noto Serif SC 600 全部 unicode-range 分片 + JetBrains Mono 400/500），浏览器按需加载分片
+- 正文字号 17px、行高 1.8（中文长文优化）；正文栏宽默认 46rem（`params.contentMaxWidth` 可覆盖）
+- 字阶双档：UI 15px 基准 / 阅读 17px 基准
+- 标题字距 −0.01em（中文；Latin 可用 −0.02em）
+- 圆角上限 16px，`full` 只给头像与圆形图标钮
+- 触控目标 ≥ 44px；焦点环 2px + 2px offset，全站可键盘到达
+- 颗粒底纹由 `--grain-image` 控制，设为 `none` 即关闭
 
-### 动效体系
+#### 字体
 
-全站动效统一 `cubic-bezier(0.16, 1, 0.3, 1)`（expo.out），遵循"同一屏只有一个东西在动"：
+- **Latin：Geist**（OFL 1.1），自托管 latin 子集 400 / 500 / 600
+- **中文：Noto Sans SC** 的 `chinese-simplified` 子集，自托管 **400 + 700 两个字重**
+- **等宽：JetBrains Mono** 400 / 500，自托管；用于日期、字数、标签、分类、语言标等元信息
 
-- **PJAX 进度**：页顶 1.5px 朱砂发丝线，缓行至 82%，就绪后瞬间走完淡出（笔尖划纸）
-- **换页晕染**：旧页模糊淡出（墨散于水），新页从模糊收敛清晰（墨落定形）
-- **图标笔顺**：主题切换时日月图标以 stroke-dashoffset 逐笔"画出"（太阳光芒 stagger）；搜索放大镜展开时先画镜片后画手柄；汉堡菜单三线真形变为 ×
-- **卡片**：hover 时标题朱砂下划线扫入（`background-size` 动画），按压 `scale(0.99)` spring 回弹
-- **阅读进度**：文章页 TOC 左侧发丝轨道随滚动被朱砂填充
-- **图片显影**：正文/卡片图片加载前模糊半透明，`onload` 后收敛清晰（相纸显影）
-- **标题锚点**：h2–h4 hover 时左侧浮现朱砂 §，点击平滑定位并更新地址栏
-- **Lightbox**：原位飞入/飞出 + 竖向拖拽关闭（背板随位移淡出，过阈值松手关闭，否则弹回）
+三条踩过坑的约定，改字体前务必先读：
 
-以上全部尊重 `prefers-reduced-motion`（降级为无动画或直接呈现终态）。
+- **中文必须给两个字重。** 只给一个字重时，标题的 600 请求会落到 500，
+  浏览器再用 `font-synthesis` 伪粗体化补出假加粗 —— 中文笔画密，一描就糊。
+  `reset.css` 里设了 `font-synthesis-weight: none` 从源头禁掉（只禁 weight，不禁 style）。
+- **字体栈顺序不能反。** Noto Sans SC 的 `chinese-simplified` 子集**没有
+  `unicode-range`**，等于全字符覆盖；Geist 自带 latin 的 `unicode-range`，
+  必须排在它前面才能接住拉丁字符，汉字才会落到 Noto Sans SC。
+- **中文不能走系统栈。** Geist 与各 OS 自带中文的字形粗细、渲染方式都不一致，
+  同屏混排会被读成「发虚」。中文读者对字体一致性比拉丁读者敏感得多。
 
-### 纸墨细节
+字体总体积约 2.4MB，用 `node scripts/fetch-fonts.mjs` 重新抓取。
+（该脚本不再依赖 fontsource 的 CSS 注释判断子集 —— 它们已经去掉了注释，
+旧写法会静默产出空的 `fonts.css`。）
 
-主题内置一系列"只有纸墨博客才有"的元素：
+#### 品牌元素
 
-- **印章落款**：文章末尾自动生成竖排干支纪年落款（如「丙午年秋」）+ 朱砂印章；首页个人磁贴右侧也有印章，每会话首次进入视口时播放一次"落印"动画。印文默认从作者名推导——中文取前两字竖排，拉丁首字母 "A" 启用内置篆刻字形（直刀笔画 + 糙边 SVG），其余字母按衬线文字渲染；可覆盖：
+- **朱印** —— 全站唯一的实心强调色块。双圈刻边 + 一道 2px 硬边偏移（无模糊的实心错位，
+  像套印时印版没对齐留下的痕迹，印刷品才有）。印文默认从作者名推导，
+  中文取前两字竖排，拉丁首字母 "A" 启用内置篆刻字形：
 
   ```toml
   [params.seal]
     text = "自在"   # 1–2 个汉字（竖排）或 1 个拉丁字母
   ```
 
-- **洇墨打字机**：首页每日一句逐字从模糊洇开到定形，朱砂块状光标；`prefers-reduced-motion` 下退化为纯文本逐字
-- **时辰与节气**：首页时钟磁贴下方显示十二时辰（如「未时」）；页脚版权行尾显示当前节气与物候（如「白露 · 鸿雁来」），纯本地计算，零网络请求
-- **山水频谱**：音乐磁贴底部的水墨山峦随播放起伏——WebAudio 频谱映射成三层山脊（远山淡、近山浓），暂停时静止为剪影；分析器单例跨 PJAX 复用，`prefers-reduced-motion` 下只画静态剪影
-- **朱批**：划线笔记全面融入纸墨体系——划线为朱笔圈点（悬停朱砂晕染），同步状态以朱砂为记，弹窗改纸面卡片与衬线标题，状态色由插件局部令牌 `--note-*` 管理
-- **404 墨圈**：404 页面为一笔未合拢的墨圈（SVG 描边动画 + 糙边滤镜），配「此处无物」
-- **牌记**：「关于主题」页文末自动附仿古籍刊记——双线方框竖排：「Subai 主题 / 岁在丙午重刊 / 某氏藏版」，干支纪年由模板计算
+- **折射光谱** —— 分类与标签用 `mod (hash.FNV32a <名称>) 5` 算一个稳定色位，
+  落到 6px 折射色圆点上。同一个标签在任何页面都是同一个颜色。
+  折射色只用于圆点、分类色条与代码语言标，不用于文字和底色。
+- **断棱光环（404）** —— 几何光环留一个缺口，裂处漏出三道折射光。
+  棱镜把光拆成光谱，而这一页「没有光」。
+- **颗粒底纹** —— body 与顶栏铺 5.5% 灰度噪点，把纯色平面变成有纸纹的面。
+- **牌记与落款** —— 干支纪年、十二时辰、节气等纸墨细节保留，材质换成 Prism 的。
+
+### 动效体系
+
+全站遵循「同一屏只有一个东西在动」：
+
+- **曲线分工** —— 入场用缓出（`--ease-out`，有方向）；hover 与颜色变化用
+  standard（快、无戏剧性）；浮层收放用 snap；**弹簧只用于 `:active` 按压**。
+  处处回弹是 AI 的「愉悦感」套路，会让人觉得界面在撒娇。
+- **时长档位** —— micro 100ms / fast 160ms / base 240ms / slow 400ms / deliberate 640ms；
+  列表入场 stagger 40ms，封顶 8 项。
+- **PJAX 换页** —— 旧页淡出上移 6px，新页从下方落定，160ms 走完。
+  （v1 的「墨散于水」模糊晕染已去掉：换页时整屏发糊拖慢感知，且是纯合成开销。）
+- **PJAX 进度** —— 页顶 2px 电光朱发丝线，缓行至 82%，就绪后瞬间走完淡出。
+- **主题切换** —— View Transitions 圆形展开，圆心取触发按钮的位置，320ms；
+  不支持时回退淡入。
+- **图标笔顺** —— 日月图标以 `stroke-dashoffset` 逐笔画出；搜索放大镜展开时先画镜片后画手柄；
+  汉堡菜单三线真形变为 ×。
+- **卡片** —— hover 时标题电光朱下划线扫入（`background-size` 动画），按压 `scale(0.99)` spring 回弹。
+- **阅读进度** —— 文章页 TOC 左侧发丝轨道随滚动被电光朱填充。
+- **图片显影** —— 正文与卡片图片加载前模糊半透明，`onload` 后收敛清晰。
+
+以上全部尊重 `prefers-reduced-motion`，降级为**呈现终态**而不是把时长归零。
+
+### 键盘
+
+- **⌘K / Ctrl+K** —— 唤起顶栏搜索（Mac 显示 ⌘K，其余平台显示 Ctrl K）
+- **Esc** —— 关闭搜索
+- **Tab** —— 全站可键盘到达，焦点环 2px 电光朱 + 2px offset
+
 
 ### 导航菜单
 

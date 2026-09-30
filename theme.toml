@@ -1,20 +1,25 @@
 name = "Subai"
 license = "MIT"
 licenselink = "https://github.com/Aieguu/Subai/blob/main/LICENSE"
-description = "一个简洁现代的 Hugo 主题，适合个人博客使用。"
+description = "Prism · 棱镜 —— 一个面向年轻读者的现代 Hugo 博客主题：暗底为家、单一高饱和强调色、等宽字体做元信息、零装饰性渐变。"
 homepage = "https://github.com/Aieguu/Subai"
 tags = [
   "blog",
   "responsive",
   "dark-mode",
   "modern",
-  "minimal"
+  "minimal",
+  "design-system",
+  "chinese"
 ]
 features = [
   "responsive",
-  "dark-mode",
+  "dark-first",
+  "design-tokens",
   "syntax-highlighting",
   "search",
+  "cmd-k-search",
+  "accessibility",
   "rss"
 ]
 min_version = "0.149.1"
