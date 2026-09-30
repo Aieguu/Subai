@@ -107,10 +107,14 @@
   margin-bottom: var(--spacing-xl);
 }
 
-/* Content and TOC Layout —— 正文栏宽由 --content-max-width 控制（默认 50rem） */
+/* Content and TOC Layout —— 正文栏宽由 --content-max-width 控制 */
 .content-and-toc {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(240px, 280px);
+  /* 之前是 minmax(0, 1fr) + minmax(240px, 280px)，但 .content 自己又有
+     max-width: var(--content-max-width)，导致 1fr 列里留出 ~96px 空隙，
+     TOC 看起来像是被推到中间而不是紧贴右侧。
+     改成直接给 content 列定宽，1fr 列就没空隙了。 */
+  grid-template-columns: var(--content-max-width) minmax(240px, 280px);
   grid-template-areas: 'content toc';
   gap: var(--spacing-2xl);
   align-items: start;
