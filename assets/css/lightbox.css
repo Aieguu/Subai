@@ -53,12 +53,13 @@ body.image-lightbox-open {
   transition: none !important;
 }
 
+/* 遮罩用实色压暗，不用毛玻璃。
+   原本这里叠了 blur(8px)，但在 92% 不透明度的遮罩上几乎看不出效果，
+   白付一份合成开销，还违反 PRISM.md §0.5 的禁令。 */
 .image-lightbox-backdrop {
   position: absolute;
   inset: 0;
   background: rgba(12, 10, 9, 0.92);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
   opacity: 0;
   transition: opacity 0.28s var(--ease-out);
 }

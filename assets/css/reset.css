@@ -25,7 +25,7 @@ html {
 body {
   font-family: var(--font-family-base);
   font-size: var(--font-size-base);
-  line-height: var(--line-height-relaxed);
+  line-height: var(--line-height-body);
   color: var(--color-text);
   background-color: var(--color-bg);
   transition: background-color var(--theme-transition),
@@ -44,12 +44,14 @@ mark.highlight-note {
   color: inherit;
 }
 
-/* Typography —— 衬线标题，收紧字距 */
+/* Typography —— 无衬线标题，字距收紧（负字距是现代感的关键，v1 完全没有）
+   用 -0.01em 而不是规范里 Latin 建议的 -0.02em：本博客标题以中文为主，
+   汉字在负字距下比拉丁字母更容易挤在一起。 */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-family-heading);
   font-weight: 600;
   line-height: var(--line-height-tight);
-  letter-spacing: 0.015em;
+  letter-spacing: var(--letter-spacing-heading-cjk, -0.01em);
   color: var(--color-text);
   margin-bottom: var(--spacing-md);
   transition: color var(--theme-transition);
@@ -87,6 +89,14 @@ button:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
   border-radius: var(--radius-sm);
+}
+
+/* 元信息走等宽 —— 日期、字数、标签、分类。
+   这是 PRISM.md §0.5 里点名的反 AI 手法：AI 生成的设计几乎从不用等宽做元信息，
+   而真实设计里这很常见，且天然贴合开发者博客。正文与标题不用等宽。 */
+time {
+  font-family: var(--font-family-mono);
+  letter-spacing: var(--letter-spacing-mono);
 }
 
 /* Lists */

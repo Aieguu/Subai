@@ -2,15 +2,15 @@
    Header
    ========================================================================== */
 
-/* Header —— 半透明纸面 + 发丝底边 */
+/* Header —— 实色 + 发丝底边
+   刻意不用 backdrop-filter：玻璃拟态是最典型的 AI 审美指纹（PRISM.md §0.5）。
+   Prism 的 --color-header-bg 也换成了不透明值，所以这里没有毛玻璃可看。 */
 .site-header {
   background-color: var(--color-header-bg);
   border-bottom: 1px solid var(--color-border);
   position: sticky;
   top: 0;
   z-index: 100;
-  backdrop-filter: blur(12px) saturate(1.5);
-  -webkit-backdrop-filter: blur(12px) saturate(1.5);
   transition:
     background-color var(--theme-transition),
     border-color var(--theme-transition);

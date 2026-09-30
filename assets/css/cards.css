@@ -198,7 +198,9 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
-  font-size: var(--font-size-xs);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-ui-sm, 0.8125rem);
+  letter-spacing: var(--letter-spacing-mono, 0.04em);
   color: var(--color-text-muted);
   margin-top: auto;
   font-variant-numeric: tabular-nums;
