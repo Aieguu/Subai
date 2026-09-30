@@ -20,8 +20,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 2.5rem;
-  height: 2.5rem;
+  min-width: 2.75rem;
+  height: 2.75rem;
   padding: 0 var(--spacing-md);
   background: transparent;
   color: var(--color-text);
@@ -64,13 +64,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2.75rem;
+  height: 2.75rem;
   background: transparent;
   color: var(--color-text);
   text-decoration: none;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
+  font-family: var(--font-family-mono);
   font-weight: 500;
   font-size: var(--font-size-sm);
   transition:
@@ -86,27 +87,28 @@
   color: var(--color-primary);
 }
 
-/* 当前页：实心墨色，反白数字 */
+/* 当前页：实心电光朱。原来是实心墨色 —— 但强调色只该出现在
+   「可点击 / 当前所在 / 需要注意」三种语义上，而「当前页」正是它的本分。 */
 .pagination-number.pagination-current {
-  background: var(--color-text);
-  color: var(--color-bg);
-  border-color: var(--color-text);
+  background: var(--color-primary);
+  color: var(--p-graphite-0, #fff);
+  border-color: var(--color-primary);
   font-weight: 600;
 }
 
 .pagination-number.pagination-current:hover,
 .pagination-number.pagination-current:focus-visible {
-  background: var(--color-text);
-  color: var(--color-bg);
-  border-color: var(--color-text);
+  background: var(--color-primary-hover);
+  color: var(--p-graphite-0, #fff);
+  border-color: var(--color-primary-hover);
 }
 
 .pagination-ellipsis {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2.75rem;
+  height: 2.75rem;
   color: var(--color-text-muted);
   font-weight: 500;
   font-size: var(--font-size-sm);
@@ -134,22 +136,22 @@
   }
 
   .pagination-link {
-    min-width: 2rem;
-    height: 2rem;
+    min-width: 2.75rem;
+    height: 2.75rem;
     padding: 0 var(--spacing-sm);
     font-size: var(--font-size-xs);
     flex-shrink: 0;
   }
 
   .pagination-number {
-    width: 2rem;
-    height: 2rem;
+    width: 2.75rem;
+    height: 2.75rem;
     font-size: var(--font-size-xs);
   }
 
   .pagination-ellipsis {
-    width: 2rem;
-    height: 2rem;
+    width: 2.75rem;
+    height: 2.75rem;
     font-size: var(--font-size-xs);
   }
 }
@@ -163,17 +165,17 @@
   }
 
   .pagination-link {
-    min-width: 2.2rem;
-    height: 2.2rem;
+    min-width: 2.75rem;
+    height: 2.75rem;
   }
 
   .pagination-number {
-    width: 2.2rem;
-    height: 2.2rem;
+    width: 2.75rem;
+    height: 2.75rem;
   }
 
   .pagination-ellipsis {
-    width: 2.2rem;
-    height: 2.2rem;
+    width: 2.75rem;
+    height: 2.75rem;
   }
 }

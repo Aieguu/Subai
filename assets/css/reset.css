@@ -94,11 +94,20 @@ a:focus {
   outline: none;
 }
 
+/* 焦点环 —— 键盘可见性是现代主题的及格线。
+   覆盖全部可聚焦元素，不只 a/button：表单控件以前是漏的。
+   不再设置 border-radius —— 那会改掉元素自身的圆角（输入框聚焦时形状突变）；
+   现代浏览器的 outline 本来就会跟随元素的 border-radius。 */
 a:focus-visible,
-button:focus-visible {
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
-  border-radius: var(--radius-sm);
 }
 
 /* 元信息走等宽 —— 日期、字数、标签、分类。
@@ -235,18 +244,12 @@ summary,
   tap-highlight-color: transparent;
 }
 
-@media (hover: none) and (pointer: coarse) {
-  a:focus-visible,
-  button:focus-visible,
-  input:focus-visible,
-  select:focus-visible,
-  textarea:focus-visible,
-  summary:focus-visible,
-  [role="button"]:focus-visible {
-    outline: none !important;
-    box-shadow: none !important;
-  }
-}
+/* 触屏设备同样保留焦点环。
+   这里原先有一份与 responsive.css 完全重复的 @media (hover: none) and
+   (pointer: coarse) 块，把 a/button/input 的 outline 与 box-shadow 用
+   !important 清零。:focus-visible 本来就不会在鼠标/触摸点击时匹配，
+   所以它唯一的效果是让触屏笔记本与外接键盘平板上的键盘用户失去焦点可见性。
+   两处都已删除。 */
 
 /* ==========================================================================
    Theme Toggle —— View Transitions 圆形展开

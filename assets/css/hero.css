@@ -31,13 +31,16 @@
   display: block;
   position: absolute;
   inset: 0;
-  background: rgba(22, 20, 18, 0.52);
+  /* 冷偏石墨遮罩。原来是 v1 的暖墨 rgba(22,20,18)，在 Prism 的冷灰体系里发黄。 */
+  background: rgba(12, 13, 17, 0.55);
 }
 
 .hero[style] .hero-title,
 .hero[style] .hero-subtitle,
 .hero[style] .hero-description {
-  color: #FAF9F6;
+  /* 遮罩本身是固定深色，所以这里的文字必须恒定取浅色，
+     不能跟着明暗模式翻 —— 浅色模式下翻成深色就看不见了。 */
+  color: var(--p-graphite-0);
 }
 
 .hero-eyebrow {

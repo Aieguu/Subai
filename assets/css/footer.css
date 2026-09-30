@@ -155,6 +155,32 @@
   text-decoration: none;
 }
 
+/* 划线笔记设置按钮。
+   这个类在模板里用了很久，但**全主题没有任何 CSS 定义** ——
+   reset.css 把 button 归零后，它就是一个 16px 的裸 SVG，
+   触控目标不到及格线的一半，视觉上也没有任何可点的暗示。补上。 */
+.footer-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition:
+    color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.footer-icon-btn:hover {
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
 /* 主题选择器 —— 发丝分段控件，选中实心墨色 */
 .theme-selector {
   display: flex;
@@ -168,6 +194,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 2.75rem;
   padding: 0.35rem 0.85rem;
   border: none;
   background: transparent;

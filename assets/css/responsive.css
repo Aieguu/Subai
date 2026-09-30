@@ -3,19 +3,12 @@
    （组件级响应式归各组件文件；深色模式由令牌接管，勿在此硬编码颜色）
    ========================================================================== */
 
-/* Touch device focus fixes */
-@media (hover: none) and (pointer: coarse) {
-  a:focus-visible,
-  button:focus-visible,
-  input:focus-visible,
-  select:focus-visible,
-  textarea:focus-visible,
-  summary:focus-visible,
-  [role="button"]:focus-visible {
-    outline: none !important;
-    box-shadow: none !important;
-  }
-}
+/* 触屏设备的焦点环**不再关闭**。
+   原先这里用 !important 把 a/button/input 的 outline 与 box-shadow 全清零，
+   想避免「点一下留个框」。但 :focus-visible 本来只在键盘操作时触发，
+   鼠标/手指点击根本不会匹配 —— 这个 block 唯一的作用是让
+   触屏笔记本、外接键盘的平板上键盘用户彻底看不见焦点在哪。
+   典型的用可访问性换观感，删掉。 */
 
 /* 480px: header and layout */
 @media (max-width: 480px) {

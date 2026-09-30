@@ -1,23 +1,13 @@
-/* ========== 朱批令牌：划线笔记状态色（融入纸墨朱砂体系） ========== */
+/* ========== 划线笔记状态色 ==========
+   原先这里是三组独立的硬编码色（浅色 + .theme-dark + 媒体查询各一份）。
+   但它们要表达的语义（待同步 / 失败 / 成功）语义层已经有了，而且语义层
+   自带明暗双通道。直接转发，省掉两份重复的深色块，也保证插件状态色
+   永远和全站语义色一致 —— 插件自己的色板和设计系统漂移是迟早的事。 */
 
 :root {
-  --note-pending: #B45309;
-  --note-failed: #CF514E;
-  --note-success: #067D17;
-}
-
-.theme-dark {
-  --note-pending: #D89A4A;
-  --note-failed: #E07870;
-  --note-success: #6AAB73;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not(.theme-light) {
-    --note-pending: #D89A4A;
-    --note-failed: #E07870;
-    --note-success: #6AAB73;
-  }
+  --note-pending: var(--color-warning);
+  --note-failed: var(--color-danger);
+  --note-success: var(--color-success);
 }
 
 /* ========== 划线笔记标记 —— 朱笔圈点 ========== */

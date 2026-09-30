@@ -2,27 +2,23 @@
    Code Block System (Theme Redesign)
    ========================================================================== */
 
-:root {
-  --code-bg: #F2F0EB;
-  --code-surface: #FBFAF7;
-  --code-border: #E6E3DD;
-  --code-text: #1C1B19;
-  --code-muted: #8A847C;
-  --code-accent: #A63D2A;
-  --code-toolbar-bg: #F2F0EB;
-  --code-toolbar-border: #E6E3DD;
-  --code-copy-bg: #FBFAF7;
-  --code-copy-border: #D8D4CC;
-  --code-copy-text: #57534D;
-  --code-copy-hover-bg: #EDEAE4;
-  --code-copy-success-bg: #067d17;
-  --code-copy-error-bg: #cf514e;
-  --code-scrollbar-track: #EDEAE4;
-  --code-scrollbar-thumb: #CFCAC2;
-  --code-line-number: #A39E97;
-  --code-line-number-bg: #F2F0EB;
-  --code-line-highlight: rgba(166, 61, 42, 0.08);
+/* ==========================================================================
+   代码块令牌
+   分两类，别混：
 
+   ① 语法高亮色（keyword / string / number …）只关乎代码可读性，
+      与设计语言无关，两轨共用。保持 IntelliJ 体系的色相不动 ——
+      换设计语言不该顺手改掉读者认得的语法色。
+
+   ② 界面色（底色 / 边框 / 工具栏 / 复制按钮 / 滚动条）属于设计语言，
+      一律走语义令牌，深色由语义层自动接管。
+
+   改造前 ② 是一组无条件的 v1 硬编码色（暖纸 #F2F0EB、朱砂 #A63D2A），
+   于是 Prism 轨下代码块整个还是旧配色 —— 页面里最显眼的一块没跟着换。
+   ========================================================================== */
+
+/* ① 语法高亮色 —— 浅色 */
+:root {
   --code-token-keyword: #0033b3;
   --code-token-string: #067d17;
   --code-token-comment: #8c8c8c;
@@ -39,27 +35,8 @@
   --code-font: "JetBrains Mono", "Cascadia Code", "Fira Code", Consolas, Monaco, "Courier New", monospace;
 }
 
+/* ① 语法高亮色 —— 深色（手动指定） */
 .theme-dark {
-  --code-bg: #211E1B;
-  --code-surface: #1A1815;
-  --code-border: #2E2A26;
-  --code-text: #C9C4BC;
-  --code-muted: #7A746C;
-  --code-accent: #D0684F;
-  --code-toolbar-bg: #211E1B;
-  --code-toolbar-border: #2E2A26;
-  --code-copy-bg: #1A1815;
-  --code-copy-border: #39352F;
-  --code-copy-text: #C9C4BC;
-  --code-copy-hover-bg: #2E2A26;
-  --code-copy-success-bg: #6aab73;
-  --code-copy-error-bg: #f75464;
-  --code-scrollbar-track: #211E1B;
-  --code-scrollbar-thumb: #39352F;
-  --code-line-number: #6E6961;
-  --code-line-number-bg: #211E1B;
-  --code-line-highlight: rgba(208, 104, 79, 0.14);
-
   --code-token-keyword: #cf8e6d;
   --code-token-string: #6a8759;
   --code-token-comment: #7a7e85;
@@ -73,32 +50,11 @@
   --code-token-diff-add: #6aab73;
   --code-token-diff-remove: #f75464;
   --code-token-diff-header: #8c8c8c;
-  --code-font: "JetBrains Mono", "Cascadia Code", "Fira Code", Consolas, Monaco, "Courier New", monospace;
 }
 
-/* Auto 深色模式（未手动指定主题时跟随系统） */
+/* ① 语法高亮色 —— 深色（跟随系统） */
 @media (prefers-color-scheme: dark) {
   :root:not(.theme-light) {
-    --code-bg: #211E1B;
-    --code-surface: #1A1815;
-    --code-border: #2E2A26;
-    --code-text: #C9C4BC;
-    --code-muted: #7A746C;
-    --code-accent: #D0684F;
-    --code-toolbar-bg: #211E1B;
-    --code-toolbar-border: #2E2A26;
-    --code-copy-bg: #1A1815;
-    --code-copy-border: #39352F;
-    --code-copy-text: #C9C4BC;
-    --code-copy-hover-bg: #2E2A26;
-    --code-copy-success-bg: #6aab73;
-    --code-copy-error-bg: #f75464;
-    --code-scrollbar-track: #211E1B;
-    --code-scrollbar-thumb: #39352F;
-    --code-line-number: #6E6961;
-    --code-line-number-bg: #211E1B;
-    --code-line-highlight: rgba(208, 104, 79, 0.14);
-
     --code-token-keyword: #cf8e6d;
     --code-token-string: #6a8759;
     --code-token-comment: #7a7e85;
@@ -114,6 +70,31 @@
     --code-token-diff-header: #8c8c8c;
   }
 }
+
+/* ② 界面色 —— 全部指向语义令牌。
+   语义令牌本身已经处理了明暗双通道，所以这里不需要再写一遍深色块。 */
+:root {
+  --code-bg: var(--color-bg-inset);
+  --code-surface: var(--color-bg-inset);
+  --code-border: var(--color-border);
+  --code-text: var(--color-text);
+  --code-muted: var(--color-text-muted);
+  --code-accent: var(--color-primary);
+  --code-toolbar-bg: var(--color-bg-inset);
+  --code-toolbar-border: var(--color-border);
+  --code-copy-bg: var(--color-bg-raised);
+  --code-copy-border: var(--color-border);
+  --code-copy-text: var(--color-text-secondary);
+  --code-copy-hover-bg: var(--color-bg-overlay);
+  --code-copy-success-bg: var(--color-success);
+  --code-copy-error-bg: var(--color-danger);
+  --code-scrollbar-track: var(--color-bg-inset);
+  --code-scrollbar-thumb: var(--color-border-hover);
+  --code-line-number: var(--color-text-muted);
+  --code-line-number-bg: var(--color-bg-inset);
+  --code-line-highlight: color-mix(in srgb, var(--color-primary) 10%, transparent);
+}
+
 
 /* ==========================================================================
    Block Layout
@@ -144,7 +125,7 @@
   justify-content: center;
   padding: 0.2rem 0.55rem;
   border: 1px solid var(--code-border);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: var(--code-surface);
   color: var(--code-muted);
   font-size: 0.71rem;
@@ -159,14 +140,17 @@
   align-items: center;
   gap: 0.35rem;
   border: 1px solid var(--code-copy-border);
-  border-radius: 6px;
-  padding: 0.3rem 0.55rem;
+  border-radius: var(--radius-sm);
+  min-height: 2.25rem;
+  padding: 0.3rem 0.7rem;
   background: var(--code-copy-bg);
   color: var(--code-copy-text);
   font-size: 0.72rem;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+  transition:/n    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
 }
 
 .article-codeblock__copy:hover {
@@ -387,7 +371,7 @@
   display: inline;
   white-space: break-spaces;
   padding: 0.1rem 0.4rem;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   border: 1px solid var(--code-border);
   background: color-mix(in srgb, var(--code-bg) 86%, transparent);
   color: var(--code-text);

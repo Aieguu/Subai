@@ -6,21 +6,21 @@
   position: relative;
   display: flex;
   align-items: center;
-  min-height: 2.5rem;
-  min-width: 2.5rem;
+  min-height: 2.75rem;
+  min-width: 2.75rem;
 }
 
 .search-toggle {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2.75rem;
+  height: 2.75rem;
   border: none;
   background-color: transparent;
   color: var(--color-text-secondary);
   cursor: pointer;
-  border-radius: 999px;
+  border-radius: var(--radius-md);
   transition: color var(--transition-fast);
   z-index: 2;
   position: relative;
@@ -107,6 +107,13 @@
   transform: translateY(-50%) translateX(0) scale(1);
 }
 
+/* 输入框自身 outline 被关掉了（它是展开面板里的无边框输入），
+   所以焦点必须由外层面板表达 —— 否则键盘用户看不出光标在哪。 */
+.search-form:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 35%, transparent);
+}
+
 .search-input {
   flex: 1;
   min-width: 0;
@@ -129,9 +136,10 @@
 }
 
 @media (max-width: 480px) {
+  /* 44px 是触控及格线，移动端也不能缩水 */
   .search-toggle {
-    width: 2.25rem;
-    height: 2.25rem;
+    width: 2.75rem;
+    height: 2.75rem;
   }
 
   .search-form.active {
