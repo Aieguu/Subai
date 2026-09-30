@@ -181,16 +181,25 @@ v2 **不推翻 v1 的骨架，只换它的光**：
 ### 3.1 字体栈
 
 ```css
---font-family-sans: 'Geist', 'Inter', system-ui, -apple-system,
-                    'PingFang SC', 'HarmonyOS Sans SC', 'Microsoft YaHei',
-                    'Noto Sans CJK SC', sans-serif;
+--font-family-sans: 'Geist', 'Noto Sans SC', 'Inter', system-ui, -apple-system,
+                    'PingFang SC', 'HarmonyOS Sans SC', 'Microsoft YaHei', sans-serif;
 --font-family-mono: 'JetBrains Mono', 'SF Mono', 'Cascadia Code',
                     Consolas, monospace;   /* 沿用 v1，已自托管 400/500 */
 ```
 
-- **Latin/UI：Geist**（OFL 1.1，可变字重，几何偏中性，2026 年开发者圈主流审美）。
-  若对 Geist 的可用性有顾虑，Inter 是等价替代（同为 OFL、同为中性无衬线）。
-- **中文：不自托管。** 走系统栈（苹方 / 鸿蒙 / 微软雅黑 / 思源）。
+- **Latin/UI：Geist**（OFL 1.1，几何偏中性）。
+- **中文：自托管 Noto Sans SC 的 `chinese-simplified` 子集，400 + 700 两个字重。**
+  这一条经过一次实测修正。最初决定中文走系统栈以省体积，上线后中文观感「发虚」——
+  原因是 Geist 与各 OS 自带中文的字形粗细、笔画处理、渲染方式都不一致，
+  同屏混排时人眼会读成模糊。中文读者对字体一致性比拉丁读者敏感得多。
+  现在 2.3MB，仍是 v1 思源宋体全集（4.8MB）的一半。
+- **中文必须给两个字重**，否则标题的 600 请求会落到 500，浏览器再用
+  `font-synthesis` 伪粗体化补出假加粗 —— 中文笔画密，一描就糊。
+  同时 `reset.css` 里设 `font-synthesis-weight: none` 从源头禁掉伪粗体
+  （只禁 weight，不禁 style，否则 `<em>` 会彻底失去强调）。
+- **字体栈顺序不能反**：Noto Sans SC 的 `chinese-simplified` 子集**没有
+  `unicode-range`**，等于全字符覆盖。Geist 自带 latin 的 `unicode-range`，
+  必须排在它前面才能接住拉丁字符，汉字才会落到 Noto Sans SC。
 - **等宽字体做元信息（关键的反 AI 手法）**：日期、字数、标签、分类、代码块语言标、
   导航次级文字、页脚版权行一律 `--font-family-mono`，配合 12–13px 与 `0.04em` 字距。
   AI 生成的设计几乎从不这么做，而它是真实设计里的常见手法，且天然贴合开发者博客。
