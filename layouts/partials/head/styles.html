@@ -1,6 +1,8 @@
-<!-- CSS Variables for Theme System -->
+<!-- CSS Variables for Theme System —— v1「纸 · 墨 · 朱砂」轨
+     作用域收窄到 data-design="paper"，与 Prism 轨（tokens-prism.css）互不干扰。
+     迁移期两套共存，靠 hugo.toml 的 params.design 一行切换。 -->
 <style>
-:root {
+:root[data-design="paper"] {
   /* Color System —— 纸 · 墨 · 朱砂 */
   --color-primary: {{ .Site.Params.colors.primary | default "#A63D2A" }};
   --color-primary-hover: {{ .Site.Params.colors.primaryHover | default "#8C3221" }};
@@ -107,7 +109,7 @@
 }
 
 /* Dark Theme */
-.theme-dark {
+:root[data-design="paper"].theme-dark {
   --color-bg: var(--color-bg-dark);
   --color-bg-secondary: var(--color-bg-secondary-dark);
   --color-text: var(--color-text-dark);
@@ -127,7 +129,7 @@
 
 /* Auto Theme - Follows system preference */
 @media (prefers-color-scheme: dark) {
-  :root:not(.theme-light) {
+    :root[data-design="paper"]:not(.theme-light) {
     --color-bg: var(--color-bg-dark);
     --color-bg-secondary: var(--color-bg-secondary-dark);
     --color-text: var(--color-text-dark);
@@ -148,7 +150,7 @@
 
 /* Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
-  :root {
+  :root[data-design="paper"] {
     --transition-fast: 0ms;
     --transition-normal: 0ms;
     --transition-slow: 0ms;
@@ -188,6 +190,8 @@
 
 <!-- Main Stylesheet (concatenated from component files) -->
 {{ $fonts := resources.Get "css/fonts.css" }}
+{{ $primitives := resources.Get "css/primitives.css" }}
+{{ $tokensPrism := resources.Get "css/tokens-prism.css" }}
 {{ $reset := resources.Get "css/reset.css" }}
 {{ $layout := resources.Get "css/layout.css" }}
 {{ $header := resources.Get "css/header.css" }}
@@ -205,7 +209,8 @@
 {{ $ink404 := resources.Get "css/ink404.css" }}
 {{ $responsive := resources.Get "css/responsive.css" }}
 {{ $print := resources.Get "css/print.css" }}
-{{ $styles := slice $fonts $reset $layout $header $hero $cards $post $toc $pagination $footer $share $taxonomy $lightbox $home $seal $ink404 $responsive $print | resources.Concat "css/main.css" | resources.Minify | resources.Fingerprint }}
+{{/* 原始层必须在语义层之前，语义层必须在任何组件之前 —— 顺序即依赖。 */}}
+{{ $styles := slice $fonts $primitives $tokensPrism $reset $layout $header $hero $cards $post $toc $pagination $footer $share $taxonomy $lightbox $home $seal $ink404 $responsive $print | resources.Concat "css/main.css" | resources.Minify | resources.Fingerprint }}
 <link rel="stylesheet" href="{{ $styles.RelPermalink }}" integrity="{{ $styles.Data.Integrity }}">
 
 <!-- Syntax Highlighting -->

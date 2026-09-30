@@ -1,0 +1,125 @@
+/* Prism · 棱镜 — 第 1 层：原始令牌 (primitives)
+ *
+ * 本文件只声明「原材料」：色板梯度、字阶、间距、圆角、时长、曲线。
+ * 组件禁止直接引用这里的任何变量 —— 只能引用 tokens-prism.css 里的语义令牌。
+ * 组件直接引用原始值是设计系统腐化的起点：换个色板就要改一百处。
+ *
+ * 本文件不区分明暗。明暗由语义层决定，因为「深色的 danger」不是「浅色的 danger
+ * 反个色」，而是重新调过彩度与明度的另一个值。
+ */
+
+:root {
+  /* ── 石墨 Graphite ────────────────────────────────────────────────
+     冷偏中性色。带一点点蓝，是因为本设计的中性色是「阴影」不是「纸」；
+     纯中性灰在深色底上会显脏。 */
+  --p-graphite-0: #FFFFFF;
+  --p-graphite-50: #F7F8FA;
+  --p-graphite-100: #EFF1F5;
+  --p-graphite-200: #E2E5EC;
+  --p-graphite-300: #CBCFD9;
+  --p-graphite-400: #9AA0AF;
+  --p-graphite-500: #6E7484;
+  --p-graphite-600: #525866;
+  --p-graphite-700: #3A3F4B;
+  --p-graphite-800: #24272F;
+  --p-graphite-900: #15171C;
+  --p-graphite-950: #0C0D11;
+
+  /* ── 电光朱 Volt ──────────────────────────────────────────────────
+     全站唯一的高饱和强调色。沿用 v1 朱砂的色相，提纯提亮。
+     浅色模式主用 500，深色模式主用 400（500 在近黑底上对比度不够）。 */
+  --p-volt-50: #FFF1EE;
+  --p-volt-100: #FFE0D9;
+  --p-volt-200: #FFC4B6;
+  --p-volt-300: #FF9E88;
+  --p-volt-400: #FF7253;
+  --p-volt-500: #F5451F;
+  --p-volt-600: #D8320F;
+  --p-volt-700: #A8250C;
+
+  /* ── 折射色 Flux ──────────────────────────────────────────────────
+     孔版印刷（Risograph）油墨色谱，不是糖果荧光色。
+     略降彩度、带一点油墨的浑浊感 —— 糖果色没有实物参照，油墨有。
+     只服务于「需要区分」的场景：标签圆点、分类色条、代码块语言标。
+     -dark 变体用于深色底，否则在近黑上会发闷。 */
+  --p-flux-cyan: #2BB8C4;
+  --p-flux-cyan-dark: #4FD0DC;
+  --p-flux-indigo: #5A5FE0;
+  --p-flux-indigo-dark: #8B8FF5;
+  --p-flux-moss: #7FA83A;
+  --p-flux-moss-dark: #A3C95C;
+  --p-flux-ochre: #C8862B;
+  --p-flux-ochre-dark: #E0A24E;
+  --p-flux-rose: #D9536F;
+  --p-flux-rose-dark: #EE7A90;
+
+  /* ── 语义色 ───────────────────────────────────────────────────────
+     刻意降饱和。它们要和强调色共存，不能抢戏。 */
+  --p-success: #1F9254;
+  --p-success-dark: #54D18A;
+  --p-warning: #B26A00;
+  --p-warning-dark: #FFB020;
+  --p-danger: #D92D20;
+  --p-danger-dark: #FF6B5E;
+  --p-info: #2563C9;
+  --p-info-dark: #5B9BFF;
+
+  /* ── 字阶 ─────────────────────────────────────────────────────────
+     双档。UI 档 15px 基准，阅读档 17px 基准 —— 侧边栏元信息和长文正文
+     不该共用一套字号，v1 一套 17px 打天下导致元信息偏大。 */
+  --p-font-ui-xs: 0.75rem;
+  --p-font-ui-sm: 0.8125rem;
+  --p-font-ui-base: 0.9375rem;
+  --p-font-ui-lg: 1.0625rem;
+
+  --p-font-sm: 0.875rem;
+  --p-font-base: 1.0625rem;
+  --p-font-lg: 1.25rem;
+  --p-font-xl: 1.5rem;
+  --p-font-2xl: 1.875rem;
+  --p-font-3xl: 2.25rem;
+  --p-font-4xl: clamp(2.5rem, 5vw, 3.25rem);
+  --p-font-5xl: clamp(3rem, 7vw, 3.75rem);
+
+  /* ── 间距 ─────────────────────────────────────────────────────────
+     4px 网格。v1 的语义档位恰好都落在 4px 上，所以数值不变，
+     只是补齐了缺的 12/20/40px 三档。 */
+  --p-space-0: 0;
+  --p-space-1: 0.25rem;
+  --p-space-2: 0.5rem;
+  --p-space-3: 0.75rem;
+  --p-space-4: 1rem;
+  --p-space-5: 1.25rem;
+  --p-space-6: 1.5rem;
+  --p-space-8: 2rem;
+  --p-space-10: 2.5rem;
+  --p-space-12: 3rem;
+  --p-space-16: 4rem;
+  --p-space-20: 5rem;
+  --p-space-section: clamp(3rem, 6vw, 5rem);
+
+  /* ── 圆角 ─────────────────────────────────────────────────────────
+     上限 16px。原方案的 20 / 28 已删除 —— 那是泡泡感，是 AI 指纹。
+     full 只给头像和圆形图标钮。 */
+  --p-radius-xs: 4px;
+  --p-radius-sm: 6px;
+  --p-radius-md: 10px;
+  --p-radius-lg: 12px;
+  --p-radius-xl: 16px;
+  --p-radius-full: 999px;
+
+  /* ── 时长 ─────────────────────────────────────────────────────── */
+  --p-duration-micro: 100ms;
+  --p-duration-fast: 160ms;
+  --p-duration-base: 240ms;
+  --p-duration-slow: 400ms;
+  --p-duration-deliberate: 640ms;
+
+  /* ── 曲线 ─────────────────────────────────────────────────────────
+     spring 只允许用在 :active 按压上。处处回弹是 AI 的「愉悦感」套路。 */
+  --p-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --p-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --p-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --p-ease-snap: cubic-bezier(0.32, 0.72, 0, 1);
+  --p-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}

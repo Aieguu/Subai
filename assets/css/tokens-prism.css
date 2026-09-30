@@ -1,0 +1,267 @@
+/* Prism · 棱镜 — 第 2 层：语义令牌 (semantic tokens)
+ *
+ * 关键设计决策：语义层**沿用 v1 的变量名**（--color-bg / --radius-md /
+ * --ease-out …），只换值。v1 的 18 个 CSS 分片里到处是这些名字，所以换肤时
+ * 大多数组件一行选择器都不用改 —— 这是「平滑替换」能成立的全部原因。
+ *
+ * 改这里的变量名 = 强迫所有组件同步改，等于推翻迁移策略。别改。
+ * 要加新令牌可以，要重命名不行。
+ *
+ * 作用域：:root[data-design="prism"]。与 v1 的 paper 轨互不干扰，
+ * 迁移期两套共存，靠 hugo.toml 的 params.design 一行切换。
+ */
+
+/* ══════════════════════════════════════════════════════════════════
+   浅色（默认）—— 白纸 + hairline，瑞士网格路线
+   ══════════════════════════════════════════════════════════════════ */
+:root[data-design="prism"] {
+  /* 强调色 */
+  --color-primary: var(--p-volt-500);
+  --color-primary-hover: var(--p-volt-600);
+  --color-accent: var(--p-volt-500);
+  --color-secondary: var(--p-graphite-500);
+
+  /* 表面 */
+  --color-bg: var(--p-graphite-0);
+  --color-bg-secondary: var(--p-graphite-50);
+  --color-bg-sunken: var(--p-graphite-50);
+  --color-bg-raised: var(--p-graphite-0);
+  --color-bg-overlay: var(--p-graphite-0);
+  --color-bg-inset: #F2F4F7;
+
+  /* 文字 */
+  --color-text: var(--p-graphite-950);
+  --color-text-secondary: var(--p-graphite-600);
+  --color-text-muted: var(--p-graphite-400);
+
+  /* 描边 —— 1px 发丝线是 v1 的品牌基因，保留 */
+  --color-border: rgb(12 13 17 / 0.09);
+  --color-border-hover: rgb(12 13 17 / 0.16);
+  --color-border-strong: rgb(12 13 17 / 0.24);
+
+  /* 深色值（供 .theme-dark 与媒体查询映射，不直接消费） */
+  --color-bg-dark: var(--p-graphite-950);
+  --color-bg-secondary-dark: var(--p-graphite-900);
+  --color-bg-sunken-dark: var(--p-graphite-950);
+  --color-bg-raised-dark: var(--p-graphite-900);
+  --color-bg-overlay-dark: var(--p-graphite-800);
+  --color-bg-inset-dark: #0F1115;
+  --color-text-dark: var(--p-graphite-100);
+  --color-text-secondary-dark: var(--p-graphite-300);
+  --color-text-muted-dark: var(--p-graphite-400);
+  --color-border-dark: rgb(255 255 255 / 0.10);
+  --color-border-hover-dark: rgb(255 255 255 / 0.18);
+  --color-border-strong-dark: rgb(255 255 255 / 0.26);
+  --color-primary-on-dark: var(--p-volt-400);
+  --color-primary-hover-on-dark: var(--p-volt-300);
+
+  /* Header —— 实色，不用 backdrop-filter（玻璃拟态是 AI 指纹） */
+  --color-header-bg: var(--p-graphite-0);
+  --color-header-bg-dark: var(--p-graphite-900);
+
+  /* 折射色 —— 语义层转发，深色下换提亮变体 */
+  --color-flux-cyan: var(--p-flux-cyan);
+  --color-flux-indigo: var(--p-flux-indigo);
+  --color-flux-moss: var(--p-flux-moss);
+  --color-flux-ochre: var(--p-flux-ochre);
+  --color-flux-rose: var(--p-flux-rose);
+
+  /* 语义状态色 */
+  --color-success: var(--p-success);
+  --color-warning: var(--p-warning);
+  --color-danger: var(--p-danger);
+  --color-info: var(--p-info);
+
+  /* ── 字体 ──────────────────────────────────────────────────────────
+     Geist（Latin）+ 系统中文。中文不自托管：v1 自托管了 104 个思源宋体分片
+     共 4.8MB，换无衬线后自托管的收益（衬线气质）消失，只剩体积负担。
+     标题与正文同为无衬线 —— v1 用衬线标题，v2 靠字重与字距区分层级。 */
+  --font-family-base: 'Geist', 'Inter', system-ui, -apple-system, 'PingFang SC',
+    'HarmonyOS Sans SC', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif;
+  --font-family-heading: var(--font-family-base);
+  --font-family-mono: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', Consolas,
+    'Courier New', monospace;
+
+  /* ── 字阶 ─────────────────────────────────────────────────────── */
+  --font-size-xs: var(--p-font-ui-xs);
+  --font-size-sm: var(--p-font-sm);
+  --font-size-base: var(--p-font-base);
+  --font-size-lg: var(--p-font-lg);
+  --font-size-xl: var(--p-font-xl);
+  --font-size-2xl: var(--p-font-2xl);
+  --font-size-3xl: var(--p-font-3xl);
+  --font-size-4xl: var(--p-font-4xl);
+  --font-size-5xl: var(--p-font-5xl);
+
+  /* UI 档（新增，供阶段 3 组件改造逐步采用） */
+  --font-size-ui-xs: var(--p-font-ui-xs);
+  --font-size-ui-sm: var(--p-font-ui-sm);
+  --font-size-ui-base: var(--p-font-ui-base);
+  --font-size-ui-lg: var(--p-font-ui-lg);
+
+  /* 元信息字距 —— 等宽小字需要正字距才不发挤 */
+  --letter-spacing-mono: 0.04em;
+  --letter-spacing-heading: -0.02em;
+  --letter-spacing-heading-cjk: -0.01em;
+
+  /* ── 行高 ─────────────────────────────────────────────────────── */
+  --line-height-tight: 1.25;
+  --line-height-snug: 1.375;
+  --line-height-normal: 1.6;
+  --line-height-relaxed: 1.7;
+  --line-height-body: 1.8;
+  --line-height-loose: 2;
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* ── 间距 ──────────────────────────────────────────────────────────
+     v1 的档位恰好都落在 4px 网格上，数值不变，只补了缺的档。 */
+  --spacing-xs: var(--p-space-1);
+  --spacing-sm: var(--p-space-2);
+  --spacing-md: var(--p-space-4);
+  --spacing-lg: var(--p-space-6);
+  --spacing-xl: var(--p-space-8);
+  --spacing-2xl: var(--p-space-12);
+  --spacing-3xl: var(--p-space-16);
+  --space-3: var(--p-space-3);
+  --space-5: var(--p-space-5);
+  --space-10: var(--p-space-10);
+  --space-section: var(--p-space-section);
+
+  /* ── 圆角 ─────────────────────────────────────────────────────── */
+  --radius-xs: var(--p-radius-xs);
+  --radius-sm: var(--p-radius-sm);
+  --radius-md: var(--p-radius-md);
+  --radius-lg: var(--p-radius-lg);
+  --radius-xl: var(--p-radius-xl);
+  --radius-2xl: var(--p-radius-xl);
+  --radius-full: var(--p-radius-full);
+
+  /* ── 阴影 ──────────────────────────────────────────────────────────
+     双层：ambient + key。**没有彩色发光** —— 那是廉价未来感。 */
+  --shadow-sm: 0 1px 2px rgb(12 13 17 / 0.05), 0 1px 1px rgb(12 13 17 / 0.04);
+  --shadow-md: 0 4px 8px -2px rgb(12 13 17 / 0.08), 0 2px 4px -2px rgb(12 13 17 / 0.06);
+  --shadow-lg: 0 12px 24px -6px rgb(12 13 17 / 0.10), 0 4px 8px -4px rgb(12 13 17 / 0.06);
+  --shadow-xl: 0 24px 48px -12px rgb(12 13 17 / 0.18), 0 8px 16px -8px rgb(12 13 17 / 0.08);
+
+  /* 硬边偏移 —— 无模糊实心。硬边是有态度，柔光是 AI。 */
+  --shadow-hard: 2px 2px 0 0 var(--color-primary);
+  --shadow-hard-sm: 1px 1px 0 0 var(--color-primary);
+
+  /* ── 动效 ─────────────────────────────────────────────────────── */
+  --ease-out: var(--p-ease-out);
+  --ease-in-out: var(--p-ease-in-out);
+  --ease-standard: var(--p-ease-standard);
+  --ease-snap: var(--p-ease-snap);
+  --ease-spring: var(--p-ease-spring);
+
+  --duration-micro: var(--p-duration-micro);
+  --duration-ui: var(--p-duration-fast);
+  --duration-base: var(--p-duration-base);
+  --duration-reveal: var(--p-duration-slow);
+  --duration-page: var(--p-duration-deliberate);
+
+  --transition-fast: var(--duration-micro) var(--ease-standard);
+  --transition-normal: var(--duration-ui) var(--ease-standard);
+  --transition-slow: var(--duration-reveal) var(--ease-out);
+
+  --theme-transition: 320ms var(--ease-out);
+  --theme-transition-fast: 160ms var(--ease-out);
+
+  /* ── 容器 ──────────────────────────────────────────────────────────
+     正文栏宽从 50rem 收到 46rem：17px 下 50rem 约 47 个汉字/行，偏宽；
+     46rem 约 43 字，落在中文舒适区间。 */
+  --container-max-width: 1200px;
+  --container-padding: 1.25rem;
+  --content-max-width: 46rem;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   深色 —— 主设计面
+   深色不是浅色的反色：层次靠明度阶梯，描边换半透明白而非灰。
+   ══════════════════════════════════════════════════════════════════ */
+:root[data-design="prism"].theme-dark {
+  --color-bg: var(--color-bg-dark);
+  --color-bg-secondary: var(--color-bg-secondary-dark);
+  --color-bg-sunken: var(--color-bg-sunken-dark);
+  --color-bg-raised: var(--color-bg-raised-dark);
+  --color-bg-overlay: var(--color-bg-overlay-dark);
+  --color-bg-inset: var(--color-bg-inset-dark);
+  --color-text: var(--color-text-dark);
+  --color-text-secondary: var(--color-text-secondary-dark);
+  --color-text-muted: var(--color-text-muted-dark);
+  --color-border: var(--color-border-dark);
+  --color-border-hover: var(--color-border-hover-dark);
+  --color-border-strong: var(--color-border-strong-dark);
+  --color-primary: var(--color-primary-on-dark);
+  --color-primary-hover: var(--color-primary-hover-on-dark);
+  --color-accent: var(--color-primary-on-dark);
+  --color-header-bg: var(--color-header-bg-dark);
+
+  --color-flux-cyan: var(--p-flux-cyan-dark);
+  --color-flux-indigo: var(--p-flux-indigo-dark);
+  --color-flux-moss: var(--p-flux-moss-dark);
+  --color-flux-ochre: var(--p-flux-ochre-dark);
+  --color-flux-rose: var(--p-flux-rose-dark);
+
+  --color-success: var(--p-success-dark);
+  --color-warning: var(--p-warning-dark);
+  --color-danger: var(--p-danger-dark);
+  --color-info: var(--p-info-dark);
+
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.30);
+  --shadow-md: 0 4px 8px -2px rgb(0 0 0 / 0.40);
+  --shadow-lg: 0 12px 24px -6px rgb(0 0 0 / 0.50);
+  --shadow-xl: 0 24px 48px -12px rgb(0 0 0 / 0.60);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-design="prism"]:not(.theme-light) {
+    --color-bg: var(--color-bg-dark);
+    --color-bg-secondary: var(--color-bg-secondary-dark);
+    --color-bg-sunken: var(--color-bg-sunken-dark);
+    --color-bg-raised: var(--color-bg-raised-dark);
+    --color-bg-overlay: var(--color-bg-overlay-dark);
+    --color-bg-inset: var(--color-bg-inset-dark);
+    --color-text: var(--color-text-dark);
+    --color-text-secondary: var(--color-text-secondary-dark);
+    --color-text-muted: var(--color-text-muted-dark);
+    --color-border: var(--color-border-dark);
+    --color-border-hover: var(--color-border-hover-dark);
+    --color-border-strong: var(--color-border-strong-dark);
+    --color-primary: var(--color-primary-on-dark);
+    --color-primary-hover: var(--color-primary-hover-on-dark);
+    --color-accent: var(--color-primary-on-dark);
+    --color-header-bg: var(--color-header-bg-dark);
+
+    --color-flux-cyan: var(--p-flux-cyan-dark);
+    --color-flux-indigo: var(--p-flux-indigo-dark);
+    --color-flux-moss: var(--p-flux-moss-dark);
+    --color-flux-ochre: var(--p-flux-ochre-dark);
+    --color-flux-rose: var(--p-flux-rose-dark);
+
+    --color-success: var(--p-success-dark);
+    --color-warning: var(--p-warning-dark);
+    --color-danger: var(--p-danger-dark);
+    --color-info: var(--p-info-dark);
+
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.30);
+    --shadow-md: 0 4px 8px -2px rgb(0 0 0 / 0.40);
+    --shadow-lg: 0 12px 24px -6px rgb(0 0 0 / 0.50);
+    --shadow-xl: 0 24px 48px -12px rgb(0 0 0 / 0.60);
+  }
+}
+
+/* 减少动效：呈现终态，不是把时长归零 */
+@media (prefers-reduced-motion: reduce) {
+  :root[data-design="prism"] {
+    --transition-fast: 0ms;
+    --transition-normal: 0ms;
+    --transition-slow: 0ms;
+    --theme-transition: 0ms;
+    --theme-transition-fast: 0ms;
+  }
+}
