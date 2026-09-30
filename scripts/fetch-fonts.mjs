@@ -7,16 +7,28 @@ import { fileURLToPath } from 'node:url';
 
 const THEME = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
-// Prism 只自托管 Latin：中文走系统栈（苹方 / 鸿蒙 / 微软雅黑 / 思源）。
-// v1 自托管了 104 个思源宋体分片共 4.8MB，换无衬线后那份体积只剩负担。
+// Prism 自托管 Latin（Geist）+ 中文常用字集（Noto Sans SC chinese-simplified），
+// 系统栈补底。
+// 中文人眼对字体一致性极敏感：Geist Latin 配各 OS 自带中文后备字时，
+// 字形粗细与渲染差异会被读成「模糊」 —— 上线即收到了这条反馈。
+// chinese-simplified 子集 + 单字重（500）= 1.16MB，仍远小于 v1 自托管的
+// 4.8MB 思源宋体全集。这是对"放弃自托管"的修正，不是简单回滚。
 const jobs = [
   { family: 'geist', weights: [400, 500, 600] },
+  // 400（正文）+ 700（标题）。为什么必须两个字重：
+  // 只给一个 500 的话，标题的 600 请求会落到 500，浏览器再伪粗体化
+  // （font-synthesis）补出假的加粗 —— 中文伪粗体发糊，正是"模糊感"的来源之一。
+  // 宁可多 1.17MB，也不要伪粗体。
+  { family: 'noto-sans-sc', weights: [400, 700] },
   { family: 'jetbrains-mono', weights: [400, 500] },
 ];
 
-// 只保留 latin。latin-ext / cyrillic / greek / vietnamese 对本博客无用，
-// 留着只会让浏览器多下几个文件。
-const KEEP_SUBSETS = new Set(['latin']);
+// 不同字体保留不同子集，集中维护避免散落在解析处。
+const KEEP_SUBSETS = {
+  geist: new Set(['latin']),
+  'noto-sans-sc': new Set(['chinese-simplified', 'latin']),
+  'jetbrains-mono': new Set(['latin']),
+};
 
 // fontsource 曾经在每个 @font-face 前带 /* latin */ 注释，现在不带了。
 // 所以不再靠注释判断子集，而是从文件名里取（latin-400-normal.woff2 → latin）。
@@ -66,7 +78,7 @@ for (const job of jobs) {
       // 直接按 '-' 切第一段会把 latin-ext 误判成 latin，白下一堆文件。
       const named = fileName.match(/^(.+?)-\d+-normal\.woff2$/);
       const subset = named ? named[1] : fileName.split('-')[0];
-      if (!KEEP_SUBSETS.has(subset)) continue;
+      if (!KEEP_SUBSETS[job.family].has(subset)) continue;
 
       const newBody = body.replace(/src:[^;]+;/, `src: url(${urlPrefix}/${fileName}) format('woff2');`).trim();
       cssOut += `/* ${job.family}-${weight}-${subset} */\n@font-face {\n  ${newBody.replace(/\n/g, '\n  ')}\n}\n\n`;
@@ -75,7 +87,10 @@ for (const job of jobs) {
     }
 
     if (kept === 0) {
-      throw new Error(`${cssUrl} 没解析到任何 latin 子集 —— fontsource 的输出格式可能又变了，检查 blockRe。`);
+      throw new Error(
+        `${cssUrl} 没解析到任何期望的子集（期望 ${[...KEEP_SUBSETS[job.family]].join('/')}）` +
+        ` —— fontsource 的输出格式可能又变了，检查 blockRe。`
+      );
     }
     console.log(`${job.family} ${weight}: ${kept} subset(s)`);
   }

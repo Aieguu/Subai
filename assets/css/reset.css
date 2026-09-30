@@ -20,6 +20,12 @@ html {
   -webkit-text-size-adjust: 100%;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* 禁止浏览器伪粗体。中文字形笔画密，伪粗体是把笔画直接描粗，糊成一团 ——
+     这是「字体发虚」最常见的来源之一。宁可回退到最近的真实字重，
+     也不要合成一个假的。
+     只禁 weight：连 font-style 一起禁掉的话，<em> 会完全失去强调，
+     那是拿一个问题换另一个问题。 */
+  font-synthesis-weight: none;
 }
 
 body {

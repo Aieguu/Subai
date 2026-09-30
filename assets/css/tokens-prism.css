@@ -73,11 +73,17 @@
   --color-info: var(--p-info);
 
   /* ── 字体 ──────────────────────────────────────────────────────────
-     Geist（Latin）+ 系统中文。中文不自托管：v1 自托管了 104 个思源宋体分片
-     共 4.8MB，换无衬线后自托管的收益（衬线气质）消失，只剩体积负担。
-     标题与正文同为无衬线 —— v1 用衬线标题，v2 靠字重与字距区分层级。 */
-  --font-family-base: 'Geist', 'Inter', system-ui, -apple-system, 'PingFang SC',
-    'HarmonyOS Sans SC', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif;
+     Geist（Latin）+ Noto Sans SC（中文，自托管常用字集）+ 系统栈兜底。
+
+     顺序很关键：Noto Sans SC 的 chinese-simplified 子集**没有 unicode-range**，
+     等于全字符覆盖。所以 Geist 必须排在它前面 —— Geist 自带 latin 的
+     unicode-range，拉丁字符被它接住，汉字才落到 Noto Sans SC。
+
+     为什么中文又自托管了：Geist 配各 OS 自带中文后备字，字形粗细与渲染差异
+     被读成「模糊」。中文读者对字体一致性极敏感，这一项不能省。
+     400 + 700 两个字重共 2.3MB，仍是 v1 思源宋体 4.8MB 的一半。 */
+  --font-family-base: 'Geist', 'Noto Sans SC', 'Inter', system-ui, -apple-system,
+    'PingFang SC', 'HarmonyOS Sans SC', 'Microsoft YaHei', sans-serif;
   --font-family-heading: var(--font-family-base);
   --font-family-mono: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', Consolas,
     'Courier New', monospace;
