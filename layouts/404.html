@@ -1,29 +1,35 @@
 {{ define "main" }}
 {{/*
-  404 —— 一笔未合拢的墨圈 +「此处无物」
-  访客迷路时撞见全站最酷的一页
+  404 —— 断棱光环
+  与 v1 的「一笔未合拢的墨圈」结构一致（单笔描边 + 留缺口），只换材质：
+  墨圈是手写的、带糙边；棱镜光环是几何的、硬边的，缺口的裂处漏出三道折射光。
+  隐喻对上了：棱镜把光拆成光谱，而这一页「没有光」。
 */}}
-<section class="ink-404" aria-label="页面不存在">
-  <svg class="ink-circle" viewBox="0 0 200 200" role="img" aria-hidden="true">
-    <defs>
-      <filter id="ink-rough">
-        <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="2" seed="7" result="noise"/>
-        <feDisplacementMap in="SourceGraphic" in2="noise" scale="5"/>
-      </filter>
-    </defs>
-    <circle class="ink-circle-path"
+<section class="prism-404" aria-label="页面不存在">
+  <svg class="prism-404-mark" viewBox="0 0 200 200" role="img" aria-hidden="true">
+    {{/*
+      圆周 = 2π×72 ≈ 452。dasharray「422 30」= 422 实线 + 30 缺口 = 452，
+      正好一圈只有一个缺口。再 rotate -25° 把缺口挪到右上。
+    */}}
+    <circle class="prism-404-ring"
             cx="100" cy="100" r="72"
             fill="none"
             stroke="currentColor"
-            stroke-width="7"
-            stroke-linecap="round"
-            filter="url(#ink-rough)"/>
+            stroke-width="4"
+            stroke-linecap="butt"
+            transform="rotate(-25 100 100)"/>
+    {{/* 缺口处漏出的三道折射光，颜色由 CSS 从折射色令牌取 */}}
+    <g class="prism-404-rays" stroke-width="3" stroke-linecap="round">
+      <line class="prism-404-ray ray-cyan"   x1="151.8" y1="44.4" x2="162.7" y2="32.7"/>
+      <line class="prism-404-ray ray-indigo" x1="160.7" y1="54.3" x2="173.5" y2="44.6"/>
+      <line class="prism-404-ray ray-rose"   x1="167.7" y1="65.5" x2="182.0" y2="58.2"/>
+    </g>
   </svg>
 
-  <h1 class="ink-404-title">此处无物</h1>
-  <p class="ink-404-desc">你要找的页面不在此处，或许从未存在。</p>
-  <p class="ink-404-actions">
-    <a class="ink-404-link" href="{{ "/" | relLangURL }}">返回首页</a>
+  <h1 class="prism-404-title">这里没有光</h1>
+  <p class="prism-404-desc">你要找的页面不在此处，或许从未存在。</p>
+  <p class="prism-404-actions">
+    <a class="prism-404-link" href="{{ "/" | relLangURL }}">返回首页</a>
   </p>
 </section>
 {{ end }}

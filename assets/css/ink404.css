@@ -1,8 +1,12 @@
 /* ==========================================================================
-   404 —— 一笔未合拢的墨圈
+   404 —— 断棱光环
+   v1 是一笔未合拢的墨圈（手写、糙边、feDisplacementMap）。
+   Prism 保留「单笔描边 + 留一个缺口」的结构，换成几何硬边的光环，
+   缺口裂处漏出三道折射光 —— 棱镜把光拆成光谱，而这一页没有光。
+   糙边滤镜去掉：Prism 的线条是精确的，不毛。
    ========================================================================== */
 
-.ink-404 {
+.prism-404 {
   min-height: 58vh;
   display: flex;
   flex-direction: column;
@@ -12,27 +16,45 @@
   padding: var(--spacing-3xl) var(--spacing-md);
 }
 
-.ink-circle {
+.prism-404-mark {
   width: 168px;
   height: 168px;
   color: var(--color-text);
   margin-bottom: var(--spacing-xl);
 }
 
-/* 圆周 ≈ 2π×72 ≈ 452；留 26 缺口，画而不合 */
-.ink-circle-path {
-  stroke-dasharray: 452;
+/* 圆周 ≈ 2π×72 ≈ 452。留 30 的缺口，画而不合。
+   用机械缓动（--ease-out）而不是 v1 那种带手写感的缓动：
+   Prism 的动是「被切出来的」，不是「被写出来的」。 */
+.prism-404-ring {
+  stroke-dasharray: 422 30;
   stroke-dashoffset: 452;
-  animation: ink-circle-draw 1.6s var(--ease-out) 0.25s forwards;
+  animation: prism-ring-draw 900ms var(--ease-out) 150ms forwards;
 }
 
-@keyframes ink-circle-draw {
+@keyframes prism-ring-draw {
   to {
-    stroke-dashoffset: 26;
+    stroke-dashoffset: 0;
   }
 }
 
-.ink-404-title {
+/* 折射光：环画到缺口时漏出来，比环晚一步。
+   三道颜色取自折射色令牌 —— 深色模式下会自动换成提亮变体。 */
+.prism-404-rays {
+  opacity: 0;
+  animation: prism-rays-in 420ms var(--ease-out) 900ms forwards;
+}
+
+.ray-cyan   { stroke: var(--color-flux-cyan); }
+.ray-indigo { stroke: var(--color-flux-indigo); }
+.ray-rose   { stroke: var(--color-flux-rose); }
+
+@keyframes prism-rays-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.prism-404-title {
   font-family: var(--font-family-heading);
   font-size: var(--font-size-2xl);
   font-weight: 600;
@@ -42,16 +64,18 @@
   color: var(--color-text);
 }
 
-.ink-404-desc {
+.prism-404-desc {
   color: var(--color-text-muted);
   margin-bottom: var(--spacing-xl);
 }
 
-.ink-404-link {
+.prism-404-link {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
   padding: 0.55rem 1.5rem;
-  border: 1px solid var(--color-border-hover);
+  border: 1px solid var(--color-border-strong, var(--color-border-hover));
   border-radius: var(--radius-md);
   color: var(--color-text);
   font-size: var(--font-size-sm);
@@ -61,15 +85,21 @@
     color var(--transition-fast);
 }
 
-.ink-404-link:hover {
+.prism-404-link:hover {
   border-color: var(--color-primary);
   color: var(--color-primary);
   text-decoration: none;
 }
 
+/* reduced-motion：直接呈现终态，不是把时长归零 */
 @media (prefers-reduced-motion: reduce) {
-  .ink-circle-path {
+  .prism-404-ring {
     animation: none;
-    stroke-dashoffset: 26;
+    stroke-dashoffset: 0;
+  }
+
+  .prism-404-rays {
+    animation: none;
+    opacity: 1;
   }
 }
