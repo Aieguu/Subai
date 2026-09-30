@@ -177,6 +177,14 @@
   --theme-transition: 320ms var(--ease-out);
   --theme-transition-fast: 160ms var(--ease-out);
 
+  /* ── 质感：颗粒噪点 ──────────────────────────────────────────────────
+     1.5% 级别的灰度噪点铺满页面底。作用是把「纯色平面」变成「有纸纹的面」，
+     这是让界面不像通用屏幕 UI 的最便宜手段。
+     为什么不用渐变/光斑：那是 AI 审美的头号指纹（PRISM.md §0.5）。
+     噪点有实物参照（纸张纤维、印刷网点），光斑没有。
+     想关掉就把这个令牌设成 none，不用动别的地方。 */
+  --grain-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.055'/%3E%3C/svg%3E");
+
   /* ── 容器 ──────────────────────────────────────────────────────────
      正文栏宽从 50rem 收到 46rem：17px 下 50rem 约 47 个汉字/行，偏宽；
      46rem 约 43 字，落在中文舒适区间。 */

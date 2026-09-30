@@ -13,7 +13,7 @@
       {{ if $page.Params.categories }}
         <div class="post-card-categories">
           {{ range first 3 $page.Params.categories }}
-            <span class="category-tag">{{ . }}</span>
+            <span class="category-tag" data-flux="{{ mod (hash.FNV32a .) 5 }}">{{ . }}</span>
           {{ end }}
         </div>
       {{ end }}

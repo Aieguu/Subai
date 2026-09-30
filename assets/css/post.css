@@ -1,20 +1,36 @@
 /* ==========================================================================
-   Post Content Styles —— 编辑排印：38rem 阅读栏、衬线标题、发丝线
+   Post Content Styles —— 编辑排印：46rem 阅读栏、无衬线标题、发丝线
    ========================================================================== */
 
-/* 分类 / 标签 —— 发丝描边 pill，不用色块填充 */
+/* ── 折射色映射 ────────────────────────────────────────────────────────
+   模板用 mod (hash.FNV32a <名称>) 5 给每个分类/标签算一个稳定的色位，
+   同一个标签在任何页面都是同一个颜色 —— 这是「棱镜」隐喻唯一被看见的地方：
+   一束白光（内容）被拆成光谱（分类）。
+   只用在 6px 圆点上，不给文字和底色上色（见 PRISM.md §2.3 硬约束）。 */
+[data-flux="0"] { --flux: var(--color-flux-cyan); }
+[data-flux="1"] { --flux: var(--color-flux-indigo); }
+[data-flux="2"] { --flux: var(--color-flux-moss); }
+[data-flux="3"] { --flux: var(--color-flux-ochre); }
+[data-flux="4"] { --flux: var(--color-flux-rose); }
+
+/* 分类 / 标签 —— 发丝描边 + 折射色圆点。
+   刻意用 4px 圆角而不是 999px 胶囊：满屏胶囊是 AI 指纹（PRISM.md §0.5）。
+   文字走等宽，和日期/字数同一套语言。 */
 .category-tag,
 .tag,
 .taxonomy-post-count {
   display: inline-flex;
   align-items: center;
-  padding: 0.15em 0.7em;
+  gap: 0.45em;
+  padding: 0.15em 0.6em;
   background: transparent;
   color: var(--color-text-secondary);
   border: 1px solid var(--color-border);
-  border-radius: 999px;
+  border-radius: var(--radius-xs, 4px);
+  font-family: var(--font-family-mono);
   font-size: var(--font-size-xs);
-  font-weight: 500;
+  letter-spacing: var(--letter-spacing-mono, 0.04em);
+  font-weight: 400;
   text-decoration: none;
   line-height: 1.6;
   transition:
@@ -22,10 +38,20 @@
     color var(--transition-fast);
 }
 
+.category-tag::before,
+.tag::before {
+  content: '';
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--flux, var(--color-text-muted));
+}
+
 .category-tag:hover,
 .tag:hover {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
+  border-color: var(--color-border-strong, var(--color-border-hover));
+  color: var(--color-text);
   text-decoration: none;
 }
 

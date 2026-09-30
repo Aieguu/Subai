@@ -7,6 +7,9 @@
    Prism 的 --color-header-bg 也换成了不透明值，所以这里没有毛玻璃可看。 */
 .site-header {
   background-color: var(--color-header-bg);
+  /* 顶栏是实色，会盖住 body 的颗粒底纹，于是栏与页会出现质感断层。
+     给它补同一张噪点，让两者是同一种「纸」。 */
+  background-image: var(--grain-image, none);
   border-bottom: 1px solid var(--color-border);
   position: sticky;
   top: 0;

@@ -34,6 +34,10 @@ body {
   line-height: var(--line-height-body);
   color: var(--color-text);
   background-color: var(--color-bg);
+  /* 颗粒底纹。--grain-image 只在 prism 轨定义，paper 轨取到 none，等于无纹理。
+     用 background-image 而不是叠加一层 ::before 覆盖层 —— 覆盖层要处理
+     z-index 与 pointer-events，容易压住内容；背景图没有这些风险。 */
+  background-image: var(--grain-image, none);
   transition: background-color var(--theme-transition),
               color var(--theme-transition);
 }
