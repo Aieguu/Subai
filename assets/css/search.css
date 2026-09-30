@@ -36,6 +36,37 @@
   color: var(--color-primary);
 }
 
+/* 展开时放大镜被"画"出来：先镜片，后手柄 */
+.search-toggle svg circle {
+  stroke-dasharray: 50.3;
+  --dash: 50.3;
+}
+
+.search-toggle svg path {
+  stroke-dasharray: 6.2;
+  --dash: 6.2;
+}
+
+.search-toggle.active svg circle {
+  animation: search-draw 0.3s var(--ease-out) both;
+}
+
+.search-toggle.active svg path {
+  animation: search-draw 0.18s var(--ease-out) 0.18s both;
+}
+
+@keyframes search-draw {
+  from { stroke-dashoffset: var(--dash); }
+  to { stroke-dashoffset: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .search-toggle.active svg circle,
+  .search-toggle.active svg path {
+    animation: none;
+  }
+}
+
 .search-form {
   position: absolute;
   right: 0;

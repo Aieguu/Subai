@@ -19,10 +19,114 @@
     invokeSubai('initMusicTerrain');
     invokeSubai('initShareButtons');
     initPjaxNavigation();
+    initPjaxProgress();
     initAnimations();
     initSealStamp();
     initSolarTerm();
+    initReadingProgress();
+    initImageDevelop();
+    initHeadingAnchors();
   });
+
+  /**
+   * 图片显影 —— 加载完成前模糊半透明，onload 后收敛清晰（相纸显影）
+   */
+  function initImageDevelop() {
+    const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) return;
+
+    document
+      .querySelectorAll('.content img, .post-card-image img, .home-image-media')
+      .forEach((img) => {
+        if (img.dataset.developBound === 'true') return;
+        if (img.complete && img.naturalWidth > 0) return; // 已缓存，无需显影
+        img.dataset.developBound = 'true';
+        img.classList.add('img-developing');
+        const done = () => img.classList.remove('img-developing');
+        img.addEventListener('load', done, { once: true });
+        img.addEventListener('error', done, { once: true });
+      });
+  }
+
+  /**
+   * 标题锚点 —— hover 浮现朱砂 §，点击平滑定位并更新地址栏
+   */
+  function initHeadingAnchors() {
+    document
+      .querySelectorAll('.content h2[id], .content h3[id], .content h4[id]')
+      .forEach((heading) => {
+        if (heading.querySelector('.heading-anchor')) return;
+        const anchor = document.createElement('a');
+        anchor.className = 'heading-anchor';
+        anchor.href = `#${heading.id}`;
+        anchor.textContent = '§';
+        anchor.setAttribute('aria-label', '定位到本节');
+        heading.appendChild(anchor);
+      });
+  }
+
+  /**
+   * PJAX 进度 —— 页顶朱砂发丝线（笔尖划纸）
+   * 依赖 navigate() 派发的 subai:page-loading / subai:page-ready 事件
+   */
+  function initPjaxProgress() {
+    if (window.Subai.getState('pjaxProgressReady')) return;
+    window.Subai.setState('pjaxProgressReady', true);
+
+    const bar = document.createElement('div');
+    bar.className = 'pjax-progress';
+    bar.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(bar);
+
+    let doneTimer = null;
+
+    document.addEventListener('subai:page-loading', () => {
+      window.clearTimeout(doneTimer);
+      bar.classList.remove('is-active', 'is-done');
+      void bar.offsetWidth; // 强制回流，让 0→82% 的过渡重新触发
+      bar.classList.add('is-active');
+    });
+
+    document.addEventListener('subai:page-ready', () => {
+      if (!bar.classList.contains('is-active')) return;
+      bar.classList.add('is-done');
+      bar.classList.remove('is-active');
+      doneTimer = window.setTimeout(() => bar.classList.remove('is-done'), 520);
+    });
+  }
+
+  /**
+   * 阅读进度 —— TOC 左侧轨道随阅读填入朱砂
+   */
+  function initReadingProgress() {
+    const prev = window.Subai.getState('readProgressHandler');
+    if (prev) window.removeEventListener('scroll', prev);
+    window.Subai.setState('readProgressHandler', null);
+
+    const toc = document.querySelector('.toc');
+    const content = document.querySelector('.content');
+    if (!toc || !content) return;
+
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      const total = content.offsetHeight - window.innerHeight;
+      const progress = total > 0
+        ? Math.min(1, Math.max(0, -content.getBoundingClientRect().top / total))
+        : 1;
+      toc.style.setProperty('--toc-progress', progress.toFixed(3));
+    };
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.Subai.setState('readProgressHandler', onScroll);
+    update();
+  }
 
   /**
    * 页脚节气 · 物候（本地计算，零请求）
@@ -319,6 +423,15 @@
    * Falls back to the classic cross-fade when unsupported / reduced motion.
    */
   function setThemeWithTransition(theme, x, y) {
+    // 日月笔顺：图标在切换瞬间被"画"出来
+    const themeToggle = document.querySelector('[data-theme-toggle]');
+    if (themeToggle) {
+      themeToggle.classList.remove('icon-animate');
+      void themeToggle.offsetWidth; // 重启动画
+      themeToggle.classList.add('icon-animate');
+      window.setTimeout(() => themeToggle.classList.remove('icon-animate'), 900);
+    }
+
     const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduced || typeof document.startViewTransition !== 'function') {
       setTheme(theme);
@@ -581,6 +694,9 @@
         invokeSubai('initMusicTerrain');
         initAnimations();
         initSealStamp();
+        initReadingProgress();
+        initImageDevelop();
+        initHeadingAnchors();
 
         if (!shouldReduceMotion()) {
           currentMain.classList.remove('is-pjax-leaving');

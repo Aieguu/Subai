@@ -179,6 +179,15 @@
   height: auto;
   display: block;
   border-radius: var(--radius-md);
+  transition:
+    filter 0.5s var(--ease-out),
+    opacity 0.5s var(--ease-out);
+}
+
+/* 显影：图片加载完成前模糊半透明，加载后收敛清晰（JS 门控 .js，reduced-motion 不加类） */
+.js img.img-developing {
+  opacity: 0.45;
+  filter: blur(8px);
 }
 
 .content p > img:only-child {
@@ -241,6 +250,49 @@
 .content ol {
   padding-left: 1.75rem;
   margin-bottom: 1.5rem;
+}
+
+/* 标题锚点：hover 时左侧浮现朱砂 §，点击定位并更新地址栏 */
+.content :is(h2, h3, h4) {
+  position: relative;
+}
+
+.heading-anchor {
+  position: absolute;
+  right: 100%;
+  margin-right: 0.35em;
+  top: 0.1em;
+  font-family: var(--font-family-heading);
+  font-size: 0.7em;
+  font-weight: 400;
+  line-height: inherit;
+  color: var(--color-primary);
+  text-decoration: none;
+  opacity: 0;
+  transform: translateX(4px);
+  transition:
+    opacity var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.content :is(h2, h3, h4):hover .heading-anchor,
+.content :is(h2, h3, h4) .heading-anchor:focus-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* 触屏无 hover：常驻弱显示；窄屏 § 会出界，改为行内前置 */
+@media (hover: none), (max-width: 768px) {
+  .heading-anchor {
+    position: static;
+    margin-right: 0.3em;
+    opacity: 0.35;
+    transform: none;
+  }
+
+  .content :is(h2, h3, h4):hover .heading-anchor {
+    opacity: 0.35;
+  }
 }
 
 .content li {

@@ -12,10 +12,13 @@
     overlay: null,
     overlayImage: null,
     overlayCaption: null,
+    overlayDialog: null,
+    overlayBackdrop: null,
     currentSourceImage: null,
     sourceProxy: null,
     lastActiveElement: null,
     isClosing: false,
+    dragBound: false,
     reduceMotion: window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches
   };
 
@@ -267,11 +270,60 @@
     return image;
   }
 
+  /**
+   * 拖拽关闭 —— 竖向拖动图片，背板随位移淡出；过阈值松手即关闭，否则弹回
+   */
+  function setupDragDismiss() {
+    const { overlay, overlayDialog, overlayBackdrop } = state;
+    if (!overlay || !overlayDialog || state.dragBound) return;
+    state.dragBound = true;
+
+    let startY = 0;
+    let deltaY = 0;
+    let dragging = false;
+
+    overlay.addEventListener('pointerdown', (event) => {
+      if (!overlay.classList.contains('is-open')) return;
+      if (state.reduceMotion || state.isClosing) return;
+      dragging = true;
+      startY = event.clientY;
+      deltaY = 0;
+      overlay.setPointerCapture(event.pointerId);
+      overlayDialog.classList.add('is-dragging');
+    });
+
+    overlay.addEventListener('pointermove', (event) => {
+      if (!dragging) return;
+      deltaY = event.clientY - startY;
+      overlayDialog.style.transform = `translateY(${deltaY}px)`;
+      if (overlayBackdrop) {
+        overlayBackdrop.style.opacity = String(Math.max(0, 1 - Math.abs(deltaY) / 420));
+      }
+    });
+
+    const endDrag = () => {
+      if (!dragging) return;
+      dragging = false;
+      overlayDialog.classList.remove('is-dragging');
+      overlayDialog.style.transform = '';
+      if (overlayBackdrop) overlayBackdrop.style.opacity = '';
+      if (Math.abs(deltaY) > 110) {
+        closeLightbox();
+      }
+    };
+
+    overlay.addEventListener('pointerup', endDrag);
+    overlay.addEventListener('pointercancel', endDrag);
+  }
+
   function initImageLightbox() {
     if (!state.overlay) {
       state.overlay = createLightbox();
       state.overlayImage = state.overlay.querySelector('.image-lightbox-image');
       state.overlayCaption = state.overlay.querySelector('.image-lightbox-caption');
+      state.overlayDialog = state.overlay.querySelector('.image-lightbox-dialog');
+      state.overlayBackdrop = state.overlay.querySelector('.image-lightbox-backdrop');
+      setupDragDismiss();
     }
 
     markZoomableImages();

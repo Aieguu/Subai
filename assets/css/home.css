@@ -213,7 +213,10 @@
 .home-image-media {
   object-fit: cover;
   border-radius: 0;
-  transition: transform 0.6s var(--ease-out);
+  transition:
+    transform 0.6s var(--ease-out),
+    filter 0.5s var(--ease-out),
+    opacity 0.5s var(--ease-out);
 }
 
 .tile-image:hover .home-image-media {

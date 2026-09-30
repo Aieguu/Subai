@@ -12,8 +12,21 @@
 }
 
 .toc {
+  position: relative;
   background: transparent;
   border-left: 1px solid var(--color-border);
+}
+
+/* 阅读进度：朱砂沿轨道填充 */
+.toc::after {
+  content: '';
+  position: absolute;
+  left: -1.5px;
+  top: 0;
+  width: 2px;
+  height: calc(var(--toc-progress, 0) * 100%);
+  background: var(--color-primary);
+  pointer-events: none;
 }
 
 .toc-title {
@@ -182,6 +195,10 @@
     border-top: 1px solid var(--color-border);
     border-bottom: 1px solid var(--color-border);
     padding: var(--spacing-sm) 0;
+  }
+
+  .toc::after {
+    display: none;
   }
 
   .toc a::before {

@@ -141,45 +141,43 @@ body.menu-open {
   color: var(--color-text);
 }
 
+/* 三线形变为 ×：中线缩没，上下线旋转闭合 */
 .menu-toggle-icon {
   position: relative;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.menu-icon,
-.close-icon {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  width: 22px;
+  height: 16px;
+  display: block;
   color: var(--color-text);
+}
+
+.mt-line {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  border-radius: 1px;
+  background: currentColor;
+  transform-origin: center;
   transition:
-    opacity var(--duration-ui) var(--ease-out),
-    transform var(--duration-ui) var(--ease-out);
+    transform var(--duration-ui) var(--ease-out),
+    opacity var(--duration-micro) var(--ease-out);
 }
 
-.menu-icon {
-  opacity: 1;
-  transform: translate(-50%, -50%) rotate(0deg);
+.mt-line:nth-child(1) { top: 0; }
+.mt-line:nth-child(2) { top: 7px; }
+.mt-line:nth-child(3) { top: 14px; }
+
+.mobile-menu-toggle.active .mt-line:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
 }
 
-.close-icon {
+.mobile-menu-toggle.active .mt-line:nth-child(2) {
+  transform: scaleX(0);
   opacity: 0;
-  transform: translate(-50%, -50%) rotate(90deg);
 }
 
-.mobile-menu-toggle.active .menu-icon {
-  opacity: 0;
-  transform: translate(-50%, -50%) rotate(-90deg);
-}
-
-.mobile-menu-toggle.active .close-icon {
-  opacity: 1;
-  transform: translate(-50%, -50%) rotate(0deg);
+.mobile-menu-toggle.active .mt-line:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
 }
 
 /* 网站标题 —— 衬线字标 */
@@ -422,6 +420,68 @@ body.menu-open {
   :root:not(.theme-light) .theme-toggle .icon-moon {
     opacity: 0;
     transform: rotate(-90deg) scale(0.5);
+  }
+}
+
+/* ==========================================================================
+   日月笔顺 —— 切换瞬间图标被"画"出来（.icon-animate 由 JS 触发）
+   圆周 2π×4 ≈ 25.13；光芒线长 2；月亮路径 pathLength=1 归一
+   ========================================================================== */
+
+.icon-sun circle {
+  stroke-dasharray: 25.13;
+}
+
+.icon-sun line {
+  stroke-dasharray: 2;
+}
+
+.icon-moon path {
+  stroke-dasharray: 1;
+}
+
+.theme-toggle.icon-animate .icon-sun circle {
+  animation: sun-circle-draw 0.4s var(--ease-out) both;
+}
+
+.theme-toggle.icon-animate .icon-sun line {
+  animation: sun-ray-draw 0.24s var(--ease-out) both;
+  animation-delay: calc(var(--ray-index, 0) * 35ms + 0.15s);
+}
+
+.theme-toggle.icon-animate .icon-sun line:nth-of-type(1) { --ray-index: 0; }
+.theme-toggle.icon-animate .icon-sun line:nth-of-type(2) { --ray-index: 1; }
+.theme-toggle.icon-animate .icon-sun line:nth-of-type(3) { --ray-index: 2; }
+.theme-toggle.icon-animate .icon-sun line:nth-of-type(4) { --ray-index: 3; }
+.theme-toggle.icon-animate .icon-sun line:nth-of-type(5) { --ray-index: 4; }
+.theme-toggle.icon-animate .icon-sun line:nth-of-type(6) { --ray-index: 5; }
+.theme-toggle.icon-animate .icon-sun line:nth-of-type(7) { --ray-index: 6; }
+.theme-toggle.icon-animate .icon-sun line:nth-of-type(8) { --ray-index: 7; }
+
+.theme-toggle.icon-animate .icon-moon path {
+  animation: moon-draw 0.5s var(--ease-out) both;
+}
+
+@keyframes sun-circle-draw {
+  from { stroke-dashoffset: 25.13; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes sun-ray-draw {
+  from { stroke-dashoffset: 2; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes moon-draw {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle.icon-animate .icon-sun circle,
+  .theme-toggle.icon-animate .icon-sun line,
+  .theme-toggle.icon-animate .icon-moon path {
+    animation: none;
   }
 }
 

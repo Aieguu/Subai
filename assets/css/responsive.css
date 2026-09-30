@@ -181,5 +181,10 @@
     transition: none !important;
     opacity: 1 !important;
     transform: none !important;
+    filter: none !important;
+  }
+
+  .pjax-progress {
+    transition: none !important;
   }
 }

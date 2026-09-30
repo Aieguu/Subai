@@ -95,6 +95,20 @@ body.image-lightbox-open {
   transform: translateY(0) scale(1);
 }
 
+/* 拖拽中：画面跟手，无过渡 */
+.image-lightbox-dialog.is-dragging {
+  transition: none !important;
+  cursor: grabbing;
+}
+
+.image-lightbox-dialog.is-dragging .image-lightbox-image {
+  transition: none !important;
+}
+
+.image-lightbox-overlay:has(.is-dragging) .image-lightbox-backdrop {
+  transition: none !important;
+}
+
 .image-lightbox-image {
   display: block;
   max-width: 100%;
@@ -109,6 +123,14 @@ body.image-lightbox-open {
     transform 0.32s var(--ease-out),
     box-shadow 0.32s var(--ease-out);
   will-change: transform;
+  /* 拖拽关闭：禁止浏览器原生拖图与选中，否则 pointercancel 会吞掉手势 */
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+.image-lightbox-dialog {
+  /* 拖拽关闭：触摸设备上禁止浏览器接管竖向滚动/缩放手势 */
+  touch-action: none;
 }
 
 .image-lightbox-overlay.is-open .image-lightbox-image {
