@@ -6,6 +6,26 @@
 (function() {
   'use strict';
 
+  const THEME_KEY = 'theme';
+
+  // 隐私模式 / 禁用 Cookie 时 localStorage 会直接抛错，必须兜住，
+  // 否则 initThemeOnLoad 抛错会中断整个 DOMContentLoaded 初始化链。
+  function safeGet(key) {
+    try {
+      return window.localStorage.getItem(key);
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function safeSet(key, value) {
+    try {
+      window.localStorage.setItem(key, value);
+    } catch (error) {
+      // 存储不可用时只降级为「本次会话内生效」，不影响其它功能
+    }
+  }
+
   // DOM Ready
   document.addEventListener('DOMContentLoaded', function() {
     initThemeOnLoad();
@@ -15,9 +35,9 @@
     invokeSubai('initHomeCurrentTime');
     invokeSubai('initDailyQuote');
     invokeSubai('initMusicPlayer');
+    invokeSubai('initHomeWeather');
     invokeSubai('initShareButtons');
     initPjaxNavigation();
-    initAnimations();
     initAccessibility();
   });
 
@@ -25,7 +45,7 @@
    * Initialize theme on page load
    */
   function initThemeOnLoad() {
-    const savedTheme = localStorage.getItem('theme') || 'auto';
+    const savedTheme = safeGet(THEME_KEY) || 'auto';
     setTheme(savedTheme);
   }
 
@@ -38,6 +58,8 @@
     if (!mobileMenuToggle || !mobileNavigation || mobileMenuToggle.dataset.bound === 'true') return;
 
     const desktopMediaQuery = window.matchMedia('(min-width: 769px)');
+    const labelOpen = mobileMenuToggle.dataset.labelOpen || '打开导航菜单';
+    const labelClose = mobileMenuToggle.dataset.labelClose || '关闭导航菜单';
 
     const setMenuState = (expanded) => {
       const activeElement = document.activeElement;
@@ -46,7 +68,7 @@
       }
 
       mobileMenuToggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
-      mobileMenuToggle.setAttribute('aria-label', expanded ? '关闭导航菜单' : '打开导航菜单');
+      mobileMenuToggle.setAttribute('aria-label', expanded ? labelClose : labelOpen);
       mobileMenuToggle.classList.toggle('active', expanded);
       mobileNavigation.classList.toggle('active', expanded);
       mobileNavigation.setAttribute('aria-hidden', expanded ? 'false' : 'true');
@@ -163,7 +185,7 @@
     if (window.matchMedia) {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
       const handleThemePreferenceChange = function() {
-        const currentTheme = localStorage.getItem('theme');
+        const currentTheme = safeGet(THEME_KEY);
         if (!currentTheme || currentTheme === 'auto') {
           // Re-apply auto theme to trigger CSS media query changes
           setTheme('auto');
@@ -181,7 +203,7 @@
 
   function updateThemeSelector() {
     const themeOptions = document.querySelectorAll('.theme-option');
-    const currentTheme = localStorage.getItem('theme') || 'auto';
+    const currentTheme = safeGet(THEME_KEY) || 'auto';
     
     themeOptions.forEach(option => {
       option.classList.remove('active');
@@ -192,11 +214,9 @@
   }
 
   function setTheme(theme) {
-    localStorage.setItem('theme', theme);
-    
-    // Add transitioning class for smooth animations
-    document.documentElement.classList.add('theme-transitioning');
-    
+    if (theme !== 'auto' && theme !== 'dark' && theme !== 'light') theme = 'auto';
+    safeSet(THEME_KEY, theme);
+
     // Apply theme immediately for better performance
     if (theme === 'auto') {
       // Remove all theme classes to let CSS media queries handle auto detection
@@ -208,11 +228,6 @@
       document.documentElement.classList.remove('theme-dark');
       document.documentElement.classList.add('theme-light');
     }
-    
-    // Remove transitioning class after animation completes
-    setTimeout(() => {
-      document.documentElement.classList.remove('theme-transitioning');
-    }, 200); // Match --theme-transition duration
   }
 
   function invokeSubai(name, ...args) {
@@ -227,10 +242,7 @@
    * PJAX navigation (preserve audio playback between pages)
    */
   function initPjaxNavigation() {
-    if (window.Subai.getState('pjaxReady')) return;
     if (!window.fetch || !window.history || !window.history.pushState || !window.DOMParser) return;
-    window.Subai.setState('pjaxReady', true);
-
     let navigating = false;
     let currentPageKey = `${window.location.pathname}${window.location.search}`;
     const EXCLUDED_EXT_RE = /\.(pdf|zip|rar|7z|jpg|jpeg|png|gif|webp|svg|mp3|mp4|webm|avi|mov|wav|flac)$/i;
@@ -275,6 +287,33 @@
       return script;
     };
 
+    // 需要随页面切换而更新的 head 节点：不处理会导致分享/收藏卡片停留在入口页
+    const HEAD_META_SELECTOR = [
+      'meta[name="description"]',
+      'meta[name="keywords"]',
+      'meta[name="author"]',
+      'meta[property^="og:"]',
+      'meta[property^="article:"]',
+      'meta[name^="twitter:"]',
+      'meta[property^="twitter:"]',
+      'link[rel="canonical"]'
+    ].join(', ');
+
+    const syncHead = (nextDocument) => {
+      document.head.querySelectorAll(HEAD_META_SELECTOR).forEach((node) => node.remove());
+      nextDocument.head.querySelectorAll(HEAD_META_SELECTOR).forEach((node) => {
+        document.head.appendChild(node.cloneNode(true));
+      });
+
+      if (nextDocument.title) {
+        document.title = nextDocument.title;
+      }
+
+      const nextLang = nextDocument.documentElement.getAttribute('lang');
+      if (nextLang) {
+        document.documentElement.setAttribute('lang', nextLang);
+      }
+    };
     const syncPageAssets = (nextDocument) => {
       document.head.querySelectorAll('[data-subai-page-asset]').forEach((node) => node.remove());
       document.body.querySelectorAll('[data-subai-page-script]').forEach((node) => node.remove());
@@ -333,8 +372,7 @@
 
       if (url.origin !== window.location.origin) return false;
       if (EXCLUDED_EXT_RE.test(url.pathname)) return false;
-      if (url.pathname === window.location.pathname && url.search === window.location.search && url.hash) return false;
-      if (url.pathname === window.location.pathname && url.search === window.location.search && !url.hash) return false;
+      if (url.pathname === window.location.pathname && url.search === window.location.search) return false;
       return true;
     };
 
@@ -376,17 +414,16 @@
           await waitForTransition(currentMain, 240);
         }
 
-        // Remove script tags from parsed content to prevent XSS injection
+        // 正文区不保留内联脚本；页面级脚本由 syncPageAssets 按 data-subai-page-script 白名单重新装载
         nextMain.querySelectorAll('script').forEach(function(s) { s.remove(); });
         currentMain.innerHTML = nextMain.innerHTML;
-        if (doc.body) {
-          document.body.className = doc.body.className;
-        }
-        if (doc.title) {
-          document.title = doc.title;
-        }
 
+        syncHead(doc);
         syncPageAssets(doc);
+
+        // 把焦点交给新正文，读屏与键盘用户才能感知「页面已切换」
+        currentMain.setAttribute('tabindex', '-1');
+        currentMain.focus({ preventScroll: true });
 
         if (historyMode === 'push') {
           window.history.pushState({ pjax: true }, '', targetUrl);
@@ -418,7 +455,7 @@
         invokeSubai('initHomeCurrentTime');
         invokeSubai('initDailyQuote');
         invokeSubai('initMusicPlayer');
-        initAnimations();
+        invokeSubai('initHomeWeather');
 
         if (!shouldReduceMotion()) {
           currentMain.classList.remove('is-pjax-leaving');
@@ -462,20 +499,20 @@
     document.addEventListener('click', (event) => {
       const link = event.target.closest('a[href]');
       if (!shouldHandleLink(link, event)) return;
-      event.preventDefault();
-      navigate(new URL(link.getAttribute('href'), window.location.href));
-    });
 
-    document.addEventListener('subai:navigate', (event) => {
-      const target = event.detail?.url;
-      if (!target) return;
+      const targetUrl = new URL(link.getAttribute('href'), window.location.href);
 
-      try {
-        navigate(new URL(target, window.location.href));
-      } catch (error) {
-        window.location.href = target;
+      // 上一次导航还在进行中：不要 preventDefault 后静默丢弃点击，
+      // 否则用户会看到「点了没反应」。这里直接走整页跳转兜底。
+      if (navigating) {
+        window.location.href = targetUrl.toString();
+        return;
       }
+
+      event.preventDefault();
+      navigate(targetUrl);
     });
+
 
     window.addEventListener('popstate', () => {
       const nextPageKey = `${window.location.pathname}${window.location.search}`;
@@ -494,36 +531,6 @@
 
       navigate(new URL(window.location.href), { historyMode: 'none', scrollToHash: true });
     });
-  }
-
-  /**
-   * Scroll Animations
-   */
-  function initAnimations() {
-    if ('IntersectionObserver' in window) {
-      const prevObserver = window.Subai.getState('animObserver');
-      if (prevObserver && typeof prevObserver.disconnect === 'function') {
-        prevObserver.disconnect();
-      }
-
-      const animationObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('animate-in');
-          }
-        });
-      }, {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-      });
-
-      // Animate elements on scroll
-      document.querySelectorAll('.post-card, .taxonomy-card, .home-mosaic-tile').forEach(el => {
-        animationObserver.observe(el);
-      });
-
-      window.Subai.setState('animObserver', animationObserver);
-    }
   }
 
   /**

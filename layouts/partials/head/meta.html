@@ -5,14 +5,15 @@
   {{ $title = printf "%s | %s" $title .Site.Title }}
 {{ end }}
 
+{{- $description := "" -}}
+{{- if .Description -}}{{- $description = .Description -}}
+{{- else if .Summary -}}{{- $description = .Summary | truncate 160 -}}
+{{- else if .Site.Params.description -}}{{- $description = .Site.Params.description -}}{{- end -}}
+
 <title>{{ $title }}</title>
 
-{{ if .Description }}
-  <meta name="description" content="{{ .Description }}">
-{{ else if .Summary }}
-  <meta name="description" content="{{ .Summary | truncate 160 }}">
-{{ else if .Site.Params.description }}
-  <meta name="description" content="{{ .Site.Params.description }}">
+{{ if $description }}
+  <meta name="description" content="{{ $description }}">
 {{ end }}
 
 {{ if .Keywords }}
@@ -31,7 +32,7 @@
 <meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}">
 <meta property="og:url" content="{{ .Permalink }}">
 <meta property="og:title" content="{{ $title }}">
-<meta property="og:description" content="{{ if .Description }}{{ .Description }}{{ else if .Summary }}{{ .Summary | truncate 160 }}{{ else if .Site.Params.description }}{{ .Site.Params.description }}{{ end }}">
+<meta property="og:description" content="{{ $description }}">
 <meta property="og:site_name" content="{{ .Site.Title }}">
 
 {{ if .Params.cover_image }}
@@ -62,7 +63,7 @@
 <meta property="twitter:card" content="summary_large_image">
 <meta property="twitter:url" content="{{ .Permalink }}">
 <meta property="twitter:title" content="{{ $title }}">
-<meta property="twitter:description" content="{{ if .Description }}{{ .Description }}{{ else if .Summary }}{{ .Summary | truncate 160 }}{{ else if .Site.Params.description }}{{ .Site.Params.description }}{{ end }}">
+<meta property="twitter:description" content="{{ $description }}">
 
 {{ if .Params.cover_image }}
   <meta property="twitter:image" content="{{ .Params.cover_image | absURL }}">

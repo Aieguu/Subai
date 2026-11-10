@@ -48,19 +48,15 @@
   position: relative;
   overflow: visible;
   z-index: 1;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   font-size: var(--font-size-sm);
   line-height: 1;
   text-align: center;
   padding: 0.4rem;
   transition:
-    transform var(--action-surface-transition),
-    box-shadow var(--action-surface-transition),
-    border-radius var(--action-surface-transition),
     border-color var(--action-surface-transition),
     background-color var(--theme-transition-fast),
     color var(--theme-transition-fast);
-  will-change: transform;
 }
 
 .footer-social-item .social-icon {
@@ -95,25 +91,20 @@
   border-color: var(--color-border-dark);
 }
 
+/* 只换配色、不做位移与缩放：否则图标会跟着“跳”一下 */
 .footer-social-item a:hover,
 .footer-social-item a:focus-visible {
   text-decoration: none;
-  border-radius: var(--action-surface-radius-hover);
-  transform: var(--action-surface-lift);
-  box-shadow: var(--action-surface-shadow);
   background-color: var(--color-primary);
-  color: white;
+  color: var(--color-on-accent);
   border-color: var(--color-primary);
 }
 
 .theme-dark .footer-social-item a:hover,
 .theme-dark .footer-social-item a:focus-visible {
   background-color: var(--color-primary);
-  color: white;
+  color: var(--color-on-accent);
   border-color: var(--color-primary);
-  box-shadow:
-    0 14px 32px rgba(37, 99, 235, 0.28),
-    0 4px 12px rgba(15, 23, 42, 0.22);
 }
 
 .footer-bottom {
@@ -193,9 +184,12 @@
   background: transparent;
   color: var(--color-text-secondary);
   font-size: var(--font-size-sm);
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast),
+    box-shadow var(--transition-fast);
   border-radius: var(--radius-md);
   position: relative;
   z-index: 1;

@@ -1,0 +1,70 @@
+/* ==========================================================================
+   Radius & Corner Shape — 连续曲率圆角
+   --------------------------------------------------------------------------
+   设计意图
+   border-radius 画的是「四分之一圆弧」，弧线在与直边相接处曲率突变，
+   视觉上会显得生硬、像被削掉一块。iOS 一类的连续曲率（superellipse /
+   squircle）把曲率沿边连续过渡，转角更饱满、边界更不容易被眼睛捕捉。
+
+   实现方式
+   1) 半径统一收进 6 / 8 / 12 / 16 / 20 / 26 的阶梯（见 head/styles.html），
+      组件只引用 token，不再散落 0.85rem、22px 这类魔法数字。
+   2) 在支持的环境下追加 corner-shape: squircle（等价 superellipse(2)）。
+      它只改变「角怎么画」，半径大小仍由 border-radius 决定，
+      因此不支持时整条声明被忽略，退回普通圆角，不会破坏布局。
+
+   浏览器支持（2026-11）
+   Chrome / Edge 139+ 支持；Safari、Firefox 尚未支持。
+   属于典型的渐进增强：能用则更顺滑，不能用也不影响任何功能。
+
+   作用范围
+   只给「面」元素（卡片、面板、弹窗、媒体、代码块）加。
+   胶囊（999px）与正圆（50%）本身没有独立的角，强加 squircle 会让两端
+   变方，所以不在名单内。
+   ========================================================================== */
+
+:root {
+  /* 语义别名：组件按「这是什么东西」取值，而不是按「多大」取值 */
+  --radius-card: var(--radius-xl);
+  --radius-panel: var(--radius-2xl);
+  --radius-media: var(--radius-lg);
+}
+
+@supports (corner-shape: squircle) {
+  /* 大面：阅读面板、卡片、目录、悬浮 Header、搜索面板 */
+  .article-panel,
+  .post-card,
+  .taxonomy-card,
+  .home-mosaic-tile,
+  .toc,
+  .site-header.is-scrolled,
+  .site-header.is-scrolled .mobile-navigation,
+  .search-dialog-panel,
+  .search-result-link,
+  .search-result-list--page .search-result-link,
+  .home-latest-featured-link,
+  .home-weather-sky,
+  .pagination-link,
+  .taxonomy-card-icon,
+  .theme-selector,
+  .hero-button {
+    corner-shape: squircle;
+  }
+
+  /* 正文内的块级面：代码块、表格、引用、图片 */
+  .article-codeblock,
+  .content .table-wrap,
+  .content blockquote,
+  .content img,
+  .article-image img,
+  .content p > img:only-child,
+  .image-lightbox-image {
+    corner-shape: squircle;
+  }
+
+  /* 内部裁剪层必须跟着父级形状走，否则圆角链接会把 squircle 的角切回圆弧 */
+  .post-card-link,
+  .post-card.no-image .post-card-content {
+    corner-shape: inherit;
+  }
+}

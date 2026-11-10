@@ -3,7 +3,6 @@
 {{- $codeBlock := index $params "codeblock" | default (index $params "codeBlock") | default dict -}}
 
 {{- $enabled := true -}}
-{{- if isset $params "syntaxhighlighting" -}}{{- $enabled = index $params "syntaxhighlighting" -}}{{- else if isset $params "syntaxHighlighting" -}}{{- $enabled = index $params "syntaxHighlighting" -}}{{- end -}}
 {{- with $codeBlock }}{{- if isset . "enabled" -}}{{- $enabled = .enabled -}}{{- end -}}{{- end -}}
 
 {{- $showLineNumbers := false -}}

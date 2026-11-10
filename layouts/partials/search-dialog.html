@@ -1,0 +1,90 @@
+{{- /*
+  搜索命令面板（Command Palette）
+  全局挂载在 body 下，避免被 header 的 backdrop-filter 影响 fixed 定位。
+  显示状态由 assets/js/search.js 控制，容器初始 hidden。
+*/ -}}
+{{- if .Site.Params.search -}}
+{{- $searchUrl := "/search/" | relLangURL -}}
+<div class="search-dialog" id="subai-search-dialog" hidden>
+  <div class="search-dialog-backdrop" data-search-close aria-hidden="true"></div>
+
+  <div class="search-dialog-panel" role="dialog" aria-modal="true" aria-labelledby="subai-search-title">
+    <h2 class="sr-only" id="subai-search-title">{{ i18n "search_dialog_title" | default "站内搜索" }}</h2>
+
+    <div class="search-dialog-head">
+      <svg class="search-dialog-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7.25"></circle>
+        <path d="m16.4 16.4 4.1 4.1"></path>
+      </svg>
+
+      <input
+        id="subai-search-input"
+        class="search-dialog-input"
+        type="search"
+        placeholder="{{ i18n "search_dialog_placeholder" | default "搜索文章、标签或分类…" }}"
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"
+        spellcheck="false"
+        role="combobox"
+        aria-expanded="false"
+        aria-controls="subai-search-results"
+        aria-autocomplete="list"
+        aria-labelledby="subai-search-title">
+
+      <button class="search-dialog-esc" type="button" data-search-close aria-label="{{ i18n "search_hint_close" | default "关闭" }}">
+        <span>Esc</span>
+      </button>
+    </div>
+
+    <div class="search-dialog-body" id="subai-search-body">
+      <div class="search-dialog-view" id="subai-search-view"></div>
+    </div>
+
+    <div class="search-dialog-foot">
+      <div class="search-hints" aria-hidden="true">
+        <span class="search-hint">
+          <kbd class="search-kbd">↑</kbd><kbd class="search-kbd">↓</kbd>
+          <span>{{ i18n "search_hint_select" | default "选择" }}</span>
+        </span>
+        <span class="search-hint">
+          <kbd class="search-kbd">↵</kbd>
+          <span>{{ i18n "search_hint_open" | default "打开" }}</span>
+        </span>
+        <span class="search-hint">
+          <kbd class="search-kbd">esc</kbd>
+          <span>{{ i18n "search_hint_close" | default "关闭" }}</span>
+        </span>
+      </div>
+
+      <a class="search-view-all" id="subai-search-all" href="{{ $searchUrl }}" hidden>
+        <span>{{ i18n "search_view_all" | default "查看全部结果" }}</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M5 12h14"></path>
+          <path d="m13 6 6 6-6 6"></path>
+        </svg>
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+  window.__SUBAI_SEARCH_CONFIG__ = {
+    searchUrl: {{ $searchUrl | jsonify | safeJS }},
+    labels: {
+      recent: {{ i18n "search_recent" | default "最近搜索" | jsonify | safeJS }},
+      clear: {{ i18n "search_clear" | default "清除" | jsonify | safeJS }},
+      hotTags: {{ i18n "search_hot_tags" | default "热门标签" | jsonify | safeJS }},
+      loading: {{ i18n "search_loading" | default "正在搜索…" | jsonify | safeJS }},
+      idleTitle: {{ i18n "search_idle_title" | default "输入关键词开始搜索" | jsonify | safeJS }},
+      idleHint: {{ i18n "search_idle_hint" | default "支持标题、正文、标签与分类" | jsonify | safeJS }},
+      emptyTitle: {{ i18n "search_empty_title" | default "没有找到相关文章" | jsonify | safeJS }},
+      emptyHint: {{ i18n "search_empty_hint" | default "试试更短的关键词，或换个说法" | jsonify | safeJS }},
+      errorText: {{ i18n "search_error" | default "搜索失败，请稍后重试" | jsonify | safeJS }},
+      resultsFound: {{ i18n "search_results_found" | default "找到 {count} 个结果" | jsonify | safeJS }},
+      listLabel: {{ i18n "search_list_label" | default "搜索建议" | jsonify | safeJS }},
+      noQuery: {{ i18n "search_no_query" | default "输入关键词以开始搜索" | jsonify | safeJS }}
+    }
+  };
+</script>
+{{- end -}}

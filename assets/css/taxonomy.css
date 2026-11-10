@@ -58,7 +58,7 @@
   margin: 0;
   padding-right: 4rem;
   font-size: var(--font-size-lg);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-tight);
   color: var(--color-text);
   overflow: hidden;
@@ -82,14 +82,14 @@
 }
 
 .taxonomy-post-count {
-  background-color: rgba(255, 255, 255, 0.68);
+  background-color: var(--color-bg-secondary);
 }
 
 .taxonomy-card:hover .taxonomy-post-count,
 .taxonomy-card:focus-within .taxonomy-post-count {
   background-color: var(--color-primary);
   border-color: var(--color-primary);
-  color: white;
+  color: var(--color-on-accent);
 }
 
 .taxonomy-card-icon {
@@ -101,8 +101,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 0.875rem;
-  background-color: rgba(148, 163, 184, 0.12);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg-secondary);
   color: var(--color-text-muted);
   pointer-events: none;
 }
@@ -134,13 +134,13 @@
 }
 
 .theme-dark .taxonomy-post-count {
-  background-color: rgba(15, 23, 42, 0.72);
+  background-color: var(--color-bg-dark);
   color: var(--color-text-secondary-dark);
   border-color: var(--color-border-dark);
 }
 
 .theme-dark .taxonomy-card-icon {
-  background-color: rgba(148, 163, 184, 0.14);
+  background-color: var(--color-bg-dark);
   color: var(--color-text-muted-dark);
 }
 
@@ -192,4 +192,90 @@
   .tags-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* ==========================================================================
+   Browse Page：分类 + 标签的合并入口
+   ========================================================================== */
+.browse-list {
+  /* 无标题后不需要额外的顶部留白，.main-content 已提供一档 */
+  padding: var(--spacing-md) 0 var(--spacing-2xl);
+}
+
+/* 分类卡片按可用宽度自适应列数，避免固定 4 列时最后一行留出大块空白 */
+.browse-list .categories-grid {
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+}
+
+.browse-section + .browse-section {
+  margin-top: var(--spacing-2xl);
+}
+
+.browse-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.browse-section-title {
+  margin: 0;
+  color: var(--color-text);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+}
+
+.browse-section-count {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.browse-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.browse-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid color-mix(in oklab, var(--color-text) 13%, transparent);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  line-height: 1.4;
+  text-decoration: none;
+  transition:
+    border-color var(--theme-transition-fast),
+    background-color var(--theme-transition-fast),
+    color var(--theme-transition-fast);
+}
+
+.browse-tag:hover,
+.browse-tag:focus-visible {
+  border-color: color-mix(in oklab, var(--color-primary) 40%, var(--color-border));
+  background-color: color-mix(in oklab, var(--color-primary) 8%, transparent);
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.browse-tag-count {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.browse-tag:hover .browse-tag-count,
+.browse-tag:focus-visible .browse-tag-count {
+  color: var(--color-primary);
 }

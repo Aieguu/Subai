@@ -9,6 +9,7 @@
 </p>
 
 <p align="center">
+  <img src="https://img.shields.io/badge/Version-2.0.0-green.svg" alt="Version: 2.0.0">
   <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT">
   <img src="https://img.shields.io/badge/Hugo-0.149.1+-blue.svg" alt="Hugo">
 </p>
@@ -31,12 +32,10 @@ git submodule add https://github.com/Aieguu/Subai.git themes/Subai
 
 ```toml
 baseURL = "https://example.com"
-languageCode = "zh-cn"
+locale = "zh-cn"
 title = "我的博客"
 theme = "Subai"
 
-# 中文支持配置
-hasCJKLanguage = true
 
 [params]
   author = "您的名字"
@@ -68,6 +67,11 @@ hugo server -D
 访问 `http://localhost:1313` 查看您的站点。
 
 如果您在主题仓库的 `exampleSite/` 中本地调试，请确保 `themesDir` 指向主题目录的上级目录；文档与示例配置中的主题名统一使用 `Subai`。
+
+```bash
+cd themes/Subai
+hugo server -D --source exampleSite --themesDir ../..
+```
 
 ## 🔍 搜索功能配置
 
@@ -109,20 +113,12 @@ type: "search"
 hugo --cleanDestinationDir
 ```
 
-## 划线笔记插件
+### 使用方式
 
-仓库地址：[https://github.com/Aieguu/highlight-note-api](https://github.com/Aieguu/highlight-note-api)
-
-Ji 的划线笔记由主题前端和独立 API 服务组成。主题只负责选中文本、渲染标记和读取静态笔记；创建、编辑、删除和同步由 `highlight-note-api` 处理。
-
-### 主题配置
-
-```toml
-[params.plugins.highlightNote]
-  enabled = true
-  apiBase = "https://your-project.vercel.app"
-```
-
+- 点击顶栏右侧的搜索入口，或按 `Ctrl / ⌘ + K` 唤起命令面板
+- 输入关键词即时看到结果：`↑` `↓` 选择、`↵` 打开、`Esc` 关闭
+- 面板与 `/search/` 页面共用同一套匹配规则（标题 > 标签 > 分类 > 摘要 > 正文），命中关键词会高亮
+- 面板默认展示「最近搜索」（浏览器 localStorage）与「热门标签」，可一键清除
 ## 📝 内容管理
 
 ### 创建文章
@@ -158,6 +154,9 @@ summary: "文章摘要"
 
 ### 导航菜单
 
+导航只保留互不重复的入口。分类与标签合并到 `/browse/` 浏览页（主题自带模板，
+无需额外配置），低频页面（如「关于主题」）建议放在页脚，避免占掉顶部主轴。
+
 ```toml
 [[menu.main]]
   name = "首页"
@@ -166,19 +165,29 @@ summary: "文章摘要"
 
 [[menu.main]]
   name = "文章"
-  url = "/posts"
+  url = "/posts/"
   weight = 2
 
 [[menu.main]]
-  name = "分类"
-  url = "/categories"
+  name = "浏览"
+  url = "/browse/"
   weight = 3
-
-[[menu.main]]
-  name = "标签"
-  url = "/tags"
-  weight = 4
 ```
+
+### Header 行为
+
+| 状态 | 触发 | 表现 |
+| --- | --- | --- |
+| 顶部 | 页面未滚动 | 满宽、无描边，导航严格居中 |
+| 悬浮岛屿 | `scrollY > 24` | 宽度收窄到容器宽、脱开顶边、圆角浮起 |
+| 阅读态 | 文章页下滑超过正文标题 | 标题占用左侧「品牌」那一格，导航与搜索原地保留 |
+| 恢复导航 | 向上累计滚动 ≥ 56px | 品牌淡回、标题淡出（带迟滞，避免抖动） |
+
+阅读态以 `#post-title` 为标题源，只在带该标题的页面生效；列表 / 分类 /
+标签 / 搜索页不会触发。点击标题回到文章顶部。
+
+搜索入口在 ≥1280px 显示「图标 + 文案 + 快捷键」，更窄时收为纯图标，
+悬停或键盘聚焦时再展开文案。
 
 ### 社交链接
 
@@ -209,9 +218,9 @@ summary: "文章摘要"
   copyButton = true
   languageLabel = true
   maxHeight = "32rem"
-  copyText = "Copy"
-  copiedText = "Copied!"
-  copyErrorText = "Error"
+  copyText = "复制"
+  copiedText = "已复制"
+  copyErrorText = "失败"
 ```
 
 ## 🔧 高级配置
@@ -221,18 +230,15 @@ summary: "文章摘要"
 ```toml
 # 基本站点信息
 baseURL = "https://example.com"
-languageCode = "zh-cn"
+locale = "zh-cn"
 title = "我的博客"
 # themesDir = ""
 theme = "Subai"
 
-# 中文支持配置
-hasCJKLanguage = true
 
 # 站点参数配置
 [params]
   # 基本信息
-  title = "我的博客"
   description = "我的个人博客"
   author = "您的名字"
   dateFormat = "2006年1月2日"
@@ -254,7 +260,6 @@ hasCJKLanguage = true
 
 # 首页配置
 [params.homeTiles]
-  introTitle = "个人介绍"
   nickname = "nickname"
   bio = "签名"
   avatar = "/images/avatar.jpeg"
@@ -277,10 +282,18 @@ hasCJKLanguage = true
     "认真生活的人，总会和美好不期而遇。"
   ]
 
-[params.homeTiles.image]
-  src = "/images/home.jpg"
-  alt = "首页展示图片"
-  # link = "/posts"
+[params.homeTiles.weather]
+  enabled = true
+  # 不填经纬度时按访客 IP 粗略定位；填了就固定城市（city 用作显示名）
+  # latitude = 30.27
+  # longitude = 120.15
+  # city = "杭州"
+  fallbackCity = "上海"          # 定位失败时的兜底城市
+  fallbackLatitude = 31.23
+  fallbackLongitude = 121.47
+  refreshMinutes = 30           # 天气数据缓存时长
+  unit = "celsius"              # celsius | fahrenheit
+  allowCityChange = true        # 允许访客点击城市名切换（右键恢复自动定位）
 
 # 分页配置
 [pagination]
@@ -295,20 +308,15 @@ hasCJKLanguage = true
 
 [[menu.main]]
   name = "文章"
-  url = "/posts"
+  url = "/posts/"
   weight = 2
 
 [[menu.main]]
-  name = "分类"
-  url = "/categories"
+  name = "浏览"
+  url = "/browse/"
   weight = 3
 
-[[menu.main]]
-  name = "标签"
-  url = "/tags"
-  weight = 4
-
-  # 社交链接
+# 社交链接
 [[menu.social]]
   name = "GitHub"
   url = "https://github.com/Aieguu"
@@ -326,7 +334,7 @@ hasCJKLanguage = true
   # 目录配置
   [markup.tableOfContents]
     startLevel = 2
-    endLevel = 4
+    endLevel = 5
 
 # 输出格式配置
 [outputs]
@@ -338,16 +346,47 @@ hasCJKLanguage = true
 
 ## 🔄 更新主题
 
+在站点根目录执行（主题以 Git 子模块方式安装）：
+
 ```bash
-cd themes/Subai
-git pull origin main
+git submodule update --remote themes/Subai
 ```
+
+当前版本 **2.0.0**。本次为不兼容重构（划词笔记插件与 PWA 已移除、菜单与首页配置调整），
+升级前请先阅读 [CHANGELOG.md](CHANGELOG.md) 的「升级指南」，按其中的配置与内容改动逐项迁移。
+
+## 🧩 首页磁贴布局
+
+首页是一块 Bento 风格网格：桌面端 12 列，≤1120px 降为 8 列，≤768px 单列堆叠。
+磁贴共用一套圆角、间距、阴影与表面色（`assets/css/home.css` 顶部的 `--tile-*` 令牌），
+层级差异由内容密度与字号承担，只有引语磁贴保留一层淡主色底。
+
+| 磁贴 | 跨度（桌面） | 说明 |
+| --- | --- | --- |
+| 最新文章 | 8×3 | 头条 + 最新列表，`homeTiles.latestCount` 控制总条数（头条占 1 条） |
+| 天气 | 4×3 | 与最新文章同高，右侧成列 |
+| 个人简介 | 4×1 | 头像与签名（关掉天气磁贴时改为显示本地时间） |
+| 音乐播放器 | 4×1 | `homeTiles.music.playlist` |
+| 每日引语 | 4×1 | `homeTiles.dailyQuote.items` |
+
+关闭天气磁贴时，右侧会自然变成简介 / 音乐 / 引语竖排，不会留下空洞。
+
+天气磁贴是一块点阵天空：太阳和月亮按当地时间沿弧线移动，云随风漂移，雨雪按帧下落，
+夜里显示当月月相与星空，地平线用点阵山丘收边。数据取自
+[Open-Meteo](https://open-meteo.com/)（免密钥），定位优先使用访客手动选择的城市，
+其次站点固定坐标，再按 IP 粗略定位，全部失败时退回 `fallbackCity`。
+
+- 想固定城市：填 `latitude` / `longitude`，并把 `city` 写成显示名；
+- 不想让访客改城市：`allowCityChange = false`；
+- 访客手动选过城市后，右键城市名即可恢复「按 IP 自动定位」；
+- 天气请求会带上访客的 IP（用于粗定位）与坐标（用于取预报），不涉及本站任何账号数据。
 
 ## 🙏 资源鸣谢
 
 - 首页音乐播放器图标来自 **Iconfont**
 - 图标作者：**一只老羊来了**
 - 使用位置：`static/icons/music/`
+- 首页天气磁贴的点阵天空设计参考了开源项目 [映间 MARGIN](https://github.com/jiuyang5354/bilibili-margin)（MIT），实现按本站语境重写
 
 ## 📄 许可证
 
@@ -357,7 +396,7 @@ git pull origin main
 
 如果您在使用过程中遇到问题，请：
 
-1. 查看本文档的常见问题部分
+1. 查看本文档的配置说明
 2. 搜索已有的 [Issues](https://github.com/Aieguu/Subai/issues)
 3. 创建新的 Issue 描述您的问题
 

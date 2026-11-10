@@ -73,7 +73,6 @@
   --code-token-diff-add: #6aab73;
   --code-token-diff-remove: #f75464;
   --code-token-diff-header: #8c8c8c;
-  --code-font: "JetBrains Mono", "Cascadia Code", "Fira Code", Consolas, Monaco, "Courier New", monospace;
 }
 
 /* ==========================================================================
@@ -83,7 +82,7 @@
 .article-codeblock {
   margin: 1.5rem 0;
   border: 1px solid var(--code-border);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   background: var(--code-bg);
   box-shadow: 0 1px 2px rgb(15 23 42 / 0.08);
   overflow: hidden;
@@ -106,11 +105,11 @@
   justify-content: center;
   padding: 0.2rem 0.55rem;
   border: 1px solid var(--code-border);
-  border-radius: 6px;
+  border-radius: var(--radius-xs);
   background: var(--code-surface);
   color: var(--code-muted);
   font-size: 0.71rem;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   letter-spacing: 0.02em;
   text-transform: none;
   font-family: var(--code-font);
@@ -121,14 +120,14 @@
   align-items: center;
   gap: 0.35rem;
   border: 1px solid var(--code-copy-border);
-  border-radius: 6px;
+  border-radius: var(--radius-xs);
   padding: 0.3rem 0.55rem;
   background: var(--code-copy-bg);
   color: var(--code-copy-text);
   font-size: 0.72rem;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   cursor: pointer;
-  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+  transition: background-color var(--motion-quick), border-color var(--motion-quick), color var(--motion-quick);
 }
 
 .article-codeblock__copy:hover {
@@ -275,11 +274,9 @@
 .article-codeblock .chroma .dl,
 .article-codeblock .chroma .sd,
 .article-codeblock .chroma .s2,
-.article-codeblock .chroma .se,
 .article-codeblock .chroma .sh,
 .article-codeblock .chroma .si,
 .article-codeblock .chroma .sx,
-.article-codeblock .chroma .sr,
 .article-codeblock .chroma .s1,
 .article-codeblock .chroma .ss { color: var(--code-token-string); }
 
@@ -315,7 +312,7 @@
 .article-codeblock .chroma .gd { color: var(--code-token-diff-remove); background: color-mix(in srgb, var(--code-token-diff-remove) 12%, transparent); }
 .article-codeblock .chroma .gi { color: var(--code-token-diff-add); background: color-mix(in srgb, var(--code-token-diff-add) 12%, transparent); }
 .article-codeblock .chroma .gh,
-.article-codeblock .chroma .gu { color: var(--code-token-diff-header); font-weight: 600; }
+.article-codeblock .chroma .gu { color: var(--code-token-diff-header); font-weight: var(--font-weight-semibold); }
 
 /* Compatibility with highlight.js class names */
 .article-codeblock .hljs-keyword,
@@ -341,6 +338,7 @@
    Inline code
    ========================================================================== */
 
+/* 代码块系统启用时覆盖 article.css 的基础样式（本文件后加载） */
 .content p > code,
 .content li > code,
 .content td > code,
@@ -349,7 +347,7 @@
   display: inline;
   white-space: break-spaces;
   padding: 0.1rem 0.4rem;
-  border-radius: 6px;
+  border-radius: var(--radius-xs);
   border: 1px solid var(--code-border);
   background: color-mix(in srgb, var(--code-bg) 86%, transparent);
   color: var(--code-text);
@@ -377,7 +375,7 @@
 
 .article-codeblock__body pre::-webkit-scrollbar-thumb {
   background: var(--code-scrollbar-thumb);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
 }
 
 .article-codeblock__body pre {
@@ -387,7 +385,6 @@
 
 @media (max-width: 768px) {
   .article-codeblock {
-    border-radius: 10px;
     margin: 1.1rem 0;
   }
 

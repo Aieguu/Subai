@@ -32,12 +32,6 @@
 
     getState: function(key) {
       return this._state[key];
-    },
-
-    clearState: function(key) {
-      var old = this._state[key];
-      this._state[key] = null;
-      return old;
     }
   };
 })();

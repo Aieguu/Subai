@@ -17,6 +17,10 @@
 {{ $homeWidgetsJS := resources.Get "js/home-widgets.js" | resources.Minify | resources.Fingerprint }}
 <script defer src="{{ $homeWidgetsJS.RelPermalink }}" integrity="{{ $homeWidgetsJS.Data.Integrity }}"></script>
 
+<!-- Home weather tile -->
+{{ $weatherJS := resources.Get "js/weather.js" | resources.Minify | resources.Fingerprint }}
+<script defer src="{{ $weatherJS.RelPermalink }}" integrity="{{ $weatherJS.Data.Integrity }}"></script>
+
 <!-- Main JavaScript -->
 {{ $js := resources.Get "js/main.js" | resources.Minify | resources.Fingerprint }}
 <script defer src="{{ $js.RelPermalink }}" integrity="{{ $js.Data.Integrity }}"></script>
@@ -41,6 +45,10 @@
 <!-- Table of Contents -->
 {{ $tocJS := resources.Get "js/toc.js" | resources.Minify | resources.Fingerprint }}
 <script defer src="{{ $tocJS.RelPermalink }}" integrity="{{ $tocJS.Data.Integrity }}"></script>
+
+<!-- Article page enhancements (TOC progress / reveal) -->
+{{ $articleJS := resources.Get "js/article.js" | resources.Minify | resources.Fingerprint }}
+<script defer src="{{ $articleJS.RelPermalink }}" integrity="{{ $articleJS.Data.Integrity }}"></script>
 
 <!-- Image Lightbox -->
 {{ $imageLightboxJS := resources.Get "js/image-lightbox.js" | resources.Minify | resources.Fingerprint }}

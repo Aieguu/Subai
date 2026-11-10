@@ -1,17 +1,14 @@
 # 基本站点信息
 baseURL = "https://example.com"
-languageCode = "zh-cn"
+locale = "zh-cn"
 title = "我的博客"
 # themesDir = ""
 theme = "Subai"
 
-# 中文支持配置
-hasCJKLanguage = true
 
 # 站点参数配置
 [params]
   # 基本信息
-  title = "我的博客"
   description = "我的个人博客"
   author = "您的名字"
   dateFormat = "2006年1月2日"
@@ -33,18 +30,16 @@ hasCJKLanguage = true
 
 # 首页配置
 [params.homeTiles]
-  introTitle = "个人介绍"
   nickname = "nickname"
   bio = "签名"
-  avatar = "/images/avatar.jpeg"
+  # 指向主题自带的 assets/subai.png；换成自己的头像时放到 exampleSite/assets/ 下
+  avatar = "subai.png"
   timezone = "Asia/Shanghai"
   latestCount = 5
 
 [params.homeTiles.music]
-  playlist = [
-  "/audio/music1.mp3",
-  "/audio/music2.mp3"
-  ]
+  # 示例站点不含音频资源，留空即可正常渲染播放器（换成自己的文件路径即可）
+  playlist = []
 
 [params.homeTiles.dailyQuote]
   switchTime = 5000 # 停留多久
@@ -56,10 +51,18 @@ hasCJKLanguage = true
     "认真生活的人，总会和美好不期而遇。"
   ]
 
-[params.homeTiles.image]
-  src = "/images/home.jpg"
-  alt = "首页展示图片"
-  # link = "/posts"
+[params.homeTiles.weather]
+  enabled = true
+  # 不填经纬度时按访客 IP 粗略定位；填了就固定城市（city 用作显示名）
+  # latitude = 30.27
+  # longitude = 120.15
+  # city = "杭州"
+  fallbackCity = "上海"          # 定位失败时的兜底城市
+  fallbackLatitude = 31.23
+  fallbackLongitude = 121.47
+  refreshMinutes = 30           # 天气数据缓存时长
+  unit = "celsius"              # celsius | fahrenheit
+  allowCityChange = true        # 允许访客点击城市名切换（右键恢复自动定位）
 
 # 分页配置
 [pagination]
@@ -74,23 +77,18 @@ hasCJKLanguage = true
 
 [[menu.main]]
   name = "文章"
-  url = "/posts"
+  url = "/posts/"
   weight = 2
 
 [[menu.main]]
-  name = "分类"
-  url = "/categories"
+  name = "浏览"
+  url = "/browse/"
   weight = 3
 
-[[menu.main]]
-  name = "标签"
-  url = "/tags"
-  weight = 4
-
-  # 社交链接
+# 社交链接
 [[menu.social]]
   name = "GitHub"
-  url = "https://github.com/jizuiba"
+  url = "https://github.com/Aieguu"
   # 可自定义图标
   # pre = "<svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22'></path></svg>"
 
@@ -103,7 +101,7 @@ hasCJKLanguage = true
   # 目录配置
   [markup.tableOfContents]
     startLevel = 2
-    endLevel = 4
+    endLevel = 5
 
 # 输出格式配置
 [outputs]

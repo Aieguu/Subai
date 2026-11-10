@@ -2,7 +2,6 @@
  * KaTeX math manager
  * - Lazy-load KaTeX only when current page contains math delimiters
  * - Support PJAX page swaps
- * - Keep backward compatibility for legacy "[ ... ]" block formulas
  */
 
 (function () {
@@ -16,35 +15,14 @@
   let renderQueue = Promise.resolve();
 
   function getTargets(root = document) {
-    return Array.from(root.querySelectorAll('.post-content .content'));
-  }
-
-  function hasMathDelimiter(text) {
-    if (!text) return false;
-    return /(\\\(|\\\[|\\begin\{[a-zA-Z*]+\}|(^|[^\\])\$\$|(^|[^\\])\$[^$\n]+?\$)/m.test(text);
-  }
-
-  function isLegacyBracketBlock(text) {
-    return /^\[[\s\S]+\]$/.test(text) && /\\[a-zA-Z]+/.test(text);
+    // 正文容器是 single.html 的 <article class="content" id="article-content">
+    return Array.from(root.querySelectorAll('#article-content'));
   }
 
   function looksLikeMathContainer(container) {
+    if (!container) return false;
     const text = container.textContent || '';
-    if (hasMathDelimiter(text)) {
-      return true;
-    }
-
-    return Array.from(container.querySelectorAll('p')).some((paragraph) =>
-      isLegacyBracketBlock((paragraph.textContent || '').trim())
-    );
-  }
-
-  function normalizeLegacyMath(container) {
-    container.querySelectorAll('p').forEach((paragraph) => {
-      const text = (paragraph.textContent || '').trim();
-      if (!isLegacyBracketBlock(text)) return;
-      paragraph.textContent = `\\[${text.slice(1, -1).trim()}\\]`;
-    });
+    return /(\\\(|\\\[|\\begin\{[a-zA-Z*]+\}|(^|[^\\])\$\$|(^|[^\\])\$[^$\n]+?\$)/m.test(text);
   }
 
   function ensureStylesheet(id, href) {
@@ -111,8 +89,6 @@
     }
 
     targets.forEach((container) => {
-      normalizeLegacyMath(container);
-
       window.renderMathInElement(container, {
         delimiters: [
           { left: '$$', right: '$$', display: true },

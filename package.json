@@ -1,14 +1,13 @@
 {
   "name": "subai-hugo-theme",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "一个简洁现代的 Hugo 主题",
   "scripts": {
-    "build": "echo 'This theme uses Hugo for building. Run: hugo --minify'",
-    "dev": "hugo server -D",
-    "serve": "hugo server -D --bind 0.0.0.0 --port 1313",
-    "build:production": "hugo --minify --gc",
-    "build:drafts": "hugo --minify --buildDrafts",
-    "help": "echo 'Available commands: build, dev, serve, build:production, build:drafts'"
+    "dev": "hugo server -D --source exampleSite --themesDir ../..",
+    "serve": "hugo server -D --source exampleSite --themesDir ../.. --bind 0.0.0.0 --port 1313",
+    "build": "hugo --minify --source exampleSite --themesDir ../..",
+    "build:production": "hugo --minify --gc --source exampleSite --themesDir ../..",
+    "build:drafts": "hugo --minify --buildDrafts --source exampleSite --themesDir ../.."
   },
   "keywords": [
     "hugo",
@@ -21,15 +20,13 @@
     "fast",
     "accessible",
     "seo",
-    "pwa",
     "chinese",
     "static-site",
     "jamstack"
   ],
   "author": {
-    "name": "Jizuiba",
-    "email": "jizuiba@example.com",
-    "url": "https://github.com/jizuiba"
+    "name": "Aieguu",
+    "url": "https://github.com/Aieguu"
   },
   "license": "MIT",
   "repository": {
@@ -40,9 +37,6 @@
     "url": "https://github.com/Aieguu/Subai/issues"
   },
   "homepage": "https://github.com/Aieguu/Subai#readme",
-  "engines": {
-    "hugo": ">=0.149.1"
-  },
   "files": [
     "assets/",
     "layouts/",
@@ -50,30 +44,7 @@
     "exampleSite/",
     "theme.toml",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE"
-  ],
-  "hugo": {
-    "min_version": "0.149.1",
-    "extended": true
-  },
-  "theme": {
-    "name": "Subai",
-    "description": "一个简洁现代的 Hugo 主题",
-    "tags": [
-      "blog",
-      "responsive",
-      "dark-mode",
-      "modern",
-      "minimal"
-    ],
-    "features": [
-      "responsive",
-      "dark-mode",
-      "syntax-highlighting",
-      "search",
-      "rss",
-      "pwa",
-      "accessibility"
-    ]
-  }
+  ]
 }

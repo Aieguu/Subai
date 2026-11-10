@@ -1,176 +1,147 @@
 /* ==========================================================================
-   Image Lightbox Styles
+   图片预览 — 原生 <dialog> + View Transitions 共享元素过渡
+   --------------------------------------------------------------------------
+   正文图片始终留在常规文档流里，不再克隆 position:fixed 的浮动代理图。
+   放大时浏览器把「流内缩略图」与「预览大图」当成同一个元素做形变，
+   快照以视口坐标捕捉，天然跟随当前滚动位置与窗口尺寸变化。
    ========================================================================== */
 
+:root {
+  /* 形变节奏：比主题 --motion-surface 略从容，便于眼睛跟随图片位移 */
+  --image-zoom-duration: 380ms;
+  --image-zoom-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* 锁滚动时补上滚动条宽度：页面不横跳，过渡前后的视口坐标一致 */
 body.image-lightbox-open {
   overflow: hidden;
   padding-right: var(--image-lightbox-scrollbar-width, 0);
 }
 
-.image-lightbox-overlay {
+/* 原生 top layer：z-index、背景 inert、焦点陷阱、Escape 交给 showModal() */
+dialog.image-lightbox {
   position: fixed;
   inset: 0;
-  z-index: 2000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transition: opacity 0.28s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.28s ease;
-}
-
-.image-lightbox-overlay.is-open {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-}
-
-.image-lightbox-overlay.is-opening-from-source .image-lightbox-dialog,
-.image-lightbox-overlay.is-opening-from-source .image-lightbox-caption,
-.image-lightbox-overlay.is-closing-to-source .image-lightbox-dialog,
-.image-lightbox-overlay.is-closing-to-source .image-lightbox-caption {
-  opacity: 0 !important;
-}
-
-.image-lightbox-overlay.is-opening-from-source .image-lightbox-dialog,
-.image-lightbox-overlay.is-opening-from-source .image-lightbox-image {
-  transform: none !important;
-}
-
-.image-lightbox-overlay.is-opening-from-source .image-lightbox-dialog,
-.image-lightbox-overlay.is-opening-from-source .image-lightbox-image,
-.image-lightbox-overlay.is-opening-from-source .image-lightbox-caption {
-  transition: none !important;
-}
-
-.image-lightbox-overlay.is-seamless-open .image-lightbox-dialog,
-.image-lightbox-overlay.is-seamless-open .image-lightbox-image,
-.image-lightbox-overlay.is-seamless-open .image-lightbox-caption {
-  opacity: 1 !important;
-  transform: none !important;
-  transition: none !important;
-}
-
-.image-lightbox-backdrop {
-  position: absolute;
-  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: clamp(1rem, 4vw, 2.5rem);
+  border: 0;
+  overflow: hidden;
+  color: var(--color-on-accent);
   background:
-    radial-gradient(circle at top left, rgba(255, 255, 255, 0.18), transparent 32%),
-    radial-gradient(circle at top right, rgba(148, 163, 184, 0.16), transparent 28%),
-    linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(15, 23, 42, 0.28));
-  backdrop-filter: blur(18px) saturate(160%);
-  -webkit-backdrop-filter: blur(18px) saturate(160%);
-  opacity: 0;
-  transition: opacity 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    radial-gradient(
+      circle at 50% 0%,
+      color-mix(in oklab, var(--color-primary) 20%, transparent),
+      transparent 58%
+    ),
+    rgba(15, 23, 42, 0.84);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
 }
 
-.image-lightbox-overlay.is-open .image-lightbox-backdrop {
-  opacity: 1;
+dialog.image-lightbox::backdrop {
+  background: transparent;
 }
 
-.image-lightbox-dialog {
-  position: relative;
-  z-index: 1;
-  width: auto;
-  max-width: min(100%, 1200px);
-  max-height: 100%;
+dialog.image-lightbox[open] {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.875rem;
-  padding-bottom: 0;
-  opacity: 0;
-  transform: translateY(12px) scale(0.97);
-  transition:
-    opacity 0.24s ease,
-    transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: opacity, transform;
+  justify-content: center;
+  gap: 0.9rem;
 }
 
-.image-lightbox-overlay.has-caption .image-lightbox-dialog {
-  padding-bottom: 3.5rem;
-}
-
-.image-lightbox-overlay.is-open .image-lightbox-dialog {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-}
-
+/* 预览图是 flex 流里的普通元素：无 transform、无 will-change、无悬浮投影。
+   尺寸由 JS 按最大候选的宽高属性定住，大图到位前先用正文那张垫底，
+   所以这里的背景只做兜底底色，不做拉伸铺满。 */
 .image-lightbox-image {
   display: block;
-  max-width: 100%;
-  max-height: calc(100vh - 7rem);
   width: auto;
   height: auto;
-  border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
-  background: var(--color-bg);
-  transform: scale(0.985);
-  transition:
-    transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 0.32s cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: transform;
+  max-width: 100%;
+  max-height: calc(100vh - 8rem);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-bg);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
 }
 
-.image-lightbox-overlay.is-open .image-lightbox-image {
-  transform: scale(1);
-}
-
-.image-lightbox-caption {
+/* 关闭按钮：预览层的静态控件，hover 只换底色，不做位移或缩放 */
+.image-lightbox-close {
   position: absolute;
-  left: 50%;
-  bottom: 0;
+  top: clamp(1rem, 3vw, 1.75rem);
+  right: clamp(1rem, 3vw, 1.75rem);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius-pill);
+  background: rgba(15, 23, 42, 0.55);
+  color: var(--color-on-accent);
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.image-lightbox-close:hover {
+  background: rgba(15, 23, 42, 0.8);
+  border-color: rgba(255, 255, 255, 0.32);
+}
+
+.image-lightbox-close:focus-visible {
+  outline: 2px solid var(--color-on-accent);
+  outline-offset: 3px;
+}
+
+/* 图注回到常规流，不再绝对定位 + translate 悬浮 */
+.image-lightbox-caption {
   max-width: min(100%, 860px);
-  color: #f8fafc;
-  text-align: center;
-  font-size: var(--font-size-sm);
-  line-height: 1.6;
-  padding: 0.5rem 1rem;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  opacity: 0;
-  transform: translate(-50%, 8px);
-  transition:
-    opacity 0.24s ease 0.04s,
-    transform 0.32s cubic-bezier(0.22, 1, 0.36, 1) 0.04s;
-}
-
-.image-lightbox-overlay.is-open .image-lightbox-caption {
-  opacity: 1;
-  transform: translate(-50%, 0);
-}
-
-.image-lightbox-source-proxy {
-  position: fixed;
-  z-index: 2001;
-  display: block;
   margin: 0;
-  pointer-events: none;
-  transform: translateZ(0);
-  transition:
-    top 0.36s cubic-bezier(0.22, 1, 0.36, 1),
-    left 0.36s cubic-bezier(0.22, 1, 0.36, 1),
-    width 0.36s cubic-bezier(0.22, 1, 0.36, 1),
-    height 0.36s cubic-bezier(0.22, 1, 0.36, 1),
-    border-radius 0.36s cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 0.36s cubic-bezier(0.22, 1, 0.36, 1),
-    clip-path 0.36s cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: top, left, width, height, border-radius, clip-path;
+  padding: 0.45rem 0.95rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-pill);
+  background: rgba(15, 23, 42, 0.66);
+  color: var(--color-on-accent);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  text-align: center;
+}
+
+.image-lightbox-caption[hidden] {
+  display: none;
+}
+
+/* 共享元素过渡：整页与图片形变共用一条节奏曲线；
+   root 的默认交叉淡入顺带完成遮罩渐显 / 渐隐。 */
+::view-transition-old(root),
+::view-transition-new(root),
+::view-transition-group(article-image-zoom),
+::view-transition-old(article-image-zoom),
+::view-transition-new(article-image-zoom) {
+  animation-duration: var(--image-zoom-duration);
+  animation-timing-function: var(--image-zoom-ease);
+}
+
+/* 同一张图不叠加半透明快照，避免形变中途出现重影 */
+::view-transition-old(article-image-zoom),
+::view-transition-new(article-image-zoom) {
+  mix-blend-mode: normal;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .image-lightbox-overlay,
-  .image-lightbox-backdrop,
-  .image-lightbox-dialog,
-  .image-lightbox-image,
-  .image-lightbox-caption,
-  .image-lightbox-source-proxy {
-    transition: none !important;
-    transform: none !important;
+  :root {
+    --image-zoom-duration: 0ms;
+  }
+
+  .image-lightbox-close {
+    transition: none;
   }
 }

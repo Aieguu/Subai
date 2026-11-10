@@ -1,0 +1,103 @@
+{{- /*
+   分类 / 标签列表页共用模板。
+
+   两类页面（单个 term 的文章列表 + term 总览）结构完全一致，差异只有
+   文案、class 名与取值路径。全部由下方 kind 配置表派生，避免维护两份
+   逐行相同的模板。调用方只需传 ctx（Page）与 kind（category | tag）。
+*/ -}}
+{{- $ctx := .ctx -}}
+{{- $kind := .kind -}}
+{{- $cfg := index (dict
+  "category" (dict
+    "root" "/categories/"
+    "section" "categories"
+    "termComment" "单个分类页面 - 显示该分类下的文章列表"
+    "titleId" "category-title"
+    "termTitle" "分类文章"
+    "termNoPosts" "该分类下暂无文章。"
+    "listComment" "分类列表页面 - 显示所有分类"
+    "listClass" "categories-list"
+    "gridClass" "categories-grid"
+    "emptyClass" "no-categories"
+    "emptyKey" "no_categories_found"
+    "emptyText" "No categories found.")
+  "tag" (dict
+    "root" "/tags/"
+    "section" "tags"
+    "termComment" "单个标签页面 - 显示该标签下的文章列表"
+    "titleId" "tag-title"
+    "termTitle" "标签文章"
+    "termNoPosts" "该标签下暂无文章。"
+    "listComment" "标签列表页面 - 显示所有标签"
+    "listClass" "tags-list"
+    "gridClass" "tags-grid"
+    "emptyClass" "no-tags"
+    "emptyKey" "no_tags_found"
+    "emptyText" "No tags found.")
+) $kind -}}
+{{- $sectionParams := index $ctx.Site.Params $cfg.section | default dict -}}
+{{- $listTitle := index $sectionParams "title" -}}
+{{ if and $ctx.Data.Singular (ne $ctx.RelPermalink $cfg.root) }}
+  <!-- {{ $cfg.termComment }} -->
+  <div class="posts-list">
+    <div class="container">
+      <header class="page-header">
+        <h1 class="page-title" id="{{ $cfg.titleId }}">{{ $ctx.Title | default $cfg.termTitle }}</h1>
+        {{ if $ctx.Content }}
+          <div class="page-content">
+            {{ $ctx.Content }}
+          </div>
+        {{ end }}
+      </header>
+
+      {{ if $ctx.Pages }}
+        <div class="posts-grid-two">
+          {{ range $ctx.Paginator.Pages }}
+          {{ partial "article-card.html" (dict "page" .) }}
+          {{ end }}
+        </div>
+
+        {{ if $ctx.Site.Params.pagination }}
+          {{ partial "pagination.html" $ctx }}
+        {{ end }}
+      {{ else }}
+        <div class="no-posts">
+          <p>{{ i18n "no_posts_found" | default $cfg.termNoPosts }}</p>
+        </div>
+      {{ end }}
+    </div>
+  </div>
+{{ else }}
+  <!-- {{ $cfg.listComment }} -->
+  <div class="{{ $cfg.listClass }}">
+    <div class="container">
+      {{ if $ctx.Title }}
+        <header class="page-header">
+          <h1 class="page-title">{{ $listTitle | default $ctx.Title }}</h1>
+          {{ if $ctx.Content }}
+            <div class="page-content">
+              {{ $ctx.Content }}
+            </div>
+          {{ end }}
+        </header>
+      {{ end }}
+
+      {{ if $ctx.Pages }}
+        <div class="{{ $cfg.gridClass }}">
+          {{ range $ctx.Paginator.Pages }}
+            {{ partial "taxonomy-card.html" (dict "kind" $kind "title" .Title "url" .RelPermalink "count" (len .Pages)) }}
+          {{ end }}
+        </div>
+      {{ else }}
+        <div class="{{ $cfg.emptyClass }}">
+          <p>{{ i18n $cfg.emptyKey | default $cfg.emptyText }}</p>
+        </div>
+      {{ end }}
+
+      {{ if $ctx.Site.Params.pagination }}
+        {{ partial "pagination.html" $ctx }}
+      {{ end }}
+    </div>
+  </div>
+{{ end }}
+

@@ -1,0 +1,1065 @@
+/* ==========================================================================
+   Article Page
+   1. 版式骨架（阅读面板 / 目录栏）
+   2. 文章头部（面包屑 / 分类 / 标题 / 元信息）
+   3. 正文排版（列表 / 引用 / 分隔线）
+   4. 图片与图注
+   5. 代码块与表格
+   6. 文末信息
+   7. 入场动效
+   8. 响应式
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. 版式骨架
+   -------------------------------------------------------------------------- */
+.single {
+  --article-max-width: 1120px;
+  --article-panel-width: 808px;
+  --article-toc-width: 280px;
+  --article-gap: 2rem;
+  --article-pad-x: 3rem;
+  --article-panel-bg: var(--color-bg);
+  --article-panel-shadow: 0 24px 50px -40px rgba(15, 23, 42, 0.28);
+  --article-hero-wash: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--color-primary) 5%, transparent) 0%,
+    transparent 72%
+  );
+  padding: 0 0 clamp(2.5rem, 5vw, 4.5rem);
+}
+
+/* 深色下把面板抬到二级底色，避免与页面底色糊在一起 */
+.theme-dark .single {
+  --article-panel-bg: var(--color-bg-secondary-dark);
+  --article-link: color-mix(in oklab, var(--color-primary) 42%, #e2e8f0);
+  --article-link-hover: color-mix(in oklab, var(--color-primary) 28%, #f8fafc);
+  --article-panel-shadow: 0 26px 56px -44px rgba(0, 0, 0, 0.85);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.theme-light) .single {
+    --article-panel-bg: var(--color-bg-secondary-dark);
+    --article-link: color-mix(in oklab, var(--color-primary) 42%, #e2e8f0);
+    --article-link-hover: color-mix(in oklab, var(--color-primary) 28%, #f8fafc);
+    --article-panel-shadow: 0 26px 56px -44px rgba(0, 0, 0, 0.85);
+  }
+}
+
+/* 通用容器：文章页、主题页共用 */
+.screen {
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: 0 var(--container-padding);
+}
+
+.article-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--article-toc-width);
+  gap: var(--article-gap);
+  align-items: start;
+  max-width: var(--article-max-width);
+  margin: 0 auto;
+}
+
+.article-layout.no-toc {
+  grid-template-columns: minmax(0, var(--article-panel-width));
+  justify-content: center;
+}
+
+/* 阅读面板：头部与正文共享同一张纸，左边缘自然对齐。
+   不画外描边，层次由底色、圆角与投影承担。 */
+.article-panel {
+  position: relative;
+  min-width: 0;
+  background: var(--article-panel-bg);
+  border: 0;
+  border-radius: var(--radius-panel);
+  box-shadow: var(--article-panel-shadow);
+  overflow: hidden;
+  transition:
+    background-color var(--theme-transition),
+    box-shadow var(--theme-transition);
+}
+
+/* --------------------------------------------------------------------------
+   2. 文章头部
+   -------------------------------------------------------------------------- */
+.post-hero {
+  position: relative;
+  padding: 2.75rem var(--article-pad-x) 2.25rem;
+  background-image: var(--article-hero-wash);
+  border-bottom: 1px solid
+    color-mix(in oklab, var(--color-border) 76%, var(--color-primary) 24%);
+}
+
+.post-hero-inner {
+  position: relative;
+  z-index: 1;
+}
+
+/* 面包屑 */
+.post-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 1.15rem;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.04em;
+}
+
+.post-breadcrumb a {
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.post-breadcrumb a:hover {
+  color: var(--color-primary);
+}
+
+.post-breadcrumb .sep {
+  color: var(--color-border-hover);
+}
+
+.post-breadcrumb .current {
+  color: var(--color-text-secondary);
+  max-width: 26ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 分类 / 标签 */
+.post-kicker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.1rem;
+}
+
+.post-kicker .category {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.post-kicker .category-tag {
+  padding: 0.28rem 0.7rem;
+  background: var(--color-primary-tint);
+  border-color: color-mix(in oklab, var(--color-primary) 24%, transparent);
+  color: var(--color-primary-soft);
+  font-weight: var(--font-weight-semibold);
+}
+
+.post-kicker .category-tag:hover {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-on-accent);
+}
+
+.post-kicker .tags {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.post-kicker .tag {
+  padding: 0.24rem 0.6rem;
+  background: transparent;
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+.post-kicker .tag:hover {
+  border-color: var(--color-border-hover);
+  background: var(--color-bg-secondary);
+  color: var(--color-text);
+}
+
+
+/* 标题 */
+.post-title {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-family-heading);
+  font-size: clamp(2rem, 1.5rem + 2.1vw, 2.85rem);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.22;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+.post-subtitle {
+  max-width: 58ch;
+  margin: 0.85rem 0 0;
+  color: var(--color-text-secondary);
+  font-size: 1.0625rem;
+  font-weight: var(--font-weight-normal);
+  line-height: 1.7;
+  text-wrap: pretty;
+}
+
+/* 元信息 */
+.post-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem 1.1rem;
+  margin-top: 1.7rem;
+  color: var(--color-text-secondary);
+  font-size: 0.8125rem;
+  line-height: var(--line-height-normal);
+}
+
+.post-meta-author {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--color-text);
+  font-weight: var(--font-weight-semibold);
+}
+
+.post-meta-avatar {
+  width: 1.65rem;
+  height: 1.65rem;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 0 1px var(--color-border);
+  background: var(--color-bg-secondary);
+}
+
+.post-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.post-meta-item svg {
+  width: 0.9rem;
+  height: 0.9rem;
+  flex: none;
+  opacity: 0.75;
+}
+
+.post-meta .dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--color-border-hover);
+}
+
+/* 字数等次要信息：小屏空间不足时整组隐藏，避免落单换行 */
+.post-meta-extras {
+  display: inline-flex;
+  align-items: center;
+  gap: 1.1rem;
+}
+
+/* --------------------------------------------------------------------------
+   3. 正文排版
+   -------------------------------------------------------------------------- */
+.article-body {
+  padding: 2.5rem var(--article-pad-x) 3rem;
+}
+
+.content {
+  color: var(--color-text);
+  font-size: 1.0625rem;
+  line-height: 1.85;
+  overflow-wrap: break-word;
+}
+
+.content > *:first-child {
+  margin-top: 0;
+}
+
+.content > *:last-child {
+  margin-bottom: 0;
+}
+
+/* 段落 */
+.content p {
+  margin: 0 0 1.45em;
+  line-height: 1.85;
+  text-wrap: pretty;
+}
+
+.content strong {
+  color: var(--color-text);
+  font-weight: 650;
+}
+
+.content a {
+  color: var(--article-link, var(--color-primary));
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklab, var(--article-link, var(--color-primary)) 35%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  transition:
+    color var(--transition-fast),
+    text-decoration-color var(--transition-fast);
+}
+
+.content a:hover {
+  color: var(--article-link-hover, var(--color-primary-hover));
+  text-decoration-color: currentColor;
+}
+
+/* 标题层级：靠字号、字重与留白区隔，不额外加装饰条 */
+.content h1,
+.content h2,
+.content h3,
+.content h4,
+.content h5,
+.content h6 {
+  color: var(--color-text);
+  font-family: var(--font-family-heading);
+  line-height: 1.35;
+  scroll-margin-top: calc(var(--toc-scroll-offset, 96px) + 20px);
+}
+
+.content h2 {
+  margin: 3.5rem 0 1.1rem;
+  font-size: 1.55rem;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: -0.02em;
+}
+
+.content h3 {
+  margin: 2.4rem 0 0.8rem;
+  font-size: 1.28rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.content h4 {
+  margin: 2rem 0 0.65rem;
+  font-size: 1.0625rem;
+  font-weight: 650;
+  letter-spacing: 0;
+}
+
+.content h5,
+.content h6 {
+  margin: 1.75rem 0 0.6rem;
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.02em;
+}
+
+.content h2 + h3,
+.content h2 + h4,
+.content h3 + h4 {
+  margin-top: 0.9rem;
+}
+
+/* 列表 */
+.content ul,
+.content ol {
+  margin: 0 0 1.45em;
+  padding-left: 1.4rem;
+}
+
+.content li {
+  margin-bottom: 0.45em;
+  line-height: 1.78;
+}
+
+.content li::marker {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.content li > ul,
+.content li > ol {
+  margin: 0.45em 0 0.2em;
+}
+
+.content ul ul {
+  list-style: circle;
+}
+
+/* 引用：从「左侧粗竖条 + 左直角框」改成整块四角 squircle 面板。
+   一道自上而下淡出的细引线承担强调，呼应正文 hr 两端渐隐的克制语言；
+   底色、描边、引线、列表标记都由 --quote-accent 派生，日后要按提示类型
+   换色只需覆盖这一个变量。 */
+.content blockquote {
+  /* 不套 :root 阶梯的值集中在此并说明：装饰色阶、线宽、阴影 rgba，
+     以及为引线预留的留白与中文多行提示所需的行高（阶梯无等值）。 */
+  --quote-accent: var(--color-primary);
+  --quote-wash: 4%;
+  --quote-line: 2px;
+  --quote-line-inset: 1.05rem;
+  --quote-pad-left: calc(var(--quote-line-inset) + var(--quote-line) + var(--spacing-md));
+  --quote-gap: 1.9rem;
+  --quote-leading: 1.75;
+  --quote-shadow: 0 10px 26px -22px rgba(15, 23, 42, 0.28);
+
+  position: relative;
+  margin: var(--quote-gap) 0;
+  padding: var(--spacing-md) var(--spacing-lg) var(--spacing-md) var(--quote-pad-left);
+  background: color-mix(in oklab, var(--quote-accent) var(--quote-wash), var(--color-bg-secondary));
+  border: 1px solid color-mix(in oklab, var(--quote-accent) 14%, var(--color-border));
+  border-radius: var(--radius-lg);
+  box-shadow: var(--quote-shadow);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
+  font-style: normal;
+  line-height: var(--quote-leading);
+  text-wrap: pretty;
+}
+
+/* 引线：上下各留一格呼吸空间，颜色向下淡出；圆头避免线端生硬 */
+.content blockquote::before {
+  content: '';
+  position: absolute;
+  top: var(--spacing-md);
+  bottom: var(--spacing-md);
+  left: var(--quote-line-inset);
+  width: var(--quote-line);
+  border-radius: var(--radius-pill);
+  background: linear-gradient(
+    180deg,
+    var(--quote-accent),
+    color-mix(in oklab, var(--quote-accent) 45%, transparent) 55%,
+    transparent
+  );
+  pointer-events: none;
+}
+
+/* 深色纸面上主色偏暗：混亮文字提亮，底色占比与阴影同步加重 */
+.theme-dark .content blockquote {
+  --quote-accent: color-mix(in oklab, var(--color-primary) 60%, var(--color-text-dark));
+  --quote-wash: 8%;
+  --quote-shadow: 0 12px 30px -24px rgba(0, 0, 0, 0.85);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.theme-light) .content blockquote {
+    --quote-accent: color-mix(in oklab, var(--color-primary) 60%, var(--color-text-dark));
+    --quote-wash: 8%;
+    --quote-shadow: 0 12px 30px -24px rgba(0, 0, 0, 0.85);
+  }
+}
+
+/* 内部排版：首尾不留多余空白，段落与列表共用一个节奏；
+   strong / a / code 沿用 .content 全局规则，靠底色与缩进区隔层级 */
+.content blockquote > :first-child {
+  margin-top: 0;
+}
+
+.content blockquote > :last-child {
+  margin-bottom: 0;
+}
+
+.content blockquote p {
+  margin: 0 0 0.6em;
+  line-height: var(--quote-leading);
+}
+
+.content blockquote ul,
+.content blockquote ol {
+  margin: 0.6em 0 0;
+  padding-left: var(--spacing-md);
+}
+
+.content blockquote li {
+  margin-bottom: 0.35em;
+}
+
+.content blockquote li::marker {
+  color: var(--quote-accent);
+}
+
+/* 分隔线：两端淡出，避免生硬的横杠 */
+.content hr {
+  height: 1px;
+  margin: 3rem 0;
+  border: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-border) 18%,
+    var(--color-border) 82%,
+    transparent
+  );
+}
+
+/* --------------------------------------------------------------------------
+   4. 图片与图注
+   -------------------------------------------------------------------------- */
+.content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-media);
+  background: var(--color-bg-secondary);
+}
+
+.article-image {
+  display: block;
+  margin: 2.25rem 0;
+  text-align: center;
+}
+
+/* 图片独占一段时去掉段落自身的下边距，避免图片上下出现双倍留白 */
+.content p:has(> .article-image) {
+  margin-bottom: 0;
+}
+
+/* 常规流里的图片：尺寸由 width/height 属性预留，静态描边，
+   不做任何位移、缩放、悬浮投影或过渡，缩放交给原生共享元素过渡。 */
+.article-image img {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+  border: 1px solid color-mix(in oklab, var(--color-border) 88%, transparent);
+  border-radius: var(--radius-media);
+}
+
+/* 可放大只反映在光标与键盘焦点上，不产生悬浮动效 */
+.content img.is-zoomable {
+  cursor: zoom-in;
+}
+
+.content img.is-zoomable:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+/* 图注 */
+.article-image-caption {
+  display: block;
+  max-width: 62ch;
+  margin: 0.85rem auto 0;
+  color: var(--color-text-secondary);
+  font-size: 0.8125rem;
+  line-height: 1.65;
+  letter-spacing: 0.01em;
+  text-align: center;
+}
+
+.article-image-caption::before {
+  content: '';
+  display: block;
+  width: 1.5rem;
+  height: 1px;
+  margin: 0 auto 0.6rem;
+  background: var(--color-border-hover);
+}
+
+/* 正文里单独一行的图片（不经 render hook 时） */
+.content p > img:only-child {
+  display: block;
+  margin: 2.25rem auto;
+  border: 1px solid color-mix(in oklab, var(--color-border) 88%, transparent);
+  border-radius: var(--radius-media);
+}
+
+/* --------------------------------------------------------------------------
+   5. 代码块与表格
+   -------------------------------------------------------------------------- */
+.content pre:not(.chroma):not(.mermaid) {
+  margin: 1.75rem 0;
+  padding: 1.1rem 1.25rem;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+}
+
+/* 主题代码块自带外边距，这里只保证与正文节奏一致 */
+.content .article-codeblock {
+  margin-block: 1.75rem;
+}
+
+/* 行内代码的基础样式：代码块系统关闭（syntax.css 不加载）时由这里兜底；
+   开启时由 syntax.css 的 .content p > code … 规则覆盖，两者不是重复实现。 */
+.content p > code,
+.content li > code,
+.content td > code,
+.content th > code,
+.content blockquote > code {
+  padding: 0.12em 0.4em;
+  background: color-mix(in oklab, var(--color-primary) 7%, var(--color-bg-secondary));
+  border: 1px solid color-mix(in oklab, var(--color-primary) 10%, var(--color-border));
+  border-radius: var(--radius-xs);
+  color: color-mix(in oklab, var(--color-text) 88%, var(--color-primary));
+  font-size: 0.88em;
+  white-space: break-spaces;
+}
+
+/* 表格：外框与滚动交给 .table-wrap，table 回归正常表格布局。
+   旧版把 table 设成 display:block 后内部匿名表格按内容收缩（712px 外框里
+   只有 488px 宽），表头底色与行分隔线因此在 2/3 处断掉；现在每行自然撑满。 */
+.content .table-wrap {
+  /* 不套 :root 阶梯的值集中在此：装饰色阶、阴影 rgba、单元格留白节奏 */
+  --table-accent: var(--color-primary);
+  --table-head-wash: 5%;
+  --table-shadow: 0 10px 26px -22px rgba(15, 23, 42, 0.28);
+  --table-gap: 1.9rem;
+  --table-cell-x: clamp(0.75rem, 2vw, 1.1rem);
+  --table-cell-y: clamp(0.6rem, 1.5vw, 0.8rem);
+
+  margin: var(--table-gap) 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border: 1px solid color-mix(in oklab, var(--table-accent) 12%, var(--color-border));
+  border-radius: var(--radius-lg);
+  background: var(--color-bg);
+  box-shadow: var(--table-shadow);
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}
+
+.content .table-wrap::-webkit-scrollbar {
+  height: 6px;
+}
+
+.content .table-wrap::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.content .table-wrap::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: var(--radius-pill);
+}
+
+/* 降级：万一容器缺失，table 自身仍可滚动，也不会撑破正文 */
+.content table {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  margin: var(--table-gap, 1.9rem) 0;
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+}
+
+/* 有容器时：容器接管外框与间距，table 只负责表格布局 */
+.content .table-wrap table {
+  display: table;
+  margin: 0;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.content thead {
+  background: color-mix(
+    in oklab,
+    var(--table-accent, var(--color-primary)) var(--table-head-wash, 5%),
+    var(--color-bg-secondary)
+  );
+}
+
+.content th {
+  padding: var(--table-cell-y, 0.8rem) var(--table-cell-x, 1.1rem);
+  border-bottom: 1px solid color-mix(in oklab, var(--table-accent, var(--color-primary)) 18%, var(--color-border));
+  color: var(--color-text);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.02em;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.content td {
+  padding: var(--table-cell-y, 0.8rem) var(--table-cell-x, 1.1rem);
+  border-bottom: 1px solid color-mix(in oklab, var(--color-border) 75%, transparent);
+  color: var(--color-text);
+  vertical-align: middle;
+}
+
+.content tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.content tbody tr {
+  transition: background-color var(--transition-fast);
+}
+
+.content tbody tr:hover {
+  background: color-mix(in oklab, var(--table-accent, var(--color-primary)) 4%, transparent);
+}
+
+/* 深色纸面：主色混亮文字提亮，表头底色占比与阴影同步加重 */
+.theme-dark .content .table-wrap {
+  --table-accent: color-mix(in oklab, var(--color-primary) 60%, var(--color-text-dark));
+  --table-head-wash: 9%;
+  --table-shadow: 0 12px 30px -24px rgba(0, 0, 0, 0.85);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.theme-light) .content .table-wrap {
+    --table-accent: color-mix(in oklab, var(--color-primary) 60%, var(--color-text-dark));
+    --table-head-wash: 9%;
+    --table-shadow: 0 12px 30px -24px rgba(0, 0, 0, 0.85);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   6. 文末信息
+   -------------------------------------------------------------------------- */
+.post-end {
+  margin-top: 2.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.post-end-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.18em;
+}
+
+.post-end-mark::before,
+.post-end-mark::after {
+  content: '';
+  width: clamp(2rem, 12%, 5rem);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-border-hover));
+}
+
+.post-end-mark::after {
+  background: linear-gradient(90deg, var(--color-border-hover), transparent);
+}
+
+.post-end-tags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.45rem;
+  margin-top: 1.35rem;
+}
+
+.post-end-tags .tag {
+  background: transparent;
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.post-end-tags .tag:hover {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border-hover);
+  color: var(--color-text);
+}
+
+.post-end-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.6rem;
+}
+
+.back-to-top {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.95rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-bg);
+  color: var(--color-text-secondary);
+  font-size: 0.8125rem;
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition:
+    color var(--transition-fast),
+    border-color var(--transition-fast),
+    background-color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.back-to-top:hover {
+  color: var(--color-primary);
+  border-color: color-mix(in oklab, var(--color-primary) 35%, var(--color-border));
+  background: color-mix(in oklab, var(--color-primary) 5%, var(--color-bg));
+  transform: translateY(-1px);
+}
+
+.back-to-top svg {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+/* --------------------------------------------------------------------------
+   7. 入场动效
+   -------------------------------------------------------------------------- */
+/* 头部元素依次浮现：PJAX 换页后动画会自然重播 */
+@keyframes article-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.post-hero-inner > * {
+  animation: article-rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.post-hero-inner > *:nth-child(1) {
+  animation-delay: 0.02s;
+}
+
+.post-hero-inner > *:nth-child(2) {
+  animation-delay: 0.08s;
+}
+
+.post-hero-inner > *:nth-child(3) {
+  animation-delay: 0.13s;
+}
+
+.post-hero-inner > *:nth-child(4) {
+  animation-delay: 0.18s;
+}
+
+.post-hero-inner > *:nth-child(5) {
+  animation-delay: 0.23s;
+}
+
+/* 滚动显现：只有 JS 成功接管时才隐藏，避免脚本失效导致正文消失 */
+.has-reveal .content .reveal:not(.is-revealed) {
+  opacity: 0;
+  transform: translate3d(0, 14px, 0);
+}
+
+.has-reveal .content .reveal {
+  transition:
+    opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* --------------------------------------------------------------------------
+   8. 响应式
+   -------------------------------------------------------------------------- */
+@media (max-width: 1200px) {
+  .article-layout {
+    grid-template-columns: minmax(0, var(--article-panel-width));
+    justify-content: center;
+    gap: 1.25rem;
+  }
+
+  .article-layout.no-toc {
+    grid-template-columns: minmax(0, var(--article-panel-width));
+  }
+}
+
+@media (max-width: 860px) {
+  .single {
+    --article-pad-x: clamp(1.25rem, 5vw, 2.25rem);
+  }
+}
+
+@media (max-width: 768px) {
+  .single {
+    /* 小屏由 .screen 统一提供左右留白，面板内部不再叠加 */
+    --article-pad-x: 0;
+    padding-bottom: 2.5rem;
+  }
+
+  .article-layout {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+    max-width: none;
+  }
+
+  /* 小屏去掉面板外壳，把宽度全部让给文字 */
+  .article-panel {
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    overflow: visible;
+  }
+
+  .post-hero {
+    padding: 1.6rem var(--article-pad-x) 1.6rem;
+    background-image: none;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .post-title {
+    font-size: clamp(1.65rem, 1.2rem + 2.4vw, 2.1rem);
+    letter-spacing: -0.02em;
+  }
+
+  .post-subtitle {
+    font-size: var(--font-size-base);
+    margin-top: 0.7rem;
+  }
+
+  .post-meta {
+    margin-top: 1.25rem;
+    gap: 0.45rem 0.85rem;
+  }
+
+  .article-body {
+    padding: 1.75rem var(--article-pad-x) 2.25rem;
+  }
+
+  .content {
+    font-size: 1.0625rem;
+    line-height: 1.8;
+  }
+
+  /* 窄屏：站内表格最多 3 列，等宽分配比按内容收缩更稳；
+     表头允许换行，短标签不会被挤成竖排，也无需横向滚动 */
+  .content .table-wrap table {
+    table-layout: fixed;
+  }
+
+  .content th {
+    white-space: normal;
+  }
+
+  .content td,
+  .content th {
+    overflow-wrap: anywhere;
+  }
+
+  .content h2 {
+    margin-top: 2.75rem;
+    font-size: 1.35rem;
+  }
+
+  .content h3 {
+    margin-top: 2rem;
+    font-size: 1.15rem;
+  }
+
+  .article-image {
+    margin: 1.75rem 0;
+  }
+
+  .article-image img,
+  .content p > img:only-child {
+    border-radius: var(--radius-md);
+  }
+
+  .post-end {
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .post-breadcrumb {
+    margin-bottom: 0.9rem;
+  }
+
+  .post-kicker {
+    gap: 0.4rem;
+    margin-bottom: 0.9rem;
+  }
+
+  .post-kicker .category-tag,
+  .post-kicker .tag {
+    padding: 0.22rem 0.55rem;
+  }
+
+  .post-title {
+    font-size: 1.6rem;
+  }
+
+  .post-meta {
+    font-size: var(--font-size-xs);
+  }
+
+  .post-meta-avatar {
+    width: 1.45rem;
+    height: 1.45rem;
+  }
+
+  .post-meta-extras {
+    display: none;
+  }
+
+  .content {
+    font-size: 1.03rem;
+  }
+
+  .content blockquote {
+    --quote-line-inset: 0.8rem;
+    padding-block: var(--spacing-sm);
+    padding-right: var(--spacing-md);
+  }
+
+  .content blockquote::before {
+    top: var(--spacing-sm);
+    bottom: var(--spacing-sm);
+  }
+}
+
+/* 尊重系统「减少动态效果」设置 */
+@media (prefers-reduced-motion: reduce) {
+  .post-hero-inner > * {
+    animation: none !important;
+  }
+
+  .has-reveal .content .reveal,
+  .has-reveal .content .reveal:not(.is-revealed) {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .back-to-top:hover {
+    transform: none;
+    transition: none;
+  }
+}
+
+/* 打印时不保留任何入场/滚动状态；引用块不依赖底色，靠描边与引线成形 */
+@media print {
+  .back-to-top {
+    display: none !important;
+  }
+
+  .content .reveal,
+  .content .reveal:not(.is-revealed) {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .content blockquote {
+    background: transparent;
+    box-shadow: none;
+    border-color: var(--color-border);
+  }
+
+  .content blockquote::before {
+    background: var(--quote-accent);
+  }
+
+  /* 打印时表格不裁剪、不投影，保留描边与行线即可 */
+  .content .table-wrap {
+    overflow: visible;
+    background: transparent;
+    box-shadow: none;
+    border-color: var(--color-border);
+  }
+}

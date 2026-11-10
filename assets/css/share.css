@@ -2,6 +2,13 @@
    Share Button Styles
    ========================================================================== */
 
+:root {
+  /* 社交平台品牌色是固定语义色，不随站点主题色变化 */
+  --share-color-twitter: #1da1f2;
+  --share-color-facebook: #4267b2;
+  --share-color-linkedin: #0077b5;
+}
+
 /* Share Buttons */
 .post-share {
   margin-top: var(--spacing-2xl);
@@ -31,24 +38,28 @@
   gap: var(--spacing-sm);
   padding: var(--spacing-sm) var(--spacing-md);
   border-radius: var(--radius-md);
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   text-decoration: none;
-  transition: all var(--transition-fast);
+  transition:
+    transform var(--transition-fast),
+    background-color var(--transition-fast),
+    color var(--transition-fast),
+    box-shadow var(--transition-fast);
 }
 
 .share-button-twitter {
-  background-color: #1da1f2;
-  color: white;
+  background-color: var(--share-color-twitter);
+  color: var(--color-on-accent);
 }
 
 .share-button-facebook {
-  background-color: #4267b2;
-  color: white;
+  background-color: var(--share-color-facebook);
+  color: var(--color-on-accent);
 }
 
 .share-button-linkedin {
-  background-color: #0077b5;
-  color: white;
+  background-color: var(--share-color-linkedin);
+  color: var(--color-on-accent);
 }
 
 .share-button-copy {
@@ -65,7 +76,7 @@
 
 .share-button-copy:hover {
   background-color: var(--color-primary);
-  color: white;
+  color: var(--color-on-accent);
   border-color: var(--color-primary);
 }
 

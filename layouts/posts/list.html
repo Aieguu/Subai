@@ -1,15 +1,12 @@
 {{ define "main" }}
 <div class="posts-list">
   <div class="container">
-    <header class="page-header">
-      <h1 class="page-title">{{ .Site.Params.posts.title | default .Title | default "所有文章" }}</h1>
-      {{ if .Content }}
-        <div class="page-content">
-          {{ .Content }}
-        </div>
-      {{ end }}
-    </header>
-    
+    {{/* 不再渲染大标题「文章」，保留一个仅屏幕阅读器可见的 h1 维持语义结构 */}}
+    <h1 class="sr-only">{{ .Site.Params.posts.title | default .Title | default "所有文章" }}</h1>
+    {{ if .Content }}
+      <div class="page-content">{{ .Content }}</div>
+    {{ end }}
+
     {{ if .Pages }}
       <div class="posts-grid-two">
         {{ range .Paginator.Pages }}

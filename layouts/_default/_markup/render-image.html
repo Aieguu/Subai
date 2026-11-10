@@ -1,15 +1,22 @@
 {{- $src := .Destination | safeURL -}}
 {{- $alt := .PlainText | default "" -}}
+{{- $title := .Title -}}
+
+{{- /* 正文栏实测最宽 736px（768–1200 区间），740 只够 1× 屏；2× 需要 1480。
+       阶梯拆成 740 / 1110 / 1480，1.5× 屏不必直接跳到最大文件。
+       候选超过原图宽度时由 img.html 自动跳过。 */ -}}
+{{- $widths := slice 400 740 1110 1480 -}}
 
 <span class="article-image">
-  <img
-    src="{{ $src }}"
-    alt="{{ $alt }}"
-    loading="lazy"
-    decoding="async"
-    {{ with .Title }}title="{{ . }}"{{ end }}
-  >
-  {{ with .Title }}
+  {{- partial "img.html" (dict
+        "src" $src
+        "alt" $alt
+        "mode" "fit"
+        "widths" $widths
+        "sizes" "(max-width: 800px) calc(100vw - 2rem), 740px"
+        "zoom" true
+  ) -}}
+  {{ with $title }}
     <span class="article-image-caption">{{ . }}</span>
   {{ end }}
 </span>

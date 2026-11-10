@@ -1,21 +1,40 @@
 {{ define "main" }}
-<div class="posts-list">
+{{- $searchUrl := "/search/" | relLangURL -}}
+<div class="search-page" id="search-page">
   <div class="container">
-    <header class="page-header">
-      <h1 class="page-title" id="search-title">搜索</h1>
-      <p class="page-subtitle" id="search-subtitle" style="display: none;"></p>
+    <header class="search-page-head">
+      <h1 class="search-page-title" id="search-title">{{ .Title }}</h1>
+
+      <form class="search-page-form" id="search-page-form" action="{{ $searchUrl }}" method="GET" role="search">
+        <svg class="search-page-form-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="7.25"></circle>
+          <path d="m16.4 16.4 4.1 4.1"></path>
+        </svg>
+        <input
+          class="search-page-input"
+          id="search-page-input"
+          type="search"
+          name="q"
+          placeholder="{{ i18n "search_dialog_placeholder" | default "搜索文章、标签或分类…" }}"
+          autocomplete="off"
+          autocorrect="off"
+          spellcheck="false"
+          aria-label="{{ i18n "search_open" | default "搜索" }}">
+        <button class="search-page-submit" type="submit">{{ i18n "search_submit" | default "搜索" }}</button>
+      </form>
+
+      <p class="search-page-subtitle" id="search-subtitle" style="display: none;"></p>
     </header>
-    
-    <div id="search-results-container" aria-live="polite">
+
+    <div class="search-page-results" id="search-results-container" aria-live="polite">
       <noscript>
-        <div class="no-posts">
-          <p>请启用 JavaScript 以使用站内搜索。</p>
+        <div class="search-empty">
+          <p class="search-empty-title">请启用 JavaScript 以使用站内搜索。</p>
         </div>
       </noscript>
     </div>
-    
-    <!-- 分页组件 -->
-    <div id="search-pagination" style="display: none;"></div>
+
+    <div class="search-page-pagination" id="search-pagination" style="display: none;"></div>
   </div>
 </div>
 {{ end }}

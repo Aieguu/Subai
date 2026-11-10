@@ -3,7 +3,13 @@
 {{- range $pages -}}
   {{- $coverImage := "" -}}
   {{- with .Params.cover_image -}}
-    {{- $coverImage = . | relURL -}}
+    {{- $res := resources.Get (strings.TrimPrefix "/" .) -}}
+    {{- if $res -}}
+      {{- /* 面板缩略图只需小尺寸，统一裁成 96px 方形 WebP */ -}}
+      {{- $coverImage = ($res.Fill "96x96 Center webp q80").RelPermalink -}}
+    {{- else -}}
+      {{- $coverImage = . | relURL -}}
+    {{- end -}}
   {{- end -}}
   {{- $searchIndex = $searchIndex | append (dict
     "title" .Title

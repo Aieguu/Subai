@@ -1,0 +1,103 @@
+{{- /*
+  响应式图片组件
+
+  参数：
+    src      资源路径（可带前导斜杠），需位于 assets/ 下
+    alt      替代文本
+    mode     cover = 正方形裁切（卡片缩略图/头像）；fit = 等比缩放（正文图）
+    widths   候选宽度数组（升序），超过原图宽度的候选项会被跳过
+    sizes    sizes 属性
+    class    img 的 class
+    loading  lazy / eager
+    quality  WebP 质量，默认 82
+    zoom     true 时输出 data-zoom-src（当前能提供的最大位图），供灯箱使用
+
+  候选宽度的生成规则：
+    1. widths 中不超过原图宽度的项全部保留；
+    2. 若原图比 widths 的最大值还窄（例如 1254 宽的信息图 + 1480 的阶梯），
+       把原图宽度补进阶梯，否则浏览器只能按最后一档放大，画面发虚；
+    3. src 始终指向阶梯里最大的一档，作为无 srcset 支持时的兜底，
+       同时充当灯箱的 data-zoom-src。
+
+  资源缺失时回退为普通 img，并给出构建期告警，避免静默 404。
+*/ -}}
+{{- $src := .src -}}
+{{- $alt := .alt | default "" -}}
+{{- $mode := .mode | default "fit" -}}
+{{- $ratio := .ratio | default 1 -}}
+{{- $widths := .widths | default (slice 400 800 1200) -}}
+{{- $sizes := .sizes | default "100vw" -}}
+{{- $class := .class | default "" -}}
+{{- $loading := .loading | default "lazy" -}}
+{{- $quality := .quality | default 82 -}}
+{{- $zoom := .zoom | default false -}}
+
+{{- $isExternal := or (hasPrefix $src "http://") (hasPrefix $src "https://") (hasPrefix $src "data:") -}}
+{{- $res := false -}}
+{{- with $src -}}
+  {{- $res = resources.Get (strings.TrimPrefix "/" .) -}}
+{{- end -}}
+
+{{- if $res -}}
+  {{- $maxW := 0 -}}
+  {{- if gt (len $widths) 0 -}}
+    {{- $maxW = index $widths (sub (len $widths) 1) -}}
+  {{- end -}}
+  {{- $cands := slice -}}
+  {{- range $widths -}}
+    {{- if le . $res.Width -}}
+      {{- $cands = $cands | append . -}}
+    {{- end -}}
+  {{- end -}}
+  {{- /* 原图比最大候选还窄时补上原图宽度，避免剩下 1.2× 以上的上采样 */ -}}
+  {{- if and (gt $res.Width 0) (lt $res.Width $maxW) -}}
+    {{- $cands = $cands | append $res.Width -}}
+  {{- end -}}
+
+  {{- $srcset := slice -}}
+  {{- $fallback := "" -}}
+  {{- $fallbackW := $res.Width -}}
+  {{- $fallbackH := $res.Height -}}
+  {{- range $cands -}}
+    {{- $w := . -}}
+    {{- $img := "" -}}
+    {{- if eq $mode "cover" -}}
+      {{- $h := $w -}}
+      {{- if gt $ratio 1 -}}
+        {{- $h = div $w $ratio -}}
+      {{- end -}}
+      {{- $img = $res.Fill (printf "%dx%d Center webp q%d" $w $h $quality) -}}
+    {{- else -}}
+      {{- $img = $res.Resize (printf "%dx webp q%d" $w $quality) -}}
+    {{- end -}}
+    {{- $srcset = $srcset | append (printf "%s %dw" $img.RelPermalink $img.Width) -}}
+    {{- $fallback = $img.RelPermalink -}}
+    {{- $fallbackW = $img.Width -}}
+    {{- $fallbackH = $img.Height -}}
+  {{- end -}}
+  {{- if eq $fallback "" -}}
+    {{- $fallback = $res.RelPermalink -}}
+    {{- $srcset = $srcset | append (printf "%s %dw" $res.RelPermalink $res.Width) -}}
+  {{- end -}}
+  <img
+    src="{{ $fallback }}"
+    srcset="{{ delimit $srcset ", " }}"
+    sizes="{{ $sizes }}"
+    width="{{ $fallbackW }}"
+    height="{{ $fallbackH }}"
+    {{- with $class }} class="{{ . }}"{{ end }}
+    alt="{{ $alt }}"
+    loading="{{ $loading }}"
+    {{- if $zoom }} data-zoom-src="{{ $fallback }}"{{ end }}
+    decoding="async">
+{{- else -}}
+  {{- if not $isExternal -}}
+    {{- warnf "img.html: 未在 assets 中找到 %q，已回退为原始路径" $src -}}
+  {{- end -}}
+  <img
+    src="{{ if $isExternal }}{{ $src }}{{ else }}{{ $src | relURL }}{{ end }}"
+    {{- with $class }} class="{{ . }}"{{ end }}
+    alt="{{ $alt }}"
+    loading="{{ $loading }}"
+    decoding="async">
+{{- end -}}

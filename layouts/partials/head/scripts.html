@@ -7,32 +7,12 @@
 
 <!-- Critical JavaScript -->
 <script>
-  // Theme detection and initialization
+  // 移除 no-js 标记并暂存站点根路径；主题初始化在 head/styles.html 中完成
   (function() {
     'use strict';
 
-    // Remove no-js class
     document.documentElement.classList.remove('no-js');
-    // siteRoot is set after registry.js loads; store for now
+    // registry.js 加载后再消费，这里先暂存站点根路径
     window.__SUBAI_SITE_ROOT__ = {{ "/" | relLangURL | jsonify | safeJS }};
   })();
 </script>
-
-<!-- Service Worker Registration -->
-{{ if .Site.Params.serviceWorker }}
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function() {
-      const siteRoot = (window.Subai && window.Subai.siteRoot) || '/';
-      const normalizedRoot = siteRoot.endsWith('/') ? siteRoot : siteRoot + '/';
-      const swUrl = new URL(normalizedRoot.replace(/\/$/, '') + '/sw.js', window.location.origin);
-
-      navigator.serviceWorker.register(swUrl.toString(), {
-        scope: normalizedRoot
-      }).catch(function() {
-        // no-op
-      });
-    });
-  }
-</script>
-{{ end }}

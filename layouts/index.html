@@ -1,5 +1,6 @@
 {{ define "main" }}
 <div class="home">
+  <h1 class="sr-only">{{ .Site.Title }}</h1>
   {{ if .Site.Params.hero }}
     {{ partial "hero.html" . }}
   {{ end }}
@@ -16,10 +17,18 @@
   {{ $dailyQuoteSwitchTime := $dailyQuote.switchTime | default ($dailyQuote.interval | default 2600) }}
   {{ $dailyQuoteTypeSpeed := $dailyQuote.typeSpeed | default 90 }}
   {{ $dailyQuoteDeleteSpeed := $dailyQuote.deleteSpeed | default 45 }}
-  {{ $homeImage := $homeTiles.image | default dict }}
-  {{ $homeImageSrc := $homeImage.src | default "" }}
-  {{ $homeImageAlt := $homeImage.alt | default (.Site.Title | default "Home image") }}
-  {{ $homeImageLink := $homeImage.link | default "" }}
+  {{ $weather := $homeTiles.weather | default dict }}
+  {{ $weatherEnabled := $weather.enabled | default false }}
+  {{ $weatherLat := $weather.latitude | default 0 }}
+  {{ $weatherLon := $weather.longitude | default 0 }}
+  {{ $weatherCity := $weather.city | default "" }}
+  {{ $weatherFallbackCity := $weather.fallbackCity | default "上海" }}
+  {{ $weatherFallbackLat := $weather.fallbackLatitude | default 31.23 }}
+  {{ $weatherFallbackLon := $weather.fallbackLongitude | default 121.47 }}
+  {{ $weatherRefresh := $weather.refreshMinutes | default 30 }}
+  {{ $weatherUnit := $weather.unit | default "celsius" }}
+  {{ $weatherAllowChange := true }}
+  {{ if isset $weather "allowCityChange" }}{{ $weatherAllowChange = $weather.allowCityChange }}{{ end }}
   {{ $defaultMusicName := "暂无曲目" }}
   {{ if gt (len $musicPlaylist) 0 }}
     {{ $firstTrack := index $musicPlaylist 0 }}
@@ -33,107 +42,189 @@
   <div class="container">
     <section class="home-mosaic" aria-label="首页磁贴">
       <div class="home-mosaic-grid">
-        <section class="home-mosaic-tile tile-latest tile-4x2">
+        <!-- 主磁贴：头条文章 + 最新列表 -->
+        <section class="home-mosaic-tile tile-latest">
+          <header class="tile-head">
+            <h2 class="tile-title">最新文章</h2>
+            <a class="tile-action" href="{{ "/posts" | relURL }}">
+              <span>全部文章</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h13"></path>
+                <path d="m12 5 7 7-7 7"></path>
+              </svg>
+            </a>
+          </header>
+
           {{ if $latestPosts }}
-            <ul class="home-latest-list">
-              {{ range $latestPosts }}
-                <li>
-                  <a href="{{ .RelPermalink }}">{{ .Title }}</a>
-                  <time datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">
-                    {{ .Date.Format ($.Site.Params.dateFormat | default "2006年1月2日") }}
-                  </time>
-                </li>
+            <ol class="home-latest-list">
+              {{ range $index, $post := $latestPosts }}
+                {{ $postDate := $post.Date.Format ($.Site.Params.dateFormat | default "2006年1月2日") }}
+                {{ $postDatetime := $post.Date.Format "2006-01-02T15:04:05Z07:00" }}
+                {{ if eq $index 0 }}
+                  <li class="home-latest-featured">
+                    <a class="home-latest-featured-link" href="{{ $post.RelPermalink }}">
+                      <span class="home-latest-featured-meta">
+                        {{ with $post.Params.categories }}
+                          <span class="home-latest-tag">{{ index . 0 }}</span>
+                        {{ end }}
+                        <time datetime="{{ $postDatetime }}">{{ $postDate }}</time>
+                      </span>
+                      <h3 class="home-latest-featured-title">{{ $post.Title }}</h3>
+                      {{ with $post.Summary }}
+                        <p class="home-latest-featured-desc">{{ . | plainify | truncate 84 }}</p>
+                      {{ end }}
+                    </a>
+                  </li>
+                {{ else }}
+                  <li class="home-latest-row">
+                    <a class="home-latest-link" href="{{ $post.RelPermalink }}">
+                      <span class="home-latest-title">{{ $post.Title }}</span>
+                      <time class="home-latest-date" datetime="{{ $postDatetime }}">{{ $postDate }}</time>
+                      <svg class="home-latest-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M5 12h13"></path>
+                        <path d="m12 5 7 7-7 7"></path>
+                      </svg>
+                    </a>
+                  </li>
+                {{ end }}
               {{ end }}
-            </ul>
-            <div class="home-latest-foot">
-              <a href="{{ "/posts" | relURL }}" class="tile-link">更多文章</a>
-            </div>
+            </ol>
           {{ else }}
             <p class="home-empty-state">还没有文章，先去写一篇吧。</p>
           {{ end }}
         </section>
 
-        {{- $highlightNote := .Site.Params.plugins.highlightNote | default dict -}}
-        {{- $highlightEnabled := $highlightNote.enabled | default false -}}
-        <article class="home-mosaic-tile tile-profile tile-2x1">
+        {{- if $weatherEnabled }}
+        <article class="home-mosaic-tile tile-weather"
+          data-home-weather
+          data-lat="{{ $weatherLat }}"
+          data-lon="{{ $weatherLon }}"
+          data-city="{{ $weatherCity }}"
+          data-fallback-city="{{ $weatherFallbackCity }}"
+          data-fallback-lat="{{ $weatherFallbackLat }}"
+          data-fallback-lon="{{ $weatherFallbackLon }}"
+          data-refresh="{{ $weatherRefresh }}"
+          data-unit="{{ $weatherUnit }}"
+          data-allow-change="{{ $weatherAllowChange }}">
+          <div class="home-weather-head">
+            <div class="home-weather-place">
+              {{ if $weatherAllowChange }}
+                <button class="home-weather-city" type="button" data-weather-city>定位中…</button>
+              {{ else }}
+                <span class="home-weather-city" data-weather-city>定位中…</span>
+              {{ end }}
+              <span class="home-weather-meta" data-weather-meta>正在获取天气</span>
+            </div>
+            <div class="home-weather-live">
+              <span class="home-weather-led" aria-hidden="true"></span>
+              <span>LIVE</span>
+              <span class="home-weather-clock" data-weather-clock>--:--</span>
+            </div>
+          </div>
+
+          <div class="home-weather-sky" data-weather-sky aria-hidden="true">
+            <div class="home-weather-flash" data-weather-flash></div>
+            <div class="home-weather-now">
+              <div class="home-weather-now-main">
+                <span class="home-weather-temp" data-weather-temp>--°</span>
+                <span class="home-weather-feels" data-weather-feels></span>
+              </div>
+              <span class="home-weather-cond" data-weather-cond>--</span>
+            </div>
+          </div>
+
+          <ol class="home-weather-hours" data-weather-hours aria-label="未来几个时段"></ol>
+
+          <ul class="home-weather-days" data-weather-days aria-label="未来三天"></ul>
+        </article>
+        {{- end }}
+
+        <article class="home-mosaic-tile tile-profile">
           <div class="home-profile">
-            {{- if $highlightEnabled }}
-            <button id="note-token-settings" type="button" data-tooltip="划线笔记设置">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-            </button>
-            {{- end }}
-            <img class="home-profile-avatar" src="{{ $avatar | relURL }}" alt="{{ $nickname }}" loading="lazy" decoding="async">
+            {{- partial "img.html" (dict
+                  "src" $avatar
+                  "alt" $nickname
+                  "class" "home-profile-avatar"
+                  "mode" "cover"
+                  "widths" (slice 60 120 240)
+                  "sizes" "60px"
+            ) -}}
             <div class="home-profile-meta">
-              <h3>{{ $nickname }}</h3>
-              <p>{{ $bio }}</p>
+              <h2>{{ $nickname }}</h2>
+              <p class="home-profile-bio">{{ $bio }}</p>
+              <div class="home-profile-actions">
+                {{- if not $weatherEnabled }}
+                <p class="home-profile-time">
+                  <span class="home-profile-time-label">{{ i18n "local_time" }}</span>
+                  <span data-current-time data-timezone="{{ $timezone }}">--:--</span>
+                </p>
+                {{- end }}
+              </div>
             </div>
           </div>
         </article>
 
-        <article class="home-mosaic-tile tile-time tile-1x1">
-          <div class="home-time-box">
-            <p class="home-time-value" data-current-time data-timezone="{{ $timezone }}">--:--</p>
+        <article class="home-mosaic-tile tile-music" data-home-music-player data-playlist='{{ $musicPlaylist | jsonify | replaceRE "'" "&#39;" | safeHTML }}'>
+          <header class="tile-head">
+            <h2 class="tile-title">正在听</h2>
+            <span class="tile-eq" aria-hidden="true"><i></i><i></i><i></i></span>
+          </header>
+
+          <div class="home-music-body">
+            <p class="home-music-track" data-music-track>{{ $defaultMusicName }}</p>
+
+            <div class="home-music-progress" data-music-progress>
+              <span class="home-music-progress-bar" data-music-progress-bar></span>
+            </div>
+          </div>
+
+          <div class="home-music-controls">
+            <div class="home-music-transport">
+              <button class="home-music-nav" type="button" data-music-prev aria-label="上一首">
+                <span aria-hidden="true">
+                  <img class="home-music-icon" src="{{ "/icons/music/prev.svg" | relURL }}" alt="">
+                </span>
+              </button>
+
+              <button class="home-music-toggle" type="button" data-music-toggle aria-label="播放或暂停">
+                <span class="music-state-play" aria-hidden="true">
+                  <img class="home-music-icon" src="{{ "/icons/music/play.svg" | relURL }}" alt="">
+                </span>
+                <span class="music-state-pause" aria-hidden="true">
+                  <img class="home-music-icon" src="{{ "/icons/music/pause.svg" | relURL }}" alt="">
+                </span>
+              </button>
+
+              <button class="home-music-nav" type="button" data-music-next aria-label="下一首">
+                <span aria-hidden="true">
+                  <img class="home-music-icon" src="{{ "/icons/music/next.svg" | relURL }}" alt="">
+                </span>
+              </button>
+            </div>
+
+            <div class="home-music-volume">
+              <button class="home-music-volume-btn" type="button" data-music-mute aria-label="静音或恢复音量">
+                <span class="music-state-volume" aria-hidden="true">
+                  <img class="home-music-icon" src="{{ "/icons/music/volume.svg" | relURL }}" alt="">
+                </span>
+                <span class="music-state-mute" aria-hidden="true">
+                  <img class="home-music-icon" src="{{ "/icons/music/mute.svg" | relURL }}" alt="">
+                </span>
+              </button>
+              <label class="sr-only" for="home-music-volume">音量</label>
+              <input id="home-music-volume" class="home-music-volume-range" data-music-volume type="range" min="0" max="100" value="70" step="1">
+            </div>
           </div>
         </article>
 
-        <article class="home-mosaic-tile tile-image tile-1x1{{ if not $homeImageSrc }} tile-image-empty{{ end }}">
-          {{ if $homeImageSrc }}
-            {{ if $homeImageLink }}<a class="home-image-link" href="{{ $homeImageLink | safeURL }}">{{ end }}
-              <img class="home-image-media" src="{{ $homeImageSrc | relURL }}" alt="{{ $homeImageAlt }}" loading="lazy" decoding="async">
-            {{ if $homeImageLink }}</a>{{ end }}
-          {{ else }}
-            <div class="home-image-placeholder" aria-hidden="true"></div>
-          {{ end }}
-        </article>
-
-        <article class="home-mosaic-tile tile-music tile-2x1" data-home-music-player data-playlist='{{ $musicPlaylist | jsonify }}'>
-          <p class="home-music-track" data-music-track>{{ $defaultMusicName }}</p>
-
-          <div class="home-music-progress" data-music-progress>
-            <span class="home-music-progress-bar" data-music-progress-bar></span>
-          </div>
-
-          <button class="home-music-nav home-music-prev" type="button" data-music-prev aria-label="上一首">
-            <span aria-hidden="true">
-              <img class="home-music-icon" src="{{ "/icons/music/prev.svg" | relURL }}" alt="">
-            </span>
-          </button>
-
-          <button class="home-music-toggle" type="button" data-music-toggle aria-label="播放或暂停">
-            <span class="music-state-play" aria-hidden="true">
-              <img class="home-music-icon" src="{{ "/icons/music/play.svg" | relURL }}" alt="">
-            </span>
-            <span class="music-state-pause" aria-hidden="true">
-              <img class="home-music-icon" src="{{ "/icons/music/pause.svg" | relURL }}" alt="">
-            </span>
-          </button>
-
-          <button class="home-music-nav home-music-next" type="button" data-music-next aria-label="下一首">
-            <span aria-hidden="true">
-              <img class="home-music-icon" src="{{ "/icons/music/next.svg" | relURL }}" alt="">
-            </span>
-          </button>
-
-          <div class="home-music-volume-row">
-            <button class="home-music-volume-btn" type="button" data-music-mute aria-label="静音或恢复音量">
-              <span class="music-state-volume" aria-hidden="true">
-                <img class="home-music-icon" src="{{ "/icons/music/volume.svg" | relURL }}" alt="">
-              </span>
-              <span class="music-state-mute" aria-hidden="true">
-                <img class="home-music-icon" src="{{ "/icons/music/mute.svg" | relURL }}" alt="">
-              </span>
-            </button>
-            <label class="sr-only" for="home-music-volume">音量</label>
-            <input id="home-music-volume" class="home-music-volume-range" data-music-volume type="range" min="0" max="100" value="70" step="1">
-          </div>
-        </article>
-        <article class="home-mosaic-tile tile-quote tile-2x1" data-home-daily-quote data-switch-time="{{ $dailyQuoteSwitchTime }}" data-type-speed="{{ $dailyQuoteTypeSpeed }}" data-delete-speed="{{ $dailyQuoteDeleteSpeed }}" data-quotes='{{ $dailyQuoteItems | jsonify }}'>
+        <article class="home-mosaic-tile tile-quote" data-home-daily-quote data-switch-time="{{ $dailyQuoteSwitchTime }}" data-type-speed="{{ $dailyQuoteTypeSpeed }}" data-delete-speed="{{ $dailyQuoteDeleteSpeed }}" data-quotes='{{ $dailyQuoteItems | jsonify | replaceRE "'" "&#39;" | safeHTML }}'>
+          <header class="tile-head">
+            <h2 class="tile-title">每日一句</h2>
+          </header>
           <div class="home-quote-box">
             <p class="home-quote-text" data-daily-quote-text>把喜欢的事情做到极致，惊喜会在路上出现。</p>
           </div>
         </article>
-        <article class="home-mosaic-tile tile-blank tile-1x1" aria-hidden="true"></article>
-        <article class="home-mosaic-tile tile-blank tile-1x1" aria-hidden="true"></article>
       </div>
     </section>
   </div>

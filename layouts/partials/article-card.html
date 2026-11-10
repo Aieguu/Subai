@@ -1,38 +1,42 @@
 {{ $page := .page }}
 {{ $loading := .loading | default "lazy" }}
+{{ $categories := $page.Params.categories }}
+{{/* 桌面缩略图 176px：1× / 2× / 3× 各留一档，DPR 3 不必靠上采样 */}}
+{{ $coverWidths := slice 112 176 352 528 }}
 
 <article class="post-card post-card-unified{{ if not $page.Params.cover_image }} no-image{{ end }}">
   <a href="{{ $page.RelPermalink }}" class="post-card-link">
     {{ if $page.Params.cover_image }}
       <div class="post-card-image">
-        <img src="{{ $page.Params.cover_image | relURL }}" alt="{{ $page.Title }}" loading="{{ $loading }}" decoding="async">
+        {{- partial "img.html" (dict
+              "src" $page.Params.cover_image
+              "alt" $page.Title
+              "mode" "cover"
+              "widths" $coverWidths
+              "sizes" "(max-width: 480px) 112px, (max-width: 768px) 136px, (max-width: 1024px) 160px, 176px"
+              "loading" $loading
+        ) -}}
       </div>
     {{ end }}
 
     <div class="post-card-content">
-      {{ if $page.Params.categories }}
-        <div class="post-card-categories">
-          {{ range first 3 $page.Params.categories }}
-            <span class="category-tag">{{ . }}</span>
-          {{ end }}
-        </div>
-      {{ end }}
+      <div class="post-card-topline">
+        {{ with $categories }}
+          <span class="post-card-category">{{ delimit . " · " }}</span>
+        {{ end }}
+      </div>
 
-      <h3 class="post-card-title">{{ $page.Title }}</h3>
+      <h2 class="post-card-title">{{ $page.Title }}</h2>
 
-      {{ if $page.Params.subtitle }}
-        <p class="post-card-subtitle desktop-only">{{ $page.Params.subtitle }}</p>
+      {{ with $page.Params.subtitle }}
+        <p class="post-card-subtitle desktop-only">{{ . }}</p>
       {{ end }}
 
       <div class="post-card-meta">
         <time datetime="{{ $page.Date.Format "2006-01-02T15:04:05Z07:00" }}" class="post-date">
           {{ $page.Date.Format ($page.Site.Params.dateFormat | default "2006年1月2日") }}
         </time>
-        {{ if $page.Params.author }}
-          <span class="post-author desktop-only">by {{ $page.Params.author }}</span>
-        {{ end }}
       </div>
     </div>
   </a>
 </article>
-

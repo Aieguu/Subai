@@ -32,16 +32,11 @@ body {
               color var(--theme-transition);
 }
 
-/* 划线笔记标记重置（插件禁用时避免浏览器默认 mark 样式） */
-mark.highlight-note {
-  background: none;
-  color: inherit;
-}
 
 /* Typography */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-family-heading);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-tight);
   color: var(--color-text);
   margin-bottom: var(--spacing-md);
@@ -106,58 +101,11 @@ pre {
   margin-bottom: var(--spacing-md);
 }
 
-/* Blockquotes */
+/* Blockquotes：只做最小 reset。视觉、内部排版与主题适配统一由
+   article.css 的 .content blockquote 定义，避免两处规则互相覆盖
+   （旧版这里的斜体、深色硬编码与行内 code 背景都是被覆盖的死代码）。 */
 blockquote {
-  border-left: 3px solid var(--color-primary);
-  padding: var(--spacing-sm) var(--spacing-md);
-  margin: var(--spacing-md) 0;
-  font-style: italic;
-  color: var(--color-text-secondary);
-  background-color: var(--color-bg-secondary);
-  border-radius: var(--radius-sm);
-  line-height: 1.5;
-  font-size: var(--font-size-sm);
-  position: relative;
-}
-
-/* 深色主题下的块引用样式 */
-.theme-dark blockquote {
-  background-color: var(--color-bg-secondary-dark);
-  color: var(--color-text-secondary-dark);
-}
-
-/* 单行块引用优化 */
-blockquote p:only-child {
   margin: 0;
-  padding: 0;
-}
-
-/* 块引用内的段落间距 */
-blockquote p {
-  margin: 0 0 var(--spacing-xs) 0;
-}
-
-blockquote p:last-child {
-  margin-bottom: 0;
-}
-
-/* 块引用内的列表样式 */
-blockquote ul,
-blockquote ol {
-  margin: var(--spacing-xs) 0;
-  padding-left: var(--spacing-md);
-}
-
-/* 块引用内的代码样式 */
-blockquote > code {
-  background-color: rgba(0, 0, 0, 0.1);
-  padding: 2px 4px;
-  border-radius: var(--radius-sm);
-  font-size: 0.9em;
-}
-
-.theme-dark blockquote > code {
-  background-color: rgba(255, 255, 255, 0.1);
 }
 
 /* Images */
@@ -181,7 +129,7 @@ th, td {
 }
 
 th {
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   background-color: var(--color-bg-secondary);
 }
 
@@ -212,21 +160,10 @@ textarea,
 summary,
 [role="button"] {
   -webkit-tap-highlight-color: transparent;
-  tap-highlight-color: transparent;
 }
 
-@media (hover: none) and (pointer: coarse) {
-  a:focus-visible,
-  button:focus-visible,
-  input:focus-visible,
-  select:focus-visible,
-  textarea:focus-visible,
-  summary:focus-visible,
-  [role="button"]:focus-visible {
-    outline: none !important;
-    box-shadow: none !important;
-  }
-}
+/* 触摸设备不再屏蔽焦点环：:focus-visible 本身只在键盘操作时触发，
+   强行 outline:none 会让「平板 + 外接键盘」用户完全失去焦点位置。 */
 
 /* Utility Classes */
 .sr-only {
@@ -246,7 +183,7 @@ summary,
   top: -40px;
   left: 6px;
   background: var(--color-primary);
-  color: white;
+  color: var(--color-on-accent);
   padding: 8px;
   text-decoration: none;
   border-radius: var(--radius-sm);

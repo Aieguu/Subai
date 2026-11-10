@@ -22,8 +22,18 @@
   padding-bottom: var(--spacing-xl);
   transition:
     opacity 0.22s ease,
-    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    transform var(--motion-surface);
+}
+
+/* 仅在页面切换过程中临时提升合成层，不要常驻 will-change */
+.main-content.is-pjax-leaving,
+.main-content.is-pjax-entering {
   will-change: opacity, transform;
+}
+
+/* PJAX 切换后由脚本聚焦正文，容器本身不需要焦点环 */
+.main-content:focus {
+  outline: none;
 }
 
 .main-content.is-pjax-leaving {

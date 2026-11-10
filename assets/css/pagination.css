@@ -28,8 +28,8 @@
   color: var(--color-text);
   text-decoration: none;
   border: 1px solid var(--color-border);
-  border-radius: 1.25rem;
-  font-weight: 600;
+  border-radius: var(--radius-xl);
+  font-weight: var(--font-weight-semibold);
   font-size: var(--font-size-xs);
   position: relative;
   overflow: visible;
@@ -41,9 +41,6 @@
   text-decoration: none;
 }
 
-.pagination-link::before {
-  display: none;
-}
 
 .pagination-link.pagination-disabled {
   opacity: 0.4;
@@ -71,7 +68,7 @@
   text-decoration: none;
   border: 1px solid var(--color-border);
   border-radius: 50%;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   font-size: var(--font-size-xs);
   position: relative;
   overflow: visible;
@@ -82,22 +79,6 @@
   text-decoration: none;
 }
 
-.pagination-number::before {
-  display: none;
-}
-
-.pagination-number.pagination-current {
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
-  color: white;
-  border-color: transparent;
-  border-radius: 50%;
-  box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
-  transform: translateY(-1px) scale(1.02);
-}
-
-.pagination-number.pagination-current::before {
-  display: none;
-}
 
 .pagination-ellipsis {
   display: flex;
@@ -106,7 +87,7 @@
   width: 2.5rem;
   height: 2.5rem;
   color: var(--color-text-muted);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   font-size: var(--font-size-sm);
 }
 
@@ -136,26 +117,22 @@
 
 /* Shared transition styles */
 .pagination-link,
-.pagination-number,
-.footer-social-item a {
+a.pagination-number {
   transition:
     transform var(--action-surface-transition),
     box-shadow var(--action-surface-transition),
-    border-radius var(--action-surface-transition),
     border-color var(--action-surface-transition),
     background-color var(--theme-transition-fast),
     color var(--theme-transition-fast);
-  will-change: transform;
 }
 
+/* 悬浮只做位移与阴影，不再改变形状；
+   且只有「可点击」的元素才有位移反馈——当前页是 <span>，不应有按下感 */
 .pagination-link:hover,
 .pagination-link:focus-visible,
-.pagination-number:hover,
-.pagination-number:focus-visible,
-.footer-social-item a:hover,
-.footer-social-item a:focus-visible {
+a.pagination-number:hover,
+a.pagination-number:focus-visible {
   text-decoration: none;
-  border-radius: var(--action-surface-radius-hover);
   transform: var(--action-surface-lift);
   box-shadow: var(--action-surface-shadow);
 }
@@ -175,20 +152,23 @@
   box-shadow: none;
 }
 
-.pagination-number:hover,
-.pagination-number:focus-visible {
+a.pagination-number:hover,
+a.pagination-number:focus-visible {
   background-color: var(--color-bg-secondary);
   color: var(--color-text);
   border-color: var(--color-border-hover);
 }
 
+/* 当前页无论 hover / focus 都必须保持主色底：
+   否则会继承上一条的浅色底，白字落在浅底上不可读 */
+.pagination-number.pagination-current,
 .pagination-number.pagination-current:hover,
 .pagination-number.pagination-current:focus-visible {
-  color: white;
+  background-color: var(--color-primary);
+  color: var(--color-on-accent);
   border-color: transparent;
-  box-shadow:
-    0 14px 32px rgba(37, 99, 235, 0.3),
-    0 4px 12px rgba(37, 99, 235, 0.18);
+  box-shadow: var(--shadow-sm);
+  transform: none;
 }
 
 /* Dark theme pagination */
@@ -215,8 +195,8 @@
 }
 
 .theme-dark .pagination-number.pagination-current {
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
-  color: white;
+  background-color: var(--color-primary);
+  color: var(--color-on-accent);
   border-color: var(--color-primary);
 }
 
@@ -224,14 +204,6 @@
   color: var(--color-text-muted-dark);
 }
 
-.theme-dark .pagination-info {
-  background-color: var(--color-bg-secondary-dark);
-  border-color: var(--color-border-dark);
-}
-
-.theme-dark .pagination-summary {
-  color: var(--color-text-muted-dark);
-}
 
 .theme-dark .pagination-link:hover,
 .theme-dark .pagination-link:focus-visible {
@@ -240,8 +212,8 @@
   border-color: var(--color-border-dark);
 }
 
-.theme-dark .pagination-number:hover,
-.theme-dark .pagination-number:focus-visible {
+.theme-dark a.pagination-number:hover,
+.theme-dark a.pagination-number:focus-visible {
   background-color: var(--color-bg-secondary-dark);
   color: var(--color-text-dark);
   border-color: var(--color-border-hover);

@@ -1,0 +1,44 @@
+{{ define "main" }}
+{{- $categories := .Site.Taxonomies.categories -}}
+{{- $tags := .Site.Taxonomies.tags -}}
+
+<div class="browse-list">
+  <div class="container">
+    {{/* 不渲染「浏览」标题与副标题：页面本身就是导航，直接进入分类与标签 */}}
+    <h1 class="sr-only">{{ .Title }}</h1>
+
+    {{ with $categories }}
+      <section class="browse-section" aria-labelledby="browse-categories-title">
+        <div class="browse-section-head">
+          <h2 class="browse-section-title" id="browse-categories-title">{{ i18n "browse_categories" | default "分类" }}</h2>
+          <span class="browse-section-count">{{ len . }} 个分类</span>
+        </div>
+        <div class="categories-grid">
+          {{ range . }}
+            {{ partial "taxonomy-card.html" (dict "kind" "category" "title" .Page.Title "url" .Page.RelPermalink "count" .Count) }}
+          {{ end }}
+        </div>
+      </section>
+    {{ end }}
+
+    {{ with $tags }}
+      <section class="browse-section" aria-labelledby="browse-tags-title">
+        <div class="browse-section-head">
+          <h2 class="browse-section-title" id="browse-tags-title">{{ i18n "browse_tags" | default "标签" }}</h2>
+          <span class="browse-section-count">{{ len . }} 个标签</span>
+        </div>
+        <ul class="browse-tags">
+          {{ range .ByCount }}
+            <li>
+              <a class="browse-tag" href="{{ .Page.RelPermalink }}">
+                <span class="browse-tag-name">{{ .Page.Title }}</span>
+                <span class="browse-tag-count">{{ .Count }}</span>
+              </a>
+            </li>
+          {{ end }}
+        </ul>
+      </section>
+    {{ end }}
+  </div>
+</div>
+{{ end }}

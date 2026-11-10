@@ -1,28 +1,26 @@
 {{ define "main" }}
-<main class="single">
-    <!-- 页面信息头部 -->
-    <section class="post-info narrow">
-        <div class="screen">
-            <div class="post-info-content">
-                <div class="title-box main-reveal">
-                    <div class="title">{{ .Title }}</div>
-                    {{ if .Description }}
-                    <div class="subtitle">{{ .Description }}</div>
-                    {{ end }}
-                </div>
-            </div>
-        </div>
-    </section>
+<div class="single">
+  <div class="screen">
+    <div class="article-layout no-toc">
+      <div class="article-panel">
+        <!-- 页面信息头部 -->
+        <header class="post-hero">
+          <div class="post-hero-inner">
+            <h1 class="post-title" id="post-title">{{ .Title }}</h1>
+            {{ with .Description }}
+              <p class="post-subtitle">{{ . }}</p>
+            {{ end }}
+          </div>
+        </header>
 
-    <!-- 页面内容 -->
-    <section class="single post-content narrow">
-        <div class="screen">
-            <div class="content-and-toc no-toc">
-                <div class="content main-reveal">
-                    {{ .Content }}
-                </div>
-            </div>
+        <!-- 页面内容 -->
+        <div class="article-body">
+          <article class="content">
+            {{ .Content }}
+          </article>
         </div>
-    </section>
-</main>
+      </div>
+    </div>
+  </div>
+</div>
 {{ end }}

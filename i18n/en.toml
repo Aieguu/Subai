@@ -1,0 +1,149 @@
+# Subai theme · English strings
+
+[skip_to_content]
+other = "Skip to content"
+
+[all_rights_reserved]
+other = "All rights reserved."
+
+[share_this_post]
+other = "Share this post"
+
+[page]
+other = "Page"
+
+[of]
+other = "of"
+
+[no_posts_found]
+other = "No posts found."
+
+[no_categories_found]
+other = "No categories found."
+
+[no_tags_found]
+other = "No tags found."
+
+[privacy_policy]
+other = "Privacy Policy"
+
+[terms_of_service]
+other = "Terms of Service"
+
+[contact]
+other = "Contact"
+
+[theme_light]
+other = "Light"
+
+[theme_dark]
+other = "Dark"
+
+[theme_auto]
+other = "Auto"
+
+[theme_selector_label]
+other = "Color scheme"
+
+[toc_title]
+other = "On this page"
+
+
+[search_open]
+other = "Search"
+
+[search_submit]
+other = "Search"
+
+[search_dialog_title]
+other = "Site search"
+
+[search_dialog_placeholder]
+other = "Search posts, tags or categories…"
+
+[search_list_label]
+other = "Search suggestions"
+
+[search_hint_select]
+other = "Select"
+
+[search_hint_open]
+other = "Open"
+
+[search_hint_close]
+other = "Close"
+
+[search_recent]
+other = "Recent searches"
+
+[search_clear]
+other = "Clear"
+
+[search_hot_tags]
+other = "Popular tags"
+
+[search_loading]
+other = "Searching…"
+
+[search_idle_title]
+other = "Type to start searching"
+
+[search_idle_hint]
+other = "Searches titles, content, tags and categories"
+
+[search_empty_title]
+other = "No matching posts"
+
+[search_empty_hint]
+other = "Try a shorter keyword or a different phrase"
+
+[search_error]
+other = "Search failed, please try again"
+
+[search_results_found]
+other = "{count} results found"
+
+[search_no_query]
+other = "Enter a keyword to start searching"
+
+[search_view_all]
+other = "View all results"
+
+[menu_open]
+other = "Open navigation menu"
+
+[menu_close]
+other = "Close navigation menu"
+
+[back_to_top]
+other = "Back to top"
+
+[local_time]
+other = "Local time"
+
+[browse_categories]
+other = "Categories"
+
+[browse_tags]
+other = "Tags"
+
+[about_theme]
+other = "About theme"
+
+[home]
+other = "Home"
+
+[breadcrumb]
+other = "Breadcrumb"
+
+[minutes]
+other = "min read"
+
+[words]
+other = "words"
+
+[updated_on]
+other = "Updated"
+
+[article_end]
+other = "End of article"

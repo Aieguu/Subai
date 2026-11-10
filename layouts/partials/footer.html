@@ -2,7 +2,7 @@
   <div class="container">
     <div class="footer-content">
       <div class="footer-section">
-        <h4 class="footer-title">{{ .Site.Title }}</h4>
+        <p class="footer-title">{{ .Site.Title }}</p>
         {{ if .Site.Params.footerDescription }}
           <p class="footer-description">{{ .Site.Params.footerDescription }}</p>
         {{ end }}
@@ -44,32 +44,35 @@
       
       <div class="footer-actions">
         {{ if .Site.Params.darkMode }}
-          <div class="theme-selector">
-            <button class="theme-option" data-theme="light" aria-label="Light theme">
-              <span>Light</span>
+          <div class="theme-selector" role="group" aria-label="{{ i18n "theme_selector_label" }}">
+            <button class="theme-option" type="button" data-theme="light">
+              <span>{{ i18n "theme_light" }}</span>
             </button>
-            <button class="theme-option" data-theme="dark" aria-label="Dark theme">
-              <span>Dark</span>
+            <button class="theme-option" type="button" data-theme="dark">
+              <span>{{ i18n "theme_dark" }}</span>
             </button>
-            <button class="theme-option active" data-theme="auto" aria-label="Auto theme">
-              <span>Auto</span>
+            <button class="theme-option active" type="button" data-theme="auto">
+              <span>{{ i18n "theme_auto" }}</span>
             </button>
           </div>
         {{ end }}
         
-        <div class="footer-links-bottom">
-          {{ if .Site.Params.privacyPolicy }}
-            <a href="{{ .Site.Params.privacyPolicy | relURL }}">{{ i18n "privacy_policy" | default "Privacy Policy" }}</a>
-          {{ end }}
-          
-          {{ if .Site.Params.termsOfService }}
-            <a href="{{ .Site.Params.termsOfService | relURL }}">{{ i18n "terms_of_service" | default "Terms of Service" }}</a>
-          {{ end }}
-          
-          {{ if .Site.Params.contact }}
-            <a href="{{ .Site.Params.contact | relURL }}">{{ i18n "contact" | default "Contact" }}</a>
-          {{ end }}
-        </div>
+        {{ $hasFooterLinks := or .Site.Params.privacyPolicy .Site.Params.termsOfService .Site.Params.contact }}
+        {{ if $hasFooterLinks }}
+          <div class="footer-links-bottom">
+            {{ if .Site.Params.privacyPolicy }}
+              <a href="{{ .Site.Params.privacyPolicy | relURL }}">{{ i18n "privacy_policy" | default "Privacy Policy" }}</a>
+            {{ end }}
+
+            {{ if .Site.Params.termsOfService }}
+              <a href="{{ .Site.Params.termsOfService | relURL }}">{{ i18n "terms_of_service" | default "Terms of Service" }}</a>
+            {{ end }}
+
+            {{ if .Site.Params.contact }}
+              <a href="{{ .Site.Params.contact | relURL }}">{{ i18n "contact" | default "Contact" }}</a>
+            {{ end }}
+          </div>
+        {{ end }}
       </div>
     </div>
   </div>

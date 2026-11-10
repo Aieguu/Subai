@@ -106,6 +106,7 @@
     const typeSpeed = Math.max(40, Number.parseInt(quoteRoot.dataset.typeSpeed || '90', 10) || 90);
     const deleteSpeed = Math.max(24, Number.parseInt(quoteRoot.dataset.deleteSpeed || '45', 10) || 45);
     const switchTime = Math.max(1200, Number.parseInt(quoteRoot.dataset.switchTime || quoteRoot.dataset.interval || '2600', 10) || 2600);
+    const reduceMotion = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false;
 
     const getRandomIndex = () => {
       if (quotes.length <= 1) return 0;
@@ -169,6 +170,13 @@
       const nextIndex = getRandomIndex();
       const nextQuote = quotes[nextIndex];
       quoteState.lastIndex = nextIndex;
+
+      // 尊重「减少动态效果」：不做逐字打字，直接整句替换
+      if (reduceMotion) {
+        quoteText.textContent = nextQuote;
+        pushTimer(() => cycleQuote(false), Math.max(switchTime, 6000));
+        return;
+      }
 
       const startTyping = () => {
         typeText(nextQuote, () => {
@@ -497,15 +505,6 @@
 
     const manager = window.Subai.getState('musicManager');
     manager.updatePlaylist(playlist);
-
-    if (!playlist.length) {
-      manager.bindUI(player || null);
-      if (player) {
-        const trackElement = player.querySelector('[data-music-track]');
-        if (trackElement) trackElement.textContent = '暂无曲目';
-      }
-      return;
-    }
 
     manager.bindUI(player || null);
   }

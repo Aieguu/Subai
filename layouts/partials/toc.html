@@ -1,5 +1,16 @@
-<aside class="toc" aria-label="文章目录">
-  <div class="toc-body overflow">
-    {{ .TableOfContents }}
+<aside class="toc" aria-label="{{ i18n "toc_title" }}">
+  <div class="toc-head">
+    <p class="toc-label" aria-hidden="true">{{ i18n "toc_title" }}</p>
+    <span class="toc-percent" data-toc-percent aria-hidden="true">0%</span>
   </div>
+  <div class="toc-meter" aria-hidden="true">
+    <span class="toc-meter__fill" data-toc-meter></span>
+  </div>
+  <details class="toc-details" open>
+    <summary class="toc-summary">
+      <span class="toc-summary-title">{{ i18n "toc_title" }}</span>
+      <span class="toc-summary-percent" data-toc-percent aria-hidden="true">0%</span>
+    </summary>
+    <div class="toc-body">{{ .TableOfContents }}</div>
+  </details>
 </aside>

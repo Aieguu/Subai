@@ -1,140 +1,295 @@
 /* ==========================================================================
-   Home Mosaic Tiles Styles
+   首页磁贴（Bento Grid）
+   1. 设计令牌
+   2. 网格与磁贴基础
+   3. 主磁贴：最新文章
+   4. 简介磁贴
+   5. 音乐磁贴
+   6. 引语磁贴
+   7. 天气磁贴（移植原有实现，见后段）
    ========================================================================== */
 
-/* Home Mosaic Tiles */
+/* --------------------------------------------------------------------------
+   1. 设计令牌
+   -------------------------------------------------------------------------- */
 .home-mosaic {
-  padding: var(--spacing-xl) 0 var(--spacing-2xl);
+  /* 统一圆角 / 间距 / 表面 / 阴影，磁贴之间只靠内容密度区分层级 */
+  --tile-radius: var(--radius-xl);
+  --tile-radius-inner: var(--radius-md);
+  --tile-pad: clamp(1.05rem, 0.75vw + 0.8rem, 1.35rem);
+  --tile-gap: clamp(0.8rem, 0.55vw + 0.55rem, 1.05rem);
+  --tile-bg: var(--color-bg);
+  --tile-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --tile-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 10px 24px -22px rgba(15, 23, 42, 0.42);
+  --tile-shadow-hover:
+    0 2px 6px rgba(15, 23, 42, 0.06),
+    0 20px 40px -24px rgba(15, 23, 42, 0.45);
+
+  padding: clamp(1.25rem, 2.2vw, 2rem) 0 var(--spacing-2xl);
 }
 
+/* --------------------------------------------------------------------------
+   2. 网格与磁贴基础
+   -------------------------------------------------------------------------- */
 .home-mosaic-grid {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  grid-auto-rows: minmax(108px, auto);
-  gap: var(--spacing-lg);
-  max-width: 1080px;
-  margin: 0 auto;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-auto-rows: minmax(84px, auto);
+  gap: var(--tile-gap);
+  max-width: 100%;
+}
+
+/* 主磁贴：8 列 3 行；右侧 4 列留给天气 */
+.tile-latest {
+  grid-column: span 8;
+  grid-row: span 3;
+}
+
+.tile-weather {
+  grid-column: span 4;
+  grid-row: span 3;
+}
+
+/* 次级磁贴：底部一行三等分 */
+.tile-profile,
+.tile-music,
+.tile-quote {
+  grid-column: span 4;
+  grid-row: span 1;
 }
 
 .home-mosaic-tile {
-  padding: var(--spacing-lg);
-}
-
-.tile-4x2 {
-  grid-column: span 4;
-  grid-row: span 2;
-}
-
-.tile-2x1 {
-  grid-column: span 2;
-  grid-row: span 1;
-}
-
-.tile-1x1 {
-  grid-column: span 1;
-  grid-row: span 1;
-}
-
-.tile-latest {
-  display: flex;
-  flex-direction: column;
-}
-
-.tile-link {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-}
-
-.tile-link:hover {
-  color: var(--color-primary);
-  text-decoration: none;
-}
-
-.tile-profile {
-  padding: var(--spacing-md) var(--spacing-lg);
-}
-
-.home-profile {
   position: relative;
   display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-  height: 100%;
-}
-
-.home-profile-avatar {
-  width: 68px;
-  height: 68px;
-  border-radius: 999px;
-  border: 2px solid var(--color-border);
-  object-fit: cover;
-  flex-shrink: 0;
-}
-
-.home-profile-meta h3 {
-  margin: 0 0 var(--spacing-xs);
-  font-size: var(--font-size-xl);
-}
-
-.home-profile-meta p {
-  margin: 0;
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-sm);
-  line-height: 1.6;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.home-latest-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: 0.85rem;
+  padding: var(--tile-pad);
+  border: 1px solid var(--color-border);
+  border-radius: var(--tile-radius);
+  background: var(--card-panel-bg, var(--tile-bg));
+  box-shadow: var(--tile-shadow);
+  transition:
+    transform 0.32s var(--tile-ease),
+    box-shadow 0.32s var(--tile-ease),
+    border-color 0.2s ease,
+    background-color 0.2s ease;
 }
 
-.home-latest-list li {
+/* 悬停反馈：先取消 cards.css 的通用上浮，再给统一而克制的动效 */
+.home-mosaic-tile:focus-within {
+  transform: none;
+  border-color: var(--color-border-hover);
+  box-shadow: var(--tile-shadow-hover);
+}
+
+.home-mosaic-tile:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-border-hover);
+  box-shadow: var(--tile-shadow-hover);
+}
+
+/* 磁贴小标题 */
+.tile-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-md);
+  gap: 0.75rem;
+  flex: none;
+  min-height: 1.1rem;
+}
+
+.tile-title {
   margin: 0;
-  padding: var(--spacing-sm) 0;
-  border-bottom: 1px dashed var(--color-border);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+  text-transform: uppercase;
 }
 
-.home-latest-list li:last-child {
-  border-bottom: none;
+.tile-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  margin-right: -0.4rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: var(--radius-pill);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.4;
+  transition:
+    color var(--theme-transition-fast),
+    background-color var(--theme-transition-fast);
 }
 
-.home-latest-list a {
-  flex: 1;
-  min-width: 0;
-  color: var(--color-text);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.tile-action svg {
+  transition: transform 0.22s var(--tile-ease);
 }
 
-.home-latest-list a:hover {
+.tile-action:hover {
   color: var(--color-primary);
+  background-color: var(--color-bg-secondary);
   text-decoration: none;
 }
 
-.home-latest-list time {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-  flex-shrink: 0;
+.tile-action:hover svg {
+  transform: translateX(2px);
 }
 
-.home-latest-foot {
-  margin-top: auto;
-  padding-top: var(--spacing-sm);
-  text-align: right;
+/* --------------------------------------------------------------------------
+   3. 主磁贴：最新文章
+   -------------------------------------------------------------------------- */
+.home-latest-list {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.home-latest-featured {
+  margin: 0 0 0.35rem;
+  list-style: none;
+}
+
+.home-latest-featured-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: var(--tile-radius-inner);
+  background-color: var(--color-bg-secondary);
+  color: inherit;
+  transition:
+    background-color 0.22s var(--tile-ease),
+    box-shadow 0.22s var(--tile-ease);
+}
+
+.home-latest-featured-link:hover {
+  color: inherit;
+  background-color: color-mix(in oklab, var(--color-primary) 7%, var(--color-bg-secondary));
+  text-decoration: none;
+}
+
+.home-latest-featured-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-text-muted);
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+
+.home-latest-tag {
+  padding: 0.1rem 0.42rem;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-bg);
+  color: var(--color-primary);
+  font-size: 0.68rem;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.01em;
+}
+
+.home-latest-featured-title {
+  display: -webkit-box;
+  overflow: hidden;
+  margin: 0;
+  color: var(--color-text);
+  font-size: 1.0625rem;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  transition: color var(--motion-quick);
+}
+
+.home-latest-featured-link:hover .home-latest-featured-title {
+  color: var(--color-primary);
+}
+
+.home-latest-featured-desc {
+  display: -webkit-box;
+  overflow: hidden;
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.home-latest-row {
+  margin: 0;
+  list-style: none;
+}
+
+.home-latest-row + .home-latest-row {
+  border-top: 1px solid color-mix(in oklab, var(--color-border) 65%, transparent);
+}
+
+.home-latest-link {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 -0.45rem;
+  padding: 0.5rem 0.45rem;
+  border-radius: var(--radius-sm);
+  color: inherit;
+  transition: background-color var(--motion-quick);
+}
+
+.home-latest-link:hover {
+  background-color: var(--color-bg-secondary);
+  color: inherit;
+  text-decoration: none;
+}
+
+.home-latest-title {
+  overflow: hidden;
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color var(--motion-quick);
+}
+
+.home-latest-link:hover .home-latest-title {
+  color: var(--color-primary);
+}
+
+.home-latest-date {
+  flex: none;
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.home-latest-arrow {
+  flex: none;
+  color: var(--color-primary);
+  opacity: 0;
+  transform: translateX(-3px);
+  transition:
+    opacity var(--motion-quick),
+    transform 0.22s var(--tile-ease);
+}
+
+.home-latest-link:hover .home-latest-arrow,
+.home-latest-link:focus-visible .home-latest-arrow {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 .home-empty-state {
@@ -142,235 +297,266 @@
   color: var(--color-text-secondary);
 }
 
-.tile-time {
+/* --------------------------------------------------------------------------
+   4. 简介磁贴
+   -------------------------------------------------------------------------- */
+.tile-profile {
+  justify-content: center;
+}
+
+.home-profile {
   display: flex;
   align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: var(--spacing-md);
-  overflow: hidden;
+  gap: 0.95rem;
+  min-width: 0;
 }
 
-.home-time-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-xs);
-  height: 100%;
-}
-
-.home-time-value {
-  margin: 0;
-  min-width: 4.6ch;
-  font-family: var(--font-family-heading);
-  font-size: clamp(2.15rem, 2.25vw + 1.35rem, 2.95rem);
-  font-weight: 900;
-  line-height: 0.96;
-  letter-spacing: -0.085em;
-  font-variant-numeric: lining-nums tabular-nums;
-  font-feature-settings: "lnum" 1, "tnum" 1;
-  color: var(--color-text);
-  text-shadow: 0 10px 22px rgba(37, 99, 235, 0.08);
-}
-
-.theme-dark .home-time-value {
-  color: var(--color-text-dark);
-  text-shadow: 0 10px 24px rgba(59, 130, 246, 0.16);
-}
-
-.tile-image {
-  padding: 0;
-  overflow: hidden;
-}
-
-.home-image-link,
-.home-image-media {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-.home-image-link {
-  color: inherit;
-  text-decoration: none;
-}
-
-.home-image-media {
+.home-profile-avatar {
+  flex: none;
+  width: 58px;
+  height: 58px;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
   object-fit: cover;
 }
 
-.tile-image-empty {
-  padding: var(--spacing-md);
+.home-profile-meta {
+  min-width: 0;
 }
 
-.home-image-placeholder {
-  width: 100%;
-  height: 100%;
-  min-height: 100%;
-  border-radius: calc(var(--card-radius) - 2px);
-  background:
-    linear-gradient(135deg, rgba(148, 163, 184, 0.12), rgba(148, 163, 184, 0.04)),
-    repeating-linear-gradient(
-      -45deg,
-      rgba(148, 163, 184, 0.08),
-      rgba(148, 163, 184, 0.08) 10px,
-      rgba(148, 163, 184, 0.14) 10px,
-      rgba(148, 163, 184, 0.14) 20px
-    );
-}
-
-.tile-quote {
-  display: flex;
-  align-items: center;
-  padding: var(--spacing-md) var(--spacing-lg);
-  overflow: hidden;
-  isolation: isolate;
-  --card-panel-bg:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.84) 0%, rgba(248, 250, 252, 0.72) 100%),
-    var(--card-surface-gradient);
-}
-
-.tile-quote::before {
-  content: '"';
-  position: absolute;
-  left: 16px;
-  top: 8px;
-  font-size: 4rem;
-  line-height: 1;
-  font-family: Georgia, "Times New Roman", serif;
-  color: rgba(100, 116, 139, 0.12);
-  pointer-events: none;
-}
-
-.tile-quote::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.28), transparent 38%),
-    radial-gradient(circle at bottom left, rgba(99, 102, 241, 0.05), transparent 36%);
-}
-
-.home-quote-box {
-  width: 100%;
-  position: relative;
-  z-index: 1;
-  padding: 0.25rem 0 0 0.45rem;
-}
-
-.home-quote-text {
-  margin: 0;
-  font-size: 1.06rem;
-  line-height: 2;
+.home-profile-meta h2 {
+  margin: 0 0 0.15rem;
   color: var(--color-text);
-  letter-spacing: 0.045em;
-  min-height: calc(1.75em * 3);
+  font-size: 1.0625rem;
+  line-height: 1.3;
+}
+
+.home-profile-bio {
+  display: -webkit-box;
+  overflow: hidden;
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.home-profile-actions:empty {
+  display: none;
+}
+
+.home-profile-actions {
   display: flex;
   align-items: center;
-  position: relative;
-  text-wrap: pretty;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+  flex-wrap: wrap;
+  gap: 0.3rem 0.75rem;
+  margin-top: 0.45rem;
 }
 
-.home-quote-text::after {
-  content: '';
-  width: 1px;
-  height: 0.95em;
-  margin-left: 8px;
-  background: linear-gradient(180deg, rgba(37, 99, 235, 0.6), rgba(99, 102, 241, 0.24));
-  border-radius: 999px;
-  opacity: 0;
-  box-shadow: 0 0 10px rgba(99, 102, 241, 0.18);
-}
-
-.tile-quote.is-typing .home-quote-text::after,
-.tile-quote.is-deleting .home-quote-text::after {
-  opacity: 1;
-  animation: home-quote-caret-blink 1.2s ease-in-out infinite;
-}
-
-.tile-music {
-  display: grid;
-  grid-template-columns: 1fr 36px 44px 36px 1fr;
-  grid-template-rows: auto auto auto auto;
-  align-content: center;
+.home-profile-action {
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: var(--spacing-md) var(--spacing-lg);
-  overflow: hidden;
-  isolation: isolate;
-  --card-panel-bg:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.68) 0%, rgba(248, 250, 252, 0.58) 100%),
-    var(--card-surface-gradient);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  gap: 5px;
+  min-height: 24px;
+  padding: 3px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-family: inherit;
+  font-size: var(--font-size-xs);
+  line-height: 1.2;
+  cursor: pointer;
+  transition:
+    color var(--transition-fast),
+    border-color var(--transition-fast),
+    background-color var(--transition-fast);
 }
 
-.tile-music::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  background:
-    radial-gradient(circle at top right, rgba(37, 99, 235, 0.08), transparent 38%),
-    radial-gradient(circle at bottom left, rgba(99, 102, 241, 0.05), transparent 34%);
+.home-profile-action:hover {
+  border-color: var(--color-border-hover);
+  background: var(--color-bg-secondary);
+  color: var(--color-primary);
 }
 
-.tile-music > * {
-  position: relative;
-  z-index: 1;
+.home-profile-action svg {
+  flex: none;
+  width: 14px;
+  height: 14px;
+}
+
+.home-profile-time {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+.home-profile-time [data-current-time] {
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* --------------------------------------------------------------------------
+   5. 音乐磁贴
+   -------------------------------------------------------------------------- */
+.tile-music {
+  gap: 0.55rem;
+}
+
+.home-music-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+/* 播放中的迷你电平条：仅在播放态跳动 */
+.tile-eq {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+}
+
+.tile-eq i {
+  width: 2px;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-primary);
+  opacity: 0.75;
+  transform-origin: bottom;
+  animation: tile-eq 1.1s ease-in-out infinite;
+  animation-play-state: paused;
+}
+
+.tile-eq i:nth-child(2) {
+  height: 65%;
+  animation-delay: 0.18s;
+}
+
+.tile-eq i:nth-child(3) {
+  height: 40%;
+  animation-delay: 0.36s;
+}
+
+/* :has() 让电平条跟随播放状态，不支持时保持静态 */
+.tile-music:has(.home-music-toggle.is-playing) .tile-eq i {
+  animation-play-state: running;
+}
+
+@keyframes tile-eq {
+  0%,
+  100% {
+    transform: scaleY(0.35);
+  }
+  50% {
+    transform: scaleY(1);
+  }
 }
 
 .home-music-track {
-  grid-column: 1 / -1;
+  overflow: hidden;
+  margin: 0;
+  color: var(--color-text);
+  font-size: 0.9375rem;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.home-music-progress {
+  position: relative;
+  /* 视觉轨道 4px，外层 16px 提供足够的点击热区 */
+  height: 16px;
+  cursor: pointer;
+}
+
+.home-music-progress::before {
+  content: '';
+  position: absolute;
+  inset: 50% 0 auto;
+  height: 4px;
+  margin-top: -2px;
+  border-radius: var(--radius-pill);
+  background-color: color-mix(in oklab, var(--color-text) 11%, transparent);
+}
+
+.home-music-progress-bar {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 0;
+  height: 4px;
+  margin-top: -2px;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-primary);
+}
+
+.home-music-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: auto;
+}
+
+.home-music-transport {
+  display: flex;
+  align-items: center;
+  gap: 0.1rem;
 }
 
 .home-music-nav,
 .home-music-toggle {
-  border: none;
-  background: transparent;
-  color: #334155;
-  height: 36px;
-  width: 36px;
-  border-radius: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
-  transition: transform var(--transition-fast), opacity var(--transition-fast);
-  box-shadow: none;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition:
+    color var(--motion-quick),
+    background-color var(--motion-quick),
+    transform 0.2s var(--tile-ease);
 }
 
-.home-music-prev {
-  grid-column: 2;
+.home-music-nav {
+  width: 32px;
+  height: 32px;
+}
+
+.home-music-nav:hover {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text);
 }
 
 .home-music-toggle {
-  grid-column: 3;
-  height: 44px;
-  width: 44px;
-  font-size: 13px;
-  font-weight: 700;
-  color: #334155;
+  width: 38px;
+  height: 38px;
+  margin: 0 0.15rem;
+  background-color: var(--color-primary);
+  color: var(--color-on-accent);
+  box-shadow: 0 8px 18px -10px var(--color-primary);
 }
 
-.home-music-next {
-  grid-column: 4;
-}
-
-.home-music-nav:hover,
 .home-music-toggle:hover {
-  transform: translateY(-1px) scale(1.02);
-  opacity: 0.8;
+  background-color: var(--color-primary-hover);
+  transform: scale(1.06);
 }
 
 .home-music-nav:active,
 .home-music-toggle:active {
-  transform: translateY(0) scale(0.98);
+  transform: scale(0.96);
 }
 
 .home-music-nav:disabled,
@@ -381,16 +567,44 @@
 }
 
 .home-music-icon {
-  width: 18px;
-  height: 18px;
   display: block;
+  width: 16px;
+  height: 16px;
   object-fit: contain;
 }
 
 .home-music-toggle .home-music-icon {
-  width: 19px;
-  height: 19px;
-  filter: none;
+  width: 17px;
+  height: 17px;
+  filter: brightness(0) invert(1);
+}
+
+.home-music-volume {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.home-music-volume-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition:
+    color var(--motion-quick),
+    background-color var(--motion-quick);
+}
+
+.home-music-volume-btn:hover {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text);
 }
 
 .home-music-volume-btn .music-state-mute {
@@ -405,11 +619,11 @@
   display: inline-flex;
 }
 
-.home-music-toggle.is-playing .music-state-play {
+.home-music-toggle .music-state-pause {
   display: none;
 }
 
-.home-music-toggle .music-state-pause {
+.home-music-toggle.is-playing .music-state-play {
   display: none;
 }
 
@@ -417,153 +631,110 @@
   display: inline;
 }
 
-.home-music-track {
+/* 输入框本体 20px 高保证可点击，视觉轨道仍是 3px */
+.home-music-volume-range {
+  width: 74px;
+  height: 20px;
   margin: 0;
-  text-align: center;
-  font-size: var(--font-size-base);
-  font-weight: 600;
-  color: var(--color-text);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.home-music-audio {
-  display: none;
-}
-
-.home-music-progress {
-  grid-column: 1 / -1;
-  position: relative;
-  height: 7px;
-  border-radius: 999px;
-  background: rgba(100, 116, 139, 0.22);
-  overflow: hidden;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
   cursor: pointer;
 }
 
-.home-music-progress-bar {
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 0;
-  background: linear-gradient(90deg, var(--color-primary) 0%, #4f46e5 100%);
-  border-radius: inherit;
+.home-music-volume-range::-webkit-slider-runnable-track {
+  height: 3px;
+  border-radius: var(--radius-pill);
+  background: color-mix(in oklab, var(--color-text) 14%, transparent);
 }
 
-.home-music-volume-row {
-  grid-row: 4;
-  grid-column: 1 / -1;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.home-music-volume-btn {
-  flex: 0 0 auto;
-  width: 28px;
-  height: 28px;
-  border: none;
-  border-radius: 0;
-  background: transparent;
-  color: #334155;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform var(--transition-fast), opacity var(--transition-fast);
-}
-
-.home-music-volume-btn:hover {
-  transform: translateY(-1px);
-  opacity: 0.8;
-}
-
-.home-music-volume-range {
-  flex: 1 1 auto;
-  width: 100%;
-  margin-left: 0;
-  height: 4px;
-  appearance: none;
-  border-radius: 999px;
-  background: rgba(100, 116, 139, 0.28);
-  outline: none;
+.home-music-volume-range::-moz-range-track {
+  height: 3px;
+  border-radius: var(--radius-pill);
+  background: color-mix(in oklab, var(--color-text) 14%, transparent);
 }
 
 .home-music-volume-range::-webkit-slider-thumb {
-  appearance: none;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--color-primary);
-  cursor: pointer;
-}
-
-.home-music-volume-range::-moz-range-thumb {
-  width: 10px;
-  height: 10px;
+  width: 11px;
+  height: 11px;
+  margin-top: -4px;
   border: 0;
   border-radius: 50%;
   background: var(--color-primary);
-  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
 }
 
-.theme-dark .tile-music {
-  --card-panel-bg:
-    linear-gradient(180deg, rgba(30, 41, 59, 0.76) 0%, rgba(15, 23, 42, 0.66) 100%),
-    var(--card-surface-gradient-dark);
+.home-music-volume-range::-moz-range-thumb {
+  width: 11px;
+  height: 11px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--color-primary);
 }
 
-.theme-dark .tile-music::before {
-  background:
-    radial-gradient(circle at top right, rgba(96, 165, 250, 0.14), transparent 38%),
-    radial-gradient(circle at bottom left, rgba(129, 140, 248, 0.08), transparent 34%);
+.home-music-volume-range:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
 }
 
-.theme-dark .home-music-nav {
-  background: transparent;
-  color: #e2e8f0;
+/* --------------------------------------------------------------------------
+   6. 引语磁贴
+   -------------------------------------------------------------------------- */
+.tile-quote {
+  justify-content: center;
+  overflow: hidden;
+  isolation: isolate;
+  /* 装饰性大引号刻意用衬线字型，不跟随主题字体栈；收进组件变量避免散落 */
+  --font-family-quote: Georgia, "Times New Roman", serif;
+  /* 全站唯一保留的品牌表达：引语磁贴带一层极淡的主色底 */
+  --card-panel-bg: color-mix(in oklab, var(--color-primary) 6%, var(--color-bg));
 }
 
-.theme-dark .home-music-toggle {
-  background: transparent;
-  color: #e2e8f0;
+.tile-quote::before {
+  content: "\201D";
+  position: absolute;
+  top: -1.4rem;
+  right: 0.5rem;
+  color: color-mix(in oklab, var(--color-primary) 22%, transparent);
+  font-family: var(--font-family-quote);
+  font-size: 6rem;
+  line-height: 1;
+  pointer-events: none;
 }
 
-.theme-dark .home-music-track {
-  color: var(--color-text-dark);
+.home-quote-box {
+  position: relative;
+  z-index: 1;
 }
 
-.theme-dark .home-quote-text {
-  color: var(--color-text-dark);
+.home-quote-text {
+  display: flex;
+  align-items: center;
+  min-height: 3.5em;
+  margin: 0;
+  color: var(--color-text);
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  line-height: 1.75;
+  text-wrap: pretty;
 }
 
-.theme-dark .tile-quote {
-  --card-panel-bg:
-    linear-gradient(180deg, rgba(30, 41, 59, 0.82) 0%, rgba(15, 23, 42, 0.74) 100%),
-    var(--card-surface-gradient-dark);
+.home-quote-text::after {
+  content: '';
+  width: 1px;
+  height: 0.95em;
+  margin-left: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  opacity: 0;
 }
 
-.theme-dark .tile-quote::before {
-  color: rgba(148, 163, 184, 0.1);
-}
-
-.theme-dark .tile-quote::after {
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.04), transparent 38%),
-    radial-gradient(circle at bottom left, rgba(96, 165, 250, 0.08), transparent 36%);
-}
-
-.theme-dark .home-quote-text::after {
-  background: linear-gradient(180deg, rgba(147, 197, 253, 0.76), rgba(165, 180, 252, 0.28));
-  box-shadow: 0 0 12px rgba(96, 165, 250, 0.22);
-}
-
-.theme-dark .home-quote-text {
-  text-shadow: none;
-}
-
-.theme-dark .home-music-volume-btn {
-  background: transparent;
-  color: #e2e8f0;
+.tile-quote.is-typing .home-quote-text::after,
+.tile-quote.is-deleting .home-quote-text::after {
+  opacity: 1;
+  animation: home-quote-caret-blink 1.2s ease-in-out infinite;
 }
 
 @keyframes home-quote-caret-blink {
@@ -577,74 +748,747 @@
   }
 }
 
-.theme-dark .home-music-icon {
-  filter: brightness(0) invert(0.9);
+/* --------------------------------------------------------------------------
+   7. 天气磁贴：沿用原有实现，仅统一外框尺寸
+   -------------------------------------------------------------------------- */
+
+/* ==========================================================================
+   天气磁贴：点阵天空 + 当前天气 + 时段 + 三日预报
+   ========================================================================== */
+
+.tile-weather {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: var(--tile-pad);
+  overflow: hidden;
+  /* 点阵配色：底色取自正文色，深浅主题自动反转；日、月保留暖色 */
+  --wxs-off: color-mix(in oklab, var(--color-text) 3%, transparent);
+  --wxs-star: color-mix(in oklab, var(--color-text) 38%, transparent);
+  --wxs-fog: color-mix(in oklab, var(--color-text) 14%, transparent);
+  --wxs-cloud: color-mix(in oklab, var(--color-text) 36%, transparent);
+  --wxs-cloud-dark: color-mix(in oklab, var(--color-text) 56%, transparent);
+  --wxs-hill: color-mix(in oklab, var(--color-text) 30%, transparent);
+  --wxs-horizon: color-mix(in oklab, var(--color-text) 18%, transparent);
+  --wxs-sun: #eba33a;
+  --wxs-moon: #b8b2a4;
+  --wxs-rain: var(--color-primary);
+  --wxs-snow: #a6c0dd;
+  /* 天空面板整体比卡片再深一档，点阵才像透过一扇窗看出去 */
+  --wxs-well: color-mix(in oklab, var(--color-bg-secondary) 92%, #000);
 }
 
-.tile-blank {
-  background: repeating-linear-gradient(
-    -45deg,
-    rgba(148, 163, 184, 0.06),
-    rgba(148, 163, 184, 0.06) 10px,
-    rgba(148, 163, 184, 0.11) 10px,
-    rgba(148, 163, 184, 0.11) 20px
+.home-weather-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.home-weather-place {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.home-weather-city {
+  all: unset;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.3;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-radius: var(--radius-sm);
+}
+
+.home-weather-city::before {
+  content: '';
+  flex: none;
+  width: 11px;
+  height: 11px;
+  background: currentColor;
+  opacity: 0.55;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.home-weather-city.is-editable {
+  cursor: pointer;
+}
+
+.home-weather-city.is-editable:hover {
+  color: var(--color-primary);
+}
+
+.home-weather-city.is-invalid {
+  color: #e5484d;
+}
+
+.home-weather-city:focus-visible,
+.home-weather-city-input:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.home-weather-city-input {
+  width: 100%;
+  min-width: 0;
+  padding: 0 6px;
+  margin-left: -6px;
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 0 0 1px var(--color-border);
+}
+
+.home-weather-meta {
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.home-weather-live {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-family-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+}
+
+.home-weather-led {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #30a46c;
+  box-shadow: 0 0 0 2px rgba(48, 164, 108, 0.18);
+  animation: home-weather-pulse 2.6s ease-in-out infinite;
+  transition: background 0.6s ease, box-shadow 0.6s ease;
+}
+
+/* LED 跟随天气类型变色 */
+.tile-weather[data-kind="clear"] .home-weather-led,
+.tile-weather[data-kind="partly"] .home-weather-led {
+  background: var(--wxs-sun);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--wxs-sun) 20%, transparent);
+}
+.tile-weather[data-kind="rain"] .home-weather-led,
+.tile-weather[data-kind="drizzle"] .home-weather-led {
+  background: var(--wxs-rain);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--wxs-rain) 20%, transparent);
+}
+.tile-weather[data-kind="snow"] .home-weather-led,
+.tile-weather[data-kind="sleet"] .home-weather-led {
+  background: var(--wxs-snow);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--wxs-snow) 25%, transparent);
+}
+.tile-weather[data-kind="storm"] .home-weather-led {
+  background: #e5484d;
+  box-shadow: 0 0 0 2px rgba(229, 72, 77, 0.2);
+}
+.tile-weather[data-kind="mist"] .home-weather-led {
+  background: var(--wxs-cloud-dark);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--wxs-cloud-dark) 20%, transparent);
+}
+
+.home-weather-clock {
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 天空面板：点阵 SVG 铺满，温度和天气状态压在左下角 */
+.home-weather-sky {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 88px;
+  border-radius: var(--tile-radius-inner);
+  overflow: hidden;
+  background: var(--wxs-well);
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.04);
+  transition: background-color 3s ease;
+}
+
+/* 底部暗角：温度文字区域自然变暗，提升可读性 */
+.home-weather-sky::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    color-mix(in oklab, var(--wxs-well) 65%, transparent) 0%,
+    transparent 42%
   );
+  pointer-events: none;
+  z-index: 1;
+  border-radius: inherit;
+}
+
+/* 加载中：扫描光带从上到下缓缓扫过 */
+.tile-weather.is-loading .home-weather-sky::before {
+  content: '';
+  position: absolute;
+  inset: -60% 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 42%,
+    color-mix(in oklab, var(--color-primary) 6%, transparent) 50%,
+    transparent 58%
+  );
+  animation: weather-scan 2.4s ease-in-out infinite;
+  z-index: 2;
   pointer-events: none;
 }
 
-.theme-dark .tile-blank {
-  background: repeating-linear-gradient(
-    -45deg,
-    rgba(71, 85, 105, 0.18),
-    rgba(71, 85, 105, 0.18) 10px,
-    rgba(51, 65, 85, 0.24) 10px,
-    rgba(51, 65, 85, 0.24) 20px
-  );
+@keyframes weather-scan {
+  0% { transform: translateY(-55%); }
+  100% { transform: translateY(55%); }
 }
 
-.theme-dark .home-mosaic-tile:not(.tile-music):not(.tile-quote):not(.tile-blank) {
-  background: var(--card-surface-gradient-dark);
+/* 闪电闪光：短暂的白光扩散 */
+.home-weather-flash {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 3;
+  border-radius: inherit;
+  transition: opacity 0.35s ease-out;
+}
+
+.home-weather-flash.is-on {
+  opacity: 0.14;
+  transition: opacity 0.06s ease-in;
+}
+
+.home-weather-sky svg {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.7s ease;
+}
+
+.home-weather-sky.is-shifting svg {
+  opacity: 0.25;
+}
+
+.home-weather-sky .wxs-off { fill: var(--wxs-off); }
+.home-weather-sky .wxs-star { fill: var(--wxs-star); }
+.home-weather-sky .wxs-glow { fill: var(--wxs-sun); opacity: 0.4; }
+.home-weather-sky .wxs-sun,
+.home-weather-sky .wxs-ray,
+.home-weather-sky .wxs-bolt { fill: var(--wxs-sun); }
+.home-weather-sky .wxs-moon { fill: var(--wxs-moon); }
+.home-weather-sky .wxs-moonDim { fill: var(--wxs-moon); opacity: 0.34; }
+.home-weather-sky .wxs-cloud { fill: var(--wxs-cloud); }
+.home-weather-sky .wxs-cloudDark { fill: var(--wxs-cloud-dark); }
+.home-weather-sky .wxs-rain { fill: var(--wxs-rain); }
+.home-weather-sky .wxs-snow { fill: var(--wxs-snow); }
+.home-weather-sky .wxs-fog { fill: var(--wxs-fog); }
+.home-weather-sky .wxs-wind { fill: var(--wxs-cloud-dark); }
+.home-weather-sky .wxs-bird { fill: var(--wxs-hill); }
+.home-weather-sky .wxs-hill { fill: var(--wxs-hill); }
+.home-weather-sky .wxs-horizon { fill: var(--wxs-horizon); }
+
+.home-weather-now {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 8px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.home-weather-now-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.home-weather-temp {
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+  /* 文字压在点阵上时用背景色的柔光把点「擦」开，比整块蒙层清爽 */
+  text-shadow:
+    0 0 10px var(--wxs-well),
+    0 0 5px var(--wxs-well),
+    0 0 2px var(--wxs-well);
+}
+
+.home-weather-feels {
+  font-size: 10px;
+  line-height: 1.2;
+  color: var(--color-text-muted);
+  letter-spacing: 0.01em;
+  text-shadow:
+    0 0 6px var(--wxs-well),
+    0 0 3px var(--wxs-well);
+}
+
+.home-weather-cond {
+  padding-bottom: 4px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  text-shadow:
+    0 0 6px var(--wxs-well),
+    0 0 3px var(--wxs-well);
+}
+
+/* 未来 4 个时段（每 3 小时） */
+.home-weather-hours {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.home-weather-hours li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  margin: 0;
+}
+
+.home-weather-hour-label {
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: var(--color-text-muted);
+}
+
+.home-weather-hour-icon {
+  display: flex;
+}
+
+.home-weather-hours b {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 时段降水概率微条 */
+.home-weather-hour-precip {
+  width: 80%;
+  height: 2px;
+  border-radius: var(--radius-pill);
+  background: color-mix(in oklab, var(--color-text) 7%, transparent);
+  overflow: hidden;
+}
+
+.home-weather-hour-precip-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--wxs-rain);
+  opacity: 0.7;
+  transition: width 0.5s ease;
+}
+
+.home-weather-glyph {
+  display: block;
+  width: 19px;
+  height: 19px;
+}
+
+/* 点阵小图标的配色 */
+.home-weather-glyph .wxi-sun,
+.home-weather-glyph .wxi-bolt { fill: var(--wxs-sun); }
+.home-weather-glyph .wxi-moon { fill: var(--wxs-moon); }
+.home-weather-glyph .wxi-cloud { fill: var(--wxs-cloud); }
+.home-weather-glyph .wxi-cloudDark { fill: var(--wxs-cloud-dark); }
+.home-weather-glyph .wxi-rain { fill: var(--wxs-rain); }
+.home-weather-glyph .wxi-snow { fill: var(--wxs-snow); }
+.home-weather-glyph .wxi-fog { fill: var(--wxs-fog); }
+.home-weather-glyph .wxi-wind { fill: var(--wxs-cloud-dark); }
+
+/* 三日预报：低温 — 区间条 — 高温 */
+.home-weather-days {
+  display: grid;
+  gap: 1px;
+  margin: 0;
+  margin-top: auto;
+  padding: 6px 0 0;
+  list-style: none;
+  border-top: 1px solid var(--color-border);
+}
+
+.home-weather-days li {
+  display: grid;
+  grid-template-columns: 30px 15px 30px minmax(0, 1fr) 30px;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 2px 0;
+  font-size: 11px;
+}
+
+.home-weather-day-name {
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.home-weather-day-icon {
+  display: flex;
+}
+
+.home-weather-day-icon .home-weather-glyph {
+  width: 15px;
+  height: 15px;
+}
+
+.home-weather-day-low {
+  text-align: right;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.home-weather-day-high {
+  text-align: right;
+  color: var(--color-text);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.home-weather-day-track {
+  position: relative;
+  height: 5px;
+  border-radius: var(--radius-pill);
+  background: color-mix(in oklab, var(--color-text) 9%, transparent);
+  overflow: hidden;
+}
+
+.home-weather-day-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: inherit;
+  background: linear-gradient(to right, #4a90d9, #eba33a, #d94f4f);
+  transition: left 0.5s ease, width 0.5s ease;
+}
+
+/* 温度区间条：渐变色由 JS 根据实际温度动态设定，此处仅兜底 */
+
+.tile-weather.is-unavailable .home-weather-sky svg {
+  opacity: 0.35;
+}
+
+/* 城市搜索自动补全下拉 */
+.home-weather-place {
+  position: relative;
+}
+
+.home-weather-city-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: -4px;
+  min-width: 140px;
+  z-index: 20;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  animation: dropdown-in 0.18s ease-out;
+}
+
+@keyframes dropdown-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.home-weather-city-dropdown button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 7px 10px;
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 1.3;
+  color: var(--color-text);
+  text-align: left;
+  background: none;
+  border: none;
+  border-bottom: 1px solid color-mix(in oklab, var(--color-border) 50%, transparent);
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.home-weather-city-dropdown button:last-child {
+  border-bottom: 0;
+}
+
+.home-weather-city-dropdown button:hover,
+.home-weather-city-dropdown button.is-active {
+  background: var(--color-bg-secondary);
+}
+
+.home-weather-city-dropdown .dropdown-city {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+}
+
+.home-weather-city-dropdown .dropdown-region {
+  font-size: 10px;
+  color: var(--color-text-muted);
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+/* 温度数字滚动过渡 */
+.home-weather-temp {
+  transition: opacity 0.3s ease;
+}
+
+.home-weather-temp.is-updating {
+  opacity: 0.4;
+}
+
+@keyframes home-weather-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.82);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-weather-led {
+    animation: none;
+  }
+  .tile-weather.is-loading .home-weather-sky::before {
+    animation: none;
+  }
+  .home-weather-city-dropdown {
+    animation: none;
+  }
+  .home-weather-sky svg {
+    transition: none;
+  }
+  .home-weather-flash {
+    transition: none;
+  }
+}
+
+
+/* --------------------------------------------------------------------------
+   深色主题
+   -------------------------------------------------------------------------- */
+.theme-dark .home-mosaic {
+  --tile-bg: var(--color-bg-secondary-dark);
+  --tile-shadow: 0 1px 2px rgba(0, 0, 0, 0.32);
+  --tile-shadow-hover: 0 14px 32px -18px rgba(0, 0, 0, 0.7);
+}
+
+.theme-dark .home-mosaic-tile {
+  background: var(--card-panel-bg, var(--tile-bg));
+}
+
+.theme-dark .home-latest-featured-link {
+  background-color: rgba(148, 163, 184, 0.08);
+}
+
+.theme-dark .home-latest-featured-link:hover {
+  background-color: color-mix(in oklab, var(--color-primary) 18%, rgba(148, 163, 184, 0.08));
+}
+
+.theme-dark .home-latest-tag {
+  background-color: rgba(15, 23, 42, 0.55);
+}
+
+.theme-dark .home-latest-row + .home-latest-row {
+  border-top-color: rgba(148, 163, 184, 0.14);
+}
+
+.theme-dark .home-latest-link:hover {
+  background-color: rgba(148, 163, 184, 0.1);
 }
 
 .theme-dark .home-profile-avatar {
   border-color: var(--color-border-dark);
 }
 
-/* Responsive home mosaic */
-@media (max-width: 1024px) {
-  .home-mosaic-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
-  .tile-4x2 {
-    grid-column: span 4;
-  }
-
-  .tile-2x1 {
-    grid-column: span 2;
-  }
+.theme-dark .home-music-nav .home-music-icon,
+.theme-dark .home-music-volume-btn .home-music-icon {
+  filter: brightness(0) invert(0.92);
 }
 
-@media (max-width: 768px) {
+.theme-dark .home-music-toggle .home-music-icon {
+  filter: brightness(0) invert(1);
+}
+
+.theme-dark .home-music-nav:hover,
+.theme-dark .home-music-volume-btn:hover {
+  background-color: rgba(148, 163, 184, 0.12);
+}
+
+.theme-dark .home-music-progress::before {
+  background-color: rgba(148, 163, 184, 0.22);
+}
+
+.theme-dark .home-music-volume-range::-webkit-slider-runnable-track {
+  background: rgba(148, 163, 184, 0.3);
+}
+
+.theme-dark .home-music-volume-range::-moz-range-track {
+  background: rgba(148, 163, 184, 0.3);
+}
+
+.theme-dark .tile-quote {
+  --card-panel-bg: color-mix(in oklab, var(--color-primary) 12%, var(--color-bg-dark));
+}
+
+.theme-dark .tile-quote::before {
+  color: color-mix(in oklab, var(--color-primary) 22%, transparent);
+}
+
+/* --------------------------------------------------------------------------
+   响应式
+   -------------------------------------------------------------------------- */
+
+/* 平板横屏 / 小笔记本：12 列收缩为 8 列，主磁贴占满整行 */
+@media (max-width: 1120px) {
   .home-mosaic-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(8, minmax(0, 1fr));
   }
 
-  .tile-4x2,
-  .tile-2x1,
-  .tile-1x1 {
-    grid-column: span 1;
+  .tile-latest {
+    grid-column: span 8;
+    grid-row: span 3;
+  }
+
+  .tile-weather {
+    grid-column: span 4;
+    grid-row: span 2;
+  }
+
+  .tile-profile,
+  .tile-music {
+    grid-column: span 4;
     grid-row: span 1;
   }
 
-  .home-profile {
-    flex-direction: column;
-    text-align: center;
+  .tile-quote {
+    grid-column: span 8;
+    grid-row: span 1;
   }
 
-  .home-latest-list li {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--spacing-xs);
+  .home-quote-text {
+    min-height: 2.8em;
+  }
+}
+
+/* 平板竖屏 / 手机：单列堆叠，按内容优先级排列 */
+@media (max-width: 768px) {
+  .home-mosaic-grid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-auto-rows: auto;
+  }
+
+  .tile-latest,
+  .tile-weather,
+  .tile-profile,
+  .tile-music,
+  .tile-quote {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+
+  .tile-weather {
+    min-height: 320px;
+  }
+
+  .home-latest-list {
+    justify-content: flex-start;
+  }
+
+  .home-quote-text {
+    min-height: 2.8em;
+  }
+}
+
+@media (max-width: 560px) {
+  .home-mosaic {
+    --tile-pad: 1rem;
+    padding-top: 1.15rem;
+  }
+
+  .home-latest-featured-link {
+    padding: 0.65rem 0.7rem;
+  }
+
+  .home-latest-featured-title {
+    font-size: var(--font-size-base);
+  }
+
+  .home-profile-avatar {
+    width: 52px;
+    height: 52px;
+  }
+
+  .home-music-volume-range {
+    width: 62px;
+  }
+}
+
+@media (max-width: 400px) {
+  .home-latest-date {
+    display: none;
+  }
+}
+
+/* 减少动态效果 */
+@media (prefers-reduced-motion: reduce) {
+  .home-mosaic-tile,
+  .home-latest-featured-link,
+  .home-latest-link,
+  .tile-action svg,
+  .home-latest-arrow,
+  .home-music-nav,
+  .home-music-toggle {
+    transition: none;
+  }
+
+  .home-mosaic-tile:hover {
+    transform: none;
+  }
+
+  .tile-eq i {
+    animation: none;
   }
 }

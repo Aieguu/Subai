@@ -1,0 +1,150 @@
+# Subai 主题 · 简体中文文案
+# 站点 locale = "zh-cn" 时会自动加载本文件
+
+[skip_to_content]
+other = "跳到正文"
+
+[all_rights_reserved]
+other = "保留所有权利。"
+
+[share_this_post]
+other = "分享这篇文章"
+
+[page]
+other = "第"
+
+[of]
+other = "页，共"
+
+[no_posts_found]
+other = "还没有文章。"
+
+[no_categories_found]
+other = "还没有分类。"
+
+[no_tags_found]
+other = "还没有标签。"
+
+[privacy_policy]
+other = "隐私政策"
+
+[terms_of_service]
+other = "服务条款"
+
+[contact]
+other = "联系方式"
+
+[theme_light]
+other = "浅色"
+
+[theme_dark]
+other = "深色"
+
+[theme_auto]
+other = "跟随系统"
+
+[theme_selector_label]
+other = "配色模式"
+
+[toc_title]
+other = "本页目录"
+
+
+[search_open]
+other = "搜索"
+
+[search_submit]
+other = "搜索"
+
+[search_dialog_title]
+other = "站内搜索"
+
+[search_dialog_placeholder]
+other = "搜索文章、标签或分类…"
+
+[search_list_label]
+other = "搜索建议"
+
+[search_hint_select]
+other = "选择"
+
+[search_hint_open]
+other = "打开"
+
+[search_hint_close]
+other = "关闭"
+
+[search_recent]
+other = "最近搜索"
+
+[search_clear]
+other = "清除"
+
+[search_hot_tags]
+other = "热门标签"
+
+[search_loading]
+other = "正在搜索…"
+
+[search_idle_title]
+other = "输入关键词开始搜索"
+
+[search_idle_hint]
+other = "支持标题、正文、标签与分类"
+
+[search_empty_title]
+other = "没有找到相关文章"
+
+[search_empty_hint]
+other = "试试更短的关键词，或换个说法"
+
+[search_error]
+other = "搜索失败，请稍后重试"
+
+[search_results_found]
+other = "找到 {count} 个结果"
+
+[search_no_query]
+other = "输入关键词以开始搜索"
+
+[search_view_all]
+other = "查看全部结果"
+
+[menu_open]
+other = "打开导航菜单"
+
+[menu_close]
+other = "关闭导航菜单"
+
+[back_to_top]
+other = "回到顶部"
+
+[local_time]
+other = "本地时间"
+
+[browse_categories]
+other = "分类"
+
+[browse_tags]
+other = "标签"
+
+[about_theme]
+other = "关于主题"
+
+[home]
+other = "首页"
+
+[breadcrumb]
+other = "面包屑导航"
+
+[minutes]
+other = "分钟"
+
+[words]
+other = "字"
+
+[updated_on]
+other = "更新于"
+
+[article_end]
+other = "全文完"

@@ -7,8 +7,8 @@
 class TableOfContents {
   constructor() {
     this.tocContainer = document.querySelector('.toc-container');
-    this.overflow = this.tocContainer?.querySelector('.toc-body, .overflow') || null;
-    this.tocLinks = Array.from(document.querySelectorAll('.toc a[href^="#"], #TableOfContents a[href^="#"]'));
+    this.overflow = this.tocContainer?.querySelector('.toc-body') || null;
+    this.tocLinks = Array.from(document.querySelectorAll('.toc a[href^="#"]'));
     this.headings = [];
     this.activeLink = null;
     this.activeId = null;
@@ -17,6 +17,12 @@ class TableOfContents {
     this.programmaticScrollTimer = null;
     this.isProgrammaticScroll = false;
     this.reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    // 窄屏默认折叠目录，避免目录占满首屏把正文推到下面
+    this.tocDetails = document.querySelector('.toc-details');
+    if (this.tocDetails && window.matchMedia('(max-width: 1200px)').matches) {
+      this.tocDetails.open = false;
+    }
 
     this.handleResize = this.handleResize.bind(this);
     this.handleLoad = this.handleLoad.bind(this);
